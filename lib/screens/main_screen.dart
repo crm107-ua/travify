@@ -4,7 +4,6 @@ import 'home_content.dart';
 import 'settings_content.dart';
 import 'data_content.dart';
 import 'search_content.dart';
-import 'constants/colors.dart';
 
 class MainScreen extends StatefulWidget {
   @override

@@ -2,8 +2,12 @@ import 'package:flutter/material.dart';
 import 'screens/main_screen.dart';
 import 'screens/pin_login_screen.dart';
 import 'services/settings_service.dart';
+import '../database/database_helper.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final dbHelper = DatabaseHelper();
+  await dbHelper.database;
   runApp(MyApp());
 }
 
@@ -11,7 +15,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'App con PIN opcional y barra persistente',
+      title: 'travify',
       debugShowCheckedModeBanner: false,
 
       // -------------------------
@@ -22,8 +26,6 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         scaffoldBackgroundColor: Colors.white,
         textTheme: TextTheme(
-          // Ejemplo: bodyMedium, titleLarge, etc.
-          // Ajusta las propiedades (color, fontSize, etc.) a tu gusto
           headlineMedium: TextStyle(
               color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
           bodyMedium: TextStyle(color: Colors.black, fontSize: 17),

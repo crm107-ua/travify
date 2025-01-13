@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart'; // Importa el paquete
-import '../constants/colors.dart';
 import '../services/settings_service.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'main_screen.dart';
