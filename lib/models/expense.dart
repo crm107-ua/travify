@@ -8,19 +8,21 @@ class Expense extends Transaction {
   double amortization;
   DateTime startDateAmortization;
   DateTime endDateAmortization;
+  DateTime lastAmortizationDate;
 
-  Expense({
-    required super.id,
-    required super.type,
-    required super.date,
-    super.description,
-    required super.amount,
-    required super.trip,
-    required this.category,
-    required this.amortization,
-    required this.startDateAmortization,
-    required this.endDateAmortization,
-  });
+  Expense(
+      {required super.id,
+      required super.type,
+      required super.date,
+      super.description,
+      required super.amount,
+      required super.trip,
+      required this.category,
+      required this.amortization,
+      required this.startDateAmortization,
+      required this.endDateAmortization,
+      required this.lastAmortizationDate,
+      required});
 
   @override
   Map<String, dynamic> toMap() {
@@ -30,6 +32,7 @@ class Expense extends Transaction {
       'amortization': amortization,
       'startDateAmortization': startDateAmortization.millisecondsSinceEpoch,
       'endDateAmortization': endDateAmortization.millisecondsSinceEpoch,
+      'lastAmortizationDate': lastAmortizationDate.millisecondsSinceEpoch,
     };
   }
 
@@ -48,6 +51,8 @@ class Expense extends Transaction {
           DateTime.fromMillisecondsSinceEpoch(map['startDateAmortization']),
       endDateAmortization:
           DateTime.fromMillisecondsSinceEpoch(map['endDateAmortization']),
+      lastAmortizationDate:
+          DateTime.fromMillisecondsSinceEpoch(map['lastAmortizationDate']),
     );
   }
 
@@ -63,6 +68,7 @@ class Expense extends Transaction {
     double? amortization,
     DateTime? startDateAmortization,
     DateTime? endDateAmortization,
+    DateTime? lastAmortizationDate,
   }) {
     return Expense(
       id: id ?? this.id,
@@ -76,11 +82,12 @@ class Expense extends Transaction {
       startDateAmortization:
           startDateAmortization ?? this.startDateAmortization,
       endDateAmortization: endDateAmortization ?? this.endDateAmortization,
+      lastAmortizationDate: lastAmortizationDate ?? this.lastAmortizationDate,
     );
   }
 
   @override
   String toString() {
-    return 'Expense{id: $id, type: $type, date: $date, description: $description, amount: $amount, trip: $trip, category: $category, amortization: $amortization, startDateAmortization: $startDateAmortization, endDateAmortization: $endDateAmortization}';
+    return 'Expense{id: $id, type: $type, date: $date, description: $description, amount: $amount, trip: $trip, category: $category, amortization: $amortization, startDateAmortization: $startDateAmortization, endDateAmortization: $endDateAmortization, lastAmortizationDate: $lastAmortizationDate}';
   }
 }

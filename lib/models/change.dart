@@ -3,12 +3,12 @@ import 'package:travify/models/currency.dart';
 import 'package:travify/models/transaction.dart';
 import 'package:travify/models/trip.dart';
 
-class Chenge extends Transaction {
+class Change extends Transaction {
   Currency currencyRecived;
   Currency currencySpent;
   double amountRecived;
 
-  Chenge({
+  Change({
     required super.id,
     required super.type,
     required super.date,
@@ -31,8 +31,8 @@ class Chenge extends Transaction {
   }
 
   @override
-  factory Chenge.fromMap(Map<String, dynamic> map) {
-    return Chenge(
+  factory Change.fromMap(Map<String, dynamic> map) {
+    return Change(
       id: map['id'],
       type: TransactionType.values[map['type']],
       date: DateTime.fromMillisecondsSinceEpoch(map['date']),
@@ -46,7 +46,7 @@ class Chenge extends Transaction {
   }
 
   @override
-  Chenge copy({
+  Change copy({
     int? id,
     int? modeId,
     DateTime? date,
@@ -57,7 +57,7 @@ class Chenge extends Transaction {
     Currency? currencySpent,
     double? amountRecived,
   }) {
-    return Chenge(
+    return Change(
       id: id ?? this.id,
       type: modeId != null ? TransactionType.values[modeId] : type,
       date: date ?? this.date,
@@ -72,6 +72,6 @@ class Chenge extends Transaction {
 
   @override
   String toString() {
-    return 'Chenge{id: $id, type: $type, date: $date, description: $description, amount: $amount, trip: $trip, currencyRecived: $currencyRecived, currencySpent: $currencySpent, amountRecived: $amountRecived}';
+    return 'Change{id: $id, type: $type, date: $date, description: $description, amount: $amount, trip: $trip, currencyRecived: $currencyRecived, currencySpent: $currencySpent, amountRecived: $amountRecived}';
   }
 }

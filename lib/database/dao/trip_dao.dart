@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
-import 'database_helper.dart';
-import '../models/trip.dart';
+import '../helpers/database_helper.dart';
+import '../../models/trip.dart';
 
 class TripDao {
   // Singleton Pattern
@@ -14,17 +14,17 @@ class TripDao {
   Future<int> insertViaje(Trip viaje) async {
     Database db = await _databaseHelper.database;
     return await db.insert(
-      'viajes',
+      'trips',
       viaje.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
-  /// Recupera todos los viajes de la base de datos, ordenados por ID descendente.
-  Future<List<Trip>> getViajes() async {
+  /// Recupera todos los trips de la base de datos, ordenados por ID descendente.
+  Future<List<Trip>> gettrips() async {
     Database db = await _databaseHelper.database;
     List<Map<String, dynamic>> maps = await db.query(
-      'viajes',
+      'trips',
       orderBy: 'id DESC',
     );
     return maps.map((map) => Trip.fromMap(map)).toList();
@@ -34,7 +34,7 @@ class TripDao {
   Future<int> updateViaje(Trip viaje) async {
     Database db = await _databaseHelper.database;
     return await db.update(
-      'viajes',
+      'trips',
       viaje.toMap(),
       where: 'id = ?',
       whereArgs: [viaje.id],
@@ -45,7 +45,7 @@ class TripDao {
   Future<int> deleteViaje(int id) async {
     Database db = await _databaseHelper.database;
     return await db.delete(
-      'viajes',
+      'trips',
       where: 'id = ?',
       whereArgs: [id],
     );

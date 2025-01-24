@@ -34,10 +34,8 @@ class _SettingsContentState extends State<SettingsContent> {
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 26),
-
-        // Mostramos SIEMPRE el rectángulo con borde
         Transform.translate(
-          offset: const Offset(0, 0), // Si quieres moverlo a la izquierda
+          offset: const Offset(0, 0),
           child: Container(
             margin: const EdgeInsets.only(right: 25),
             padding: const EdgeInsets.only(
@@ -47,7 +45,6 @@ class _SettingsContentState extends State<SettingsContent> {
               bottom: 5,
             ),
             decoration: BoxDecoration(
-              // Solo borde, sin color de fondo:
               color: Colors.transparent,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
@@ -58,22 +55,15 @@ class _SettingsContentState extends State<SettingsContent> {
               ),
             ),
             child: ListTile(
-              // Ajusta este padding interno si deseas
               contentPadding: EdgeInsets.zero,
-
-              // Cambiamos el texto según si hay PIN o no
               title: Text(
                 _hasPin ? "Eliminar PIN" : "Configurar PIN",
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
-
-              // Ícono a la derecha
               trailing: Padding(
                 padding: const EdgeInsets.only(right: 10),
                 child: Icon(_hasPin ? Icons.delete : Icons.lock),
               ),
-
-              // Cambiamos también la acción del onTap
               onTap: () async {
                 if (_hasPin) {
                   // Eliminar PIN
@@ -107,6 +97,114 @@ class _SettingsContentState extends State<SettingsContent> {
                 }
               },
             ),
+          ),
+        ),
+        const SizedBox(height: 15),
+        Transform.translate(
+          offset: const Offset(0, 0),
+          child: Container(
+            margin: const EdgeInsets.only(right: 25),
+            padding: const EdgeInsets.only(
+              left: 25,
+              right: 20,
+              top: 5,
+              bottom: 5,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white
+                    : Colors.black,
+                width: 1,
+              ),
+            ),
+            child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  "Configurar Pais",
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                trailing: Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: Icon(Icons.language),
+                ),
+                onTap: () async {
+                  // Configurar Idioma
+                }),
+          ),
+        ),
+        const SizedBox(height: 15),
+        Transform.translate(
+          offset: const Offset(0, 0),
+          child: Container(
+            margin: const EdgeInsets.only(right: 25),
+            padding: const EdgeInsets.only(
+              left: 25,
+              right: 20,
+              top: 5,
+              bottom: 5,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white
+                    : Colors.black,
+                width: 1,
+              ),
+            ),
+            child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  "Configurar divisa",
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                trailing: Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: Icon(Icons.attach_money),
+                ),
+                onTap: () async {
+                  // Configurar Idioma
+                }),
+          ),
+        ),
+        const SizedBox(height: 15),
+        Transform.translate(
+          offset: const Offset(0, 0),
+          child: Container(
+            margin: const EdgeInsets.only(right: 25),
+            padding: const EdgeInsets.only(
+              left: 25,
+              right: 20,
+              top: 5,
+              bottom: 5,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white
+                    : Colors.black,
+                width: 1,
+              ),
+            ),
+            child: ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  "Configurar tema",
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                trailing: Padding(
+                  padding: const EdgeInsets.only(right: 10),
+                  child: Icon(Icons.brightness_4),
+                ),
+                onTap: () async {
+                  // Configurar Idioma
+                }),
           ),
         ),
       ],

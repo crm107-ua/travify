@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'screens/main_screen.dart';
 import 'screens/pin_login_screen.dart';
 import 'services/settings_service.dart';
-import '../database/database_helper.dart';
+import 'database/helpers/database_helper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
