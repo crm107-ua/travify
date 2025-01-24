@@ -16,7 +16,7 @@ class DatabaseHelper {
   static Database? _database;
 
   // Versión actual de la base de datos
-  static const int _dbVersion = 1; // Incrementa si haces cambios estructurales
+  static const int _dbVersion = 1;
 
   Future<Database> get database async {
     if (_database != null) return _database!;
