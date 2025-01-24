@@ -1,5 +1,3 @@
-// lib/database/database_helper.dart
-
 import 'dart:io';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -65,7 +63,6 @@ class DatabaseHelper {
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
     try {
       print('Actualizando base de datos de versión $oldVersion a $newVersion');
-      // Maneja actualizaciones de esquema aquí
       await createAllTables(db);
       await seedDatabaseCountries(db);
       await seedDatabaseCurrencies(db);
