@@ -3,8 +3,6 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:travify/database/seeders/seeders_currencies.dart';
-
-// Importamos nuestras migraciones y seeders
 import '../migrations/migrations_init.dart';
 import '../seeders/seeders_countries.dart';
 import '../seeders/seeders_all.dart';
