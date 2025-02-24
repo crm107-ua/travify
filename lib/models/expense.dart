@@ -1,10 +1,13 @@
 import 'package:travify/enums/expense_category.dart';
-import 'package:travify/enums/transaction_type.dart';
 import 'package:travify/models/transaction.dart';
 import 'package:travify/models/trip.dart';
 
 class Expense extends Transaction {
+  @override
+  int get type => 0;
+
   ExpenseCategory category;
+  bool isAmortization;
   double amortization;
   DateTime startDateAmortization;
   DateTime endDateAmortization;
@@ -12,12 +15,11 @@ class Expense extends Transaction {
 
   Expense(
       {required super.id,
-      required super.type,
       required super.date,
       super.description,
       required super.amount,
-      required super.trip,
       required this.category,
+      required this.isAmortization,
       required this.amortization,
       required this.startDateAmortization,
       required this.endDateAmortization,
@@ -27,8 +29,13 @@ class Expense extends Transaction {
   @override
   Map<String, dynamic> toMap() {
     return {
-      ...super.toMap(),
+      'id': id,
+      'type': type,
+      'date': date.millisecondsSinceEpoch,
+      'description': description,
+      'amount': amount,
       'category': category.index,
+      'isAmortization': isAmortization ? 1 : 0,
       'amortization': amortization,
       'startDateAmortization': startDateAmortization.millisecondsSinceEpoch,
       'endDateAmortization': endDateAmortization.millisecondsSinceEpoch,
@@ -40,12 +47,11 @@ class Expense extends Transaction {
   factory Expense.fromMap(Map<String, dynamic> map) {
     return Expense(
       id: map['id'],
-      type: TransactionType.values[map['type']],
       date: DateTime.fromMillisecondsSinceEpoch(map['date']),
       description: map['description'],
       amount: map['amount'],
-      trip: Trip.fromMap(map['trip']),
       category: ExpenseCategory.values[map['category']],
+      isAmortization: map['isAmortization'] == 1,
       amortization: map['amortization'],
       startDateAmortization:
           DateTime.fromMillisecondsSinceEpoch(map['startDateAmortization']),
@@ -72,12 +78,11 @@ class Expense extends Transaction {
   }) {
     return Expense(
       id: id ?? this.id,
-      type: modeId != null ? TransactionType.values[modeId] : type,
       date: date ?? this.date,
       description: description ?? this.description,
       amount: amount ?? this.amount,
-      trip: trip ?? this.trip,
       category: category ?? this.category,
+      isAmortization: isAmortization,
       amortization: amortization ?? this.amortization,
       startDateAmortization:
           startDateAmortization ?? this.startDateAmortization,
@@ -88,6 +93,6 @@ class Expense extends Transaction {
 
   @override
   String toString() {
-    return 'Expense{id: $id, type: $type, date: $date, description: $description, amount: $amount, trip: $trip, category: $category, amortization: $amortization, startDateAmortization: $startDateAmortization, endDateAmortization: $endDateAmortization, lastAmortizationDate: $lastAmortizationDate}';
+    return 'Expense{id: $id,  date: $date, description: $description, amount: $amount, category: $category, amortization: $amortization, startDateAmortization: $startDateAmortization, endDateAmortization: $endDateAmortization, lastAmortizationDate: $lastAmortizationDate}';
   }
 }

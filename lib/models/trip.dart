@@ -1,4 +1,6 @@
+import 'package:travify/models/budget.dart';
 import 'package:travify/models/country.dart';
+import 'package:travify/models/transaction.dart';
 
 class Trip {
   final int id;
@@ -9,7 +11,9 @@ class Trip {
   String destination;
   String? image;
   bool open;
-  Country country;
+  Budget budget;
+  List<Country> countries;
+  List<Transaction> transactions;
 
   Trip({
     required this.id,
@@ -20,10 +24,11 @@ class Trip {
     required this.destination,
     this.image,
     this.open = true,
-    required this.country,
-  });
+    required this.budget,
+    required this.countries,
+    List<Transaction>? transactions,
+  }) : transactions = transactions ?? [];
 
-  /// Convierte el objeto Trip a un mapa para la inserción en la base de datos.
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -34,11 +39,13 @@ class Trip {
       'destination': destination,
       'image': image,
       'open': open ? 1 : 0,
-      'country': country.toMap(),
+      'budget': budget.toMap(),
+      'countries': countries.map((country) => country.toMap()).toList(),
+      'transactions':
+          transactions.map((transaction) => transaction.toMap()).toList(),
     };
   }
 
-  /// Crea una instancia de Trip a partir de un mapa recuperado de la base de datos.
   factory Trip.fromMap(Map<String, dynamic> map) {
     return Trip(
       id: map['id'],
@@ -51,11 +58,14 @@ class Trip {
       destination: map['destino'],
       image: map['image'] ?? '',
       open: map['open'] == 1,
-      country: Country.fromMap(map['country']),
+      budget: Budget.fromMap(map['budget']),
+      countries: List<Country>.from(
+          map['countries'].map((country) => Country.fromMap(country))),
+      transactions: List<Transaction>.from(map['transactions']
+          .map((transaction) => Transaction.fromMap(transaction))),
     );
   }
 
-  /// Crea una copia de la instancia actual con la posibilidad de sobrescribir algunos campos.
   Trip copy({
     int? id,
     String? title,
@@ -65,7 +75,9 @@ class Trip {
     String? destination,
     String? image,
     bool? open,
-    Country? country,
+    Budget? budget,
+    List<Country>? countries,
+    List<Transaction>? transactions,
   }) {
     return Trip(
       id: id ?? this.id,
@@ -76,12 +88,45 @@ class Trip {
       destination: destination ?? this.destination,
       image: image ?? this.image,
       open: open ?? this.open,
-      country: country ?? this.country,
+      budget: budget ?? this.budget,
+      countries: countries ?? this.countries,
+      transactions: transactions ?? this.transactions,
     );
+  }
+
+  void addCountry(Country country) {
+    countries.add(country);
+  }
+
+  void removeCountry(Country country) {
+    countries.remove(country);
+  }
+
+  void updateCountry(Country country) {
+    final index = countries.indexWhere((element) => element.id == country.id);
+    if (index != -1) {
+      countries[index] = country;
+    }
+  }
+
+  void addTransaction(Transaction transaction) {
+    transactions.add(transaction);
+  }
+
+  void removeTransaction(Transaction transaction) {
+    transactions.remove(transaction);
+  }
+
+  void updateTransaction(Transaction transaction) {
+    final index =
+        transactions.indexWhere((element) => element.id == transaction.id);
+    if (index != -1) {
+      transactions[index] = transaction;
+    }
   }
 
   @override
   String toString() {
-    return 'Trip{id: $id, title: $title, description: $description, dateStart: $dateStart, dateEnd: $dateEnd, destination: $destination, image: $image, open: $open, country: $country}';
+    return 'Trip{id: $id, title: $title, description: $description, dateStart: $dateStart, dateEnd: $dateEnd, destination: $destination, image: $image, open: $open, budget: $budget, countries: $countries, transactions: $transactions}';
   }
 }

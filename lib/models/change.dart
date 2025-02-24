@@ -1,20 +1,20 @@
-import 'package:travify/enums/transaction_type.dart';
 import 'package:travify/models/currency.dart';
 import 'package:travify/models/transaction.dart';
 import 'package:travify/models/trip.dart';
 
 class Change extends Transaction {
+  @override
+  int get type => 2;
+
   Currency currencyRecived;
   Currency currencySpent;
   double amountRecived;
 
   Change({
     required super.id,
-    required super.type,
     required super.date,
     super.description,
     required super.amount,
-    required super.trip,
     required this.currencyRecived,
     required this.currencySpent,
     required this.amountRecived,
@@ -23,7 +23,11 @@ class Change extends Transaction {
   @override
   Map<String, dynamic> toMap() {
     return {
-      ...super.toMap(),
+      'id': id,
+      'type': type,
+      'date': date.millisecondsSinceEpoch,
+      'description': description,
+      'amount': amount,
       'currencyRecived': currencyRecived.toMap(),
       'currencySpent': currencySpent.toMap(),
       'amountRecived': amountRecived,
@@ -34,11 +38,9 @@ class Change extends Transaction {
   factory Change.fromMap(Map<String, dynamic> map) {
     return Change(
       id: map['id'],
-      type: TransactionType.values[map['type']],
       date: DateTime.fromMillisecondsSinceEpoch(map['date']),
       description: map['description'],
       amount: map['amount'],
-      trip: Trip.fromMap(map['trip']),
       currencyRecived: Currency.fromMap(map['currencyRecived']),
       currencySpent: Currency.fromMap(map['currencySpent']),
       amountRecived: map['amountRecived'],
@@ -59,11 +61,9 @@ class Change extends Transaction {
   }) {
     return Change(
       id: id ?? this.id,
-      type: modeId != null ? TransactionType.values[modeId] : type,
       date: date ?? this.date,
       description: description ?? this.description,
       amount: amount ?? this.amount,
-      trip: trip ?? this.trip,
       currencyRecived: currencyRecived ?? this.currencyRecived,
       currencySpent: currencySpent ?? this.currencySpent,
       amountRecived: amountRecived ?? this.amountRecived,
@@ -72,6 +72,6 @@ class Change extends Transaction {
 
   @override
   String toString() {
-    return 'Change{id: $id, type: $type, date: $date, description: $description, amount: $amount, trip: $trip, currencyRecived: $currencyRecived, currencySpent: $currencySpent, amountRecived: $amountRecived}';
+    return 'Change{id: $id, date: $date, description: $description, amount: $amount, currencyRecived: $currencyRecived, currencySpent: $currencySpent, amountRecived: $amountRecived}';
   }
 }
