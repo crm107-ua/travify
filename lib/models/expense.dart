@@ -1,10 +1,11 @@
 import 'package:travify/enums/expense_category.dart';
+import 'package:travify/enums/transaction_type.dart';
 import 'package:travify/models/transaction.dart';
 import 'package:travify/models/trip.dart';
 
 class Expense extends Transaction {
   @override
-  int get type => 0;
+  TransactionType get type => TransactionType.expense;
 
   ExpenseCategory category;
   bool isAmortization;
@@ -30,7 +31,7 @@ class Expense extends Transaction {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'type': type,
+      'type': type.index,
       'date': date.millisecondsSinceEpoch,
       'description': description,
       'amount': amount,

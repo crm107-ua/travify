@@ -1,3 +1,4 @@
+import 'package:travify/enums/transaction_type.dart';
 import 'package:travify/models/change.dart';
 import 'package:travify/models/expense.dart';
 import 'package:travify/models/income.dart';
@@ -8,7 +9,7 @@ abstract class Transaction {
   String? description;
   double amount;
 
-  int get type;
+  TransactionType get type;
 
   Transaction({
     required this.id,
@@ -27,15 +28,16 @@ abstract class Transaction {
   });
 
   static Transaction fromMap(Map<String, dynamic> map) {
-    switch (map['type']) {
-      case 0:
+    final typeIndex = map['type'];
+    final type = TransactionType.values[typeIndex];
+
+    switch (type) {
+      case TransactionType.expense:
         return Expense.fromMap(map);
-      case 1:
+      case TransactionType.income:
         return Income.fromMap(map);
-      case 2:
+      case TransactionType.change:
         return Change.fromMap(map);
-      default:
-        throw Exception('Invalid transaction type');
     }
   }
 

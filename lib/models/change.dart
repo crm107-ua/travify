@@ -1,10 +1,11 @@
+import 'package:travify/enums/transaction_type.dart';
 import 'package:travify/models/currency.dart';
 import 'package:travify/models/transaction.dart';
 import 'package:travify/models/trip.dart';
 
 class Change extends Transaction {
   @override
-  int get type => 2;
+  TransactionType get type => TransactionType.change;
 
   Currency currencyRecived;
   Currency currencySpent;
@@ -24,7 +25,7 @@ class Change extends Transaction {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'type': type,
+      'type': type.index,
       'date': date.millisecondsSinceEpoch,
       'description': description,
       'amount': amount,

@@ -1,10 +1,11 @@
 import 'package:travify/enums/recurrent_income_type.dart';
+import 'package:travify/enums/transaction_type.dart';
 import 'package:travify/models/transaction.dart';
 import 'package:travify/models/trip.dart';
 
 class Income extends Transaction {
   @override
-  int get type => 1;
+  TransactionType get type => TransactionType.income;
 
   bool isRecurrent;
   RecurrentIncomeType recurrentIncomeType;
@@ -26,7 +27,7 @@ class Income extends Transaction {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'type': type,
+      'type': type.index,
       'date': date.millisecondsSinceEpoch,
       'description': description,
       'amount': amount,
