@@ -7,20 +7,20 @@ class Income extends Transaction {
   @override
   TransactionType get type => TransactionType.income;
 
-  bool isRecurrent;
-  RecurrentIncomeType recurrentIncomeType;
-  DateTime nextRecurrentDate;
-  bool active;
+  bool? isRecurrent;
+  RecurrentIncomeType? recurrentIncomeType;
+  DateTime? nextRecurrentDate;
+  bool? active;
 
   Income({
     required super.id,
     required super.date,
     super.description,
     required super.amount,
-    required this.recurrentIncomeType,
-    required this.isRecurrent,
-    required this.nextRecurrentDate,
-    required this.active,
+    this.recurrentIncomeType,
+    this.isRecurrent,
+    this.nextRecurrentDate,
+    this.active,
   });
 
   @override
@@ -31,10 +31,10 @@ class Income extends Transaction {
       'date': date.millisecondsSinceEpoch,
       'description': description,
       'amount': amount,
-      'isRecurrent': isRecurrent ? 1 : 0,
-      'recurrentIncomeType': recurrentIncomeType.index,
-      'nextRecurrentDate': nextRecurrentDate.millisecondsSinceEpoch,
-      'active': active ? 1 : 0
+      'isRecurrent': isRecurrent != null && isRecurrent! ? 1 : 0,
+      'recurrentIncomeType': recurrentIncomeType?.index,
+      'nextRecurrentDate': nextRecurrentDate?.millisecondsSinceEpoch,
+      'active': active != null && active! ? 1 : 0,
     };
   }
 
@@ -45,11 +45,16 @@ class Income extends Transaction {
       date: DateTime.fromMillisecondsSinceEpoch(map['date']),
       description: map['description'],
       amount: map['amount'],
-      recurrentIncomeType:
-          RecurrentIncomeType.values[map['recurrentIncomeType']],
-      isRecurrent: map['isRecurrent'] == 1,
-      nextRecurrentDate:
-          DateTime.fromMillisecondsSinceEpoch(map['nextRecurrentDate']),
+      recurrentIncomeType: map['recurrent_income_type'] != null
+          ? RecurrentIncomeType.values[map['recurrent_income_type']]
+          : null, // ✅ Permitir nulo
+
+      isRecurrent: map['is_recurrent'] == 1,
+
+      nextRecurrentDate: map['next_recurrent_date'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['next_recurrent_date'])
+          : null, // ✅ Permitir nulo
+
       active: map['active'] == 1,
     );
   }

@@ -46,23 +46,24 @@ class Trip {
     };
   }
 
-  factory Trip.fromMap(Map<String, dynamic> map) {
+  factory Trip.fromMap(Map<String, dynamic> map,
+      {Budget? budget,
+      List<Country>? countries,
+      List<Transaction>? transactions}) {
     return Trip(
       id: map['id'],
       title: map['title'],
       description: map['description'] ?? '',
-      dateStart: DateTime.fromMillisecondsSinceEpoch(map['fechaInicio']),
-      dateEnd: map['fechaFin'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(map['fechaFin'])
+      dateStart: DateTime.fromMillisecondsSinceEpoch(map['date_start']),
+      dateEnd: map['date_end'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['date_end'])
           : null,
-      destination: map['destino'],
+      destination: map['destination'],
       image: map['image'] ?? '',
       open: map['open'] == 1,
-      budget: Budget.fromMap(map['budget']),
-      countries: List<Country>.from(
-          map['countries'].map((country) => Country.fromMap(country))),
-      transactions: List<Transaction>.from(map['transactions']
-          .map((transaction) => Transaction.fromMap(transaction))),
+      budget: budget ?? Budget.fromMap(map['budget']),
+      countries: countries ?? [],
+      transactions: transactions ?? [],
     );
   }
 

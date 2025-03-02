@@ -11,7 +11,7 @@ class BudgetDao {
   final DatabaseHelper _databaseHelper = DatabaseHelper();
 
   /// Inserta un nuevo presupuesto en la base de datos.
-  Future<int> insertPresupuesto(Budget presupuesto) async {
+  Future<int> insertBudget(Budget presupuesto) async {
     Database db = await _databaseHelper.database;
     return await db.insert(
       'budgets',
@@ -20,8 +20,23 @@ class BudgetDao {
     );
   }
 
+  /// Recupera un presupuesto de la base de datos basado en su ID.
+  Future<Budget?> getBudgetById(int id) async {
+    Database db = await _databaseHelper.database;
+    List<Map<String, dynamic>> maps = await db.query(
+      'budgets',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+
+    if (maps.isNotEmpty) {
+      return Budget.fromMap(maps.first);
+    }
+    return null;
+  }
+
   /// Recupera todos los presupuestos de la base de datos, ordenados por ID descendente.
-  Future<List<Budget>> getPresupuestos() async {
+  Future<List<Budget>> getBudgets() async {
     Database db = await _databaseHelper.database;
     List<Map<String, dynamic>> maps = await db.query(
       'budgets',
@@ -31,7 +46,7 @@ class BudgetDao {
   }
 
   /// Actualiza un presupuesto existente en la base de datos.
-  Future<int> updatePresupuesto(Budget presupuesto) async {
+  Future<int> updateBudget(Budget presupuesto) async {
     Database db = await _databaseHelper.database;
     return await db.update(
       'budgets',
@@ -42,7 +57,7 @@ class BudgetDao {
   }
 
   /// Elimina un presupuesto de la base de datos basado en su ID.
-  Future<int> deletePresupuesto(int id) async {
+  Future<int> deleteBudget(int id) async {
     Database db = await _databaseHelper.database;
     return await db.delete(
       'budgets',

@@ -28,10 +28,10 @@ class Budget {
   factory Budget.fromMap(Map<String, dynamic> map) {
     return Budget(
         id: map['id'],
-        maxLimit: map['maxLimit'],
-        desiredLimit: map['desiredLimit'],
+        maxLimit: map['max_limit'],
+        desiredLimit: map['desired_limit'],
         accumulated: map['accumulated'],
-        limitIncrease: map['limitIncrease'] == 1);
+        limitIncrease: map['limit_increase'] == 1);
   }
 
   Budget copy({

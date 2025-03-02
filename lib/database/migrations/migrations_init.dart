@@ -4,9 +4,9 @@ Future<void> createAllTables(Database db) async {
   // 1) Tabla countries (para Country)
   await db.execute('''
     CREATE TABLE countries (
-      id        INTEGER PRIMARY KEY AUTOINCREMENT,
-      name      TEXT NOT NULL,
-      code      TEXT NOT NULL UNIQUE
+      id    INTEGER PRIMARY KEY AUTOINCREMENT,
+      name  TEXT NOT NULL,
+      code  TEXT NOT NULL UNIQUE
     )
   ''');
 
@@ -24,22 +24,14 @@ Future<void> createAllTables(Database db) async {
     )
   ''');
 
-  // 3) Tabla trips (para Trip)
+  // 3) Tabla intermedia country_currencies (para la relación N:M)
   await db.execute('''
-    CREATE TABLE trips (
-      id           INTEGER PRIMARY KEY AUTOINCREMENT,
-      title        TEXT NOT NULL,
-      description  TEXT,
-      date_start   INTEGER NOT NULL,
-      date_end     INTEGER,
-      destination  TEXT NOT NULL,
-      image        TEXT,
-      open         INTEGER NOT NULL DEFAULT 1,
-      country_id   INTEGER NOT NULL,
-      budget_id    INTEGER NOT NULL,
-
-      FOREIGN KEY(country_id) REFERENCES countries(id),
-      FOREIGN KEY(budget_id) REFERENCES budgets(id)
+    CREATE TABLE country_currencies (
+      country_id  INTEGER NOT NULL,
+      currency_id INTEGER NOT NULL,
+      PRIMARY KEY (country_id, currency_id),
+      FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE CASCADE,
+      FOREIGN KEY (currency_id) REFERENCES currencies(id) ON DELETE CASCADE
     )
   ''');
 
@@ -54,15 +46,33 @@ Future<void> createAllTables(Database db) async {
     )
   ''');
 
-  // 5) Tabla transactions (BASE)
-  //
-  // Solo campos COMUNES a todas las transacciones:
-  //  - type (TransactionType)
-  //  - date
-  //  - description
-  //  - amount
-  //  - trip_id
-  //
+  // 3) Tabla trips (para Trip)
+  await db.execute('''
+    CREATE TABLE trips (
+      id           INTEGER PRIMARY KEY AUTOINCREMENT,
+      title        TEXT NOT NULL,
+      description  TEXT,
+      date_start   INTEGER NOT NULL,
+      date_end     INTEGER,
+      destination  TEXT NOT NULL,
+      image        TEXT,
+      open         INTEGER NOT NULL DEFAULT 1,
+      budget_id    INTEGER NOT NULL,
+    
+      FOREIGN KEY(budget_id) REFERENCES budgets(id)
+    );
+  ''');
+
+  await db.execute('''
+    CREATE TABLE trip_country (
+      trip_id    INTEGER NOT NULL,
+      country_id INTEGER NOT NULL,
+      PRIMARY KEY (trip_id, country_id),
+      FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE,
+      FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE CASCADE
+    );
+  ''');
+
   await db.execute('''
     CREATE TABLE transactions (
       id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -71,7 +81,7 @@ Future<void> createAllTables(Database db) async {
       description TEXT,
       amount      REAL NOT NULL,
       trip_id     INTEGER NOT NULL,
-
+    
       FOREIGN KEY(trip_id) REFERENCES trips(id)
     )
   ''');
@@ -85,8 +95,9 @@ Future<void> createAllTables(Database db) async {
   await db.execute('''
     CREATE TABLE expenses (
       transaction_id           INTEGER PRIMARY KEY,
-      category                 INTEGER,  -- ExpenseCategory.index
-      amortization             INTEGER NOT NULL DEFAULT 0,
+      category                 INTEGER NOT NULL,  -- ExpenseCategory.index
+      isAmortization           INTEGER NOT NULL DEFAULT 1,
+      amortization             REAL,
       start_date_amortization  INTEGER,
       next_amortization_date   INTEGER,
       end_date_amortization    INTEGER,
@@ -103,9 +114,9 @@ Future<void> createAllTables(Database db) async {
     CREATE TABLE incomes (
       transaction_id         INTEGER PRIMARY KEY,
       is_recurrent           INTEGER,
-      recurrent_income_type  INTEGER,
-      next_recurrent_date    INTEGER,  -- milisegundos
-      active                 INTEGER NOT NULL DEFAULT 1,
+      recurrent_income_type  INTEGER,  -- RecurrentIncomeType.index
+      next_recurrent_date    INTEGER,
+      active                 INTEGER DEFAULT 0,
 
       FOREIGN KEY(transaction_id) REFERENCES transactions(id)
     )
@@ -118,9 +129,9 @@ Future<void> createAllTables(Database db) async {
   await db.execute('''
     CREATE TABLE chenges (
       transaction_id      INTEGER PRIMARY KEY,
-      currency_recived_id INTEGER,
-      currency_spent_id   INTEGER,
-      amount_recived      REAL,
+      currency_recived_id INTEGER NOT NULL,
+      currency_spent_id   INTEGER NOT NULL,
+      amount_recived      REAL NOT NULL,
 
       FOREIGN KEY(transaction_id) REFERENCES transactions(id),
       FOREIGN KEY(currency_recived_id) REFERENCES currencies(id),

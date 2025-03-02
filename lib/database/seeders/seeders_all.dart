@@ -1,4 +1,7 @@
 import 'package:sqflite/sqflite.dart';
+import 'package:travify/enums/expense_category.dart';
+import 'package:travify/enums/recurrent_income_type.dart';
+import 'package:travify/enums/transaction_type.dart';
 
 /// Inserta datos de ejemplo en las tablas creadas.
 Future<void> seedDatabaseAll(Database db) async {
@@ -16,23 +19,72 @@ Future<void> seedDatabaseAll(Database db) async {
     'limit_increase': 1,
   });
 
+  await db.insert('budgets', {
+    'max_limit': 5000.0,
+    'desired_limit': 1000.0,
+    'accumulated': 1500.0,
+    'limit_increase': 0,
+  });
+
+  await db.insert('budgets', {
+    'max_limit': 7000.0,
+    'desired_limit': 2000.0,
+    'accumulated': 2000.0,
+    'limit_increase': 1,
+  });
+
   // Insertar en trips
   // Primero, obtener los IDs de countries y budgets
   final List<Map<String, dynamic>> countryUS =
       await db.query('countries', where: 'code = ?', whereArgs: ['US']);
   final List<Map<String, dynamic>> countryCA =
       await db.query('countries', where: 'code = ?', whereArgs: ['CA']);
+  final List<Map<String, dynamic>> countryES =
+      await db.query('countries', where: 'code = ?', whereArgs: ['ES']);
+  final List<Map<String, dynamic>> countryFR =
+      await db.query('countries', where: 'code = ?', whereArgs: ['FR']);
   final List<Map<String, dynamic>> budget1 = await db.query('budgets',
       limit: 1, where: 'desired_limit = ?', whereArgs: [3000.0]);
   final List<Map<String, dynamic>> budget2 = await db.query('budgets',
       limit: 1, where: 'desired_limit = ?', whereArgs: [4000.0]);
+  final List<Map<String, dynamic>> budget3 = await db.query('budgets',
+      limit: 1, where: 'desired_limit = ?', whereArgs: [1000.0]);
+  final List<Map<String, dynamic>> budget4 = await db.query('budgets',
+      limit: 1, where: 'desired_limit = ?', whereArgs: [2000.0]);
+  final List<Map<String, dynamic>> currencyUSD =
+      await db.query('currencies', where: 'code = ?', whereArgs: ['USD']);
+  final List<Map<String, dynamic>> currencyCAD =
+      await db.query('currencies', where: 'code = ?', whereArgs: ['CAD']);
+  final List<Map<String, dynamic>> currencyEUR =
+      await db.query('currencies', where: 'code = ?', whereArgs: ['EUR']);
 
   final int countryUSId = countryUS.first['id'];
   final int countryCAId = countryCA.first['id'];
+  final int countryESId = countryES.first['id'];
+  final int countryFRId = countryFR.first['id'];
   final int budget1Id = budget1.first['id'];
   final int budget2Id = budget2.first['id'];
+  final int budget3Id = budget3.first['id'];
+  final int budget4Id = budget4.first['id'];
+  final int currencyUSDId = currencyUSD.first['id'];
+  final int currencyCADId = currencyCAD.first['id'];
+  final int currencyEURId = currencyEUR.first['id'];
 
-  await db.insert('trips', {
+  // Insertar currency_country (relación entre currencies y countries)
+  await db.insert('country_currencies',
+      {'country_id': countryUSId, 'currency_id': currencyUSDId});
+
+  await db.insert('country_currencies',
+      {'country_id': countryCAId, 'currency_id': currencyCADId});
+
+  await db.insert('country_currencies',
+      {'country_id': countryESId, 'currency_id': currencyEURId});
+
+  await db.insert('country_currencies',
+      {'country_id': countryFRId, 'currency_id': currencyEURId});
+
+  // Insertar en trips
+  final int tripNYId = await db.insert('trips', {
     'title': 'Viaje a Nueva York',
     'description': 'Fin de semana en la Gran Manzana',
     'date_start': DateTime.now().millisecondsSinceEpoch,
@@ -40,11 +92,10 @@ Future<void> seedDatabaseAll(Database db) async {
     'destination': 'Nueva York',
     'image': 'nyc.png',
     'open': 1,
-    'country_id': countryUSId,
     'budget_id': budget1Id,
   });
 
-  await db.insert('trips', {
+  final int tripTorontoId = await db.insert('trips', {
     'title': 'Vacaciones en Toronto',
     'description': 'Explorando la ciudad',
     'date_start': DateTime.now().add(Duration(days: 20)).millisecondsSinceEpoch,
@@ -52,58 +103,109 @@ Future<void> seedDatabaseAll(Database db) async {
     'destination': 'Toronto',
     'image': 'toronto.png',
     'open': 1,
-    'country_id': countryCAId,
     'budget_id': budget2Id,
   });
 
-  // Insertar en transactions
-  // Primero, obtener los IDs de trips
-  final List<Map<String, dynamic>> tripNY = await db
-      .query('trips', where: 'title = ?', whereArgs: ['Viaje a Nueva York']);
-  final List<Map<String, dynamic>> tripToronto = await db
-      .query('trips', where: 'title = ?', whereArgs: ['Vacaciones en Toronto']);
+  final int tripSpainId = await db.insert('trips', {
+    'title': 'Viaje a España',
+    'description': 'Recorriendo la península ibérica',
+    'date_start': DateTime.now().add(Duration(days: 40)).millisecondsSinceEpoch,
+    'date_end': DateTime.now().add(Duration(days: 50)).millisecondsSinceEpoch,
+    'destination': 'Alicante',
+    'image': 'spain.png',
+    'open': 1,
+    'budget_id': budget3Id,
+  });
 
-  final int tripNYId = tripNY.first['id'];
-  final int tripTorontoId = tripToronto.first['id'];
+  final int tripFranceId = await db.insert('trips', {
+    'title': 'Vacaciones en Francia',
+    'description': 'Descubriendo la Riviera Francesa',
+    'date_start': DateTime.now().add(Duration(days: 60)).millisecondsSinceEpoch,
+    'date_end': DateTime.now().add(Duration(days: 70)).millisecondsSinceEpoch,
+    'destination': 'Niza',
+    'image': 'france.png',
+    'open': 1,
+    'budget_id': budget4Id,
+  });
+
+  // Insertar en trip_country (relación entre trips y countries)
+  await db.insert('trip_country', {
+    'trip_id': tripNYId,
+    'country_id': countryUSId,
+  });
+
+  await db.insert('trip_country', {
+    'trip_id': tripTorontoId,
+    'country_id': countryCAId,
+  });
+
+  await db.insert('trip_country', {
+    'trip_id': tripSpainId,
+    'country_id': countryESId,
+  });
+
+  await db.insert('trip_country', {
+    'trip_id': tripFranceId,
+    'country_id': countryFRId,
+  });
 
   // Transacciones para el viaje a Nueva York
+  // hoy + 1 día y hoy + 2 días, para que queden dentro de [hoy, hoy+3]
   final int transaction1Id = await db.insert('transactions', {
-    'type': 0, // Supongamos 0: Expense
-    'date': DateTime(2024, 5, 10).millisecondsSinceEpoch,
+    'type': TransactionType.expense.index,
+    'date': DateTime.now().add(Duration(days: 1)).millisecondsSinceEpoch,
     'description': 'Reserva de hotel',
     'amount': 1200.0,
     'trip_id': tripNYId,
   });
 
   final int transaction2Id = await db.insert('transactions', {
-    'type': 1, // Supongamos 1: Income
-    'date': DateTime(2024, 5, 10).millisecondsSinceEpoch,
+    'type': TransactionType.income.index,
+    'date': DateTime.now().add(Duration(days: 2)).millisecondsSinceEpoch,
     'description': 'Reembolso de viaje',
     'amount': 300.0,
     'trip_id': tripNYId,
   });
 
+  final int transactionChange1Id = await db.insert('transactions', {
+    'type': TransactionType.change.index,
+    'date': DateTime.now().add(Duration(days: 1)).millisecondsSinceEpoch,
+    'description': 'Cambio de moneda',
+    'amount': 1200.0,
+    'trip_id': tripNYId,
+  });
+
   // Transacciones para el viaje a Toronto
+  // (hoy + 22) y (hoy + 25) caen dentro de [hoy+20, hoy+30]
   final int transaction3Id = await db.insert('transactions', {
-    'type': 0, // Expense
-    'date': DateTime(2024, 6, 16).millisecondsSinceEpoch,
+    'type': TransactionType.expense.index,
+    'date': DateTime.now().add(Duration(days: 22)).millisecondsSinceEpoch,
     'description': 'Alquiler de coche',
     'amount': 500.0,
     'trip_id': tripTorontoId,
   });
 
   final int transaction4Id = await db.insert('transactions', {
-    'type': 1, // Income
-    'date': DateTime(2024, 6, 15).millisecondsSinceEpoch,
+    'type': TransactionType.income.index,
+    'date': DateTime.now().add(Duration(days: 25)).millisecondsSinceEpoch,
     'description': 'Patrocinio de viaje',
     'amount': 800.0,
     'trip_id': tripTorontoId,
   });
 
-  // Insertar en expenses
+  final int transactionChange2Id = await db.insert('transactions', {
+    'type': TransactionType.change.index,
+    'date': DateTime.now().add(Duration(days: 26)).millisecondsSinceEpoch,
+    'description': 'Cambio de moneda',
+    'amount': 500.0,
+    'trip_id': tripTorontoId,
+  });
+
+// Insertar en expenses
   await db.insert('expenses', {
     'transaction_id': transaction1Id,
-    'category': 2, // Por ejemplo, 2: Alojamiento
+    'category': ExpenseCategory.accommodation.index,
+    'isAmortization': 0,
     'amortization': 0,
     'start_date_amortization': null,
     'next_amortization_date': null,
@@ -112,20 +214,25 @@ Future<void> seedDatabaseAll(Database db) async {
 
   await db.insert('expenses', {
     'transaction_id': transaction3Id,
-    'category': 1, // Por ejemplo, 1: Transporte
-    'amortization': 1,
-    'start_date_amortization': DateTime(2024, 6, 16).millisecondsSinceEpoch,
+    'category': ExpenseCategory.transport.index,
+    'isAmortization': 1,
+    'amortization': 500,
+    // Ajustamos las fechas a partir de la fecha de la transacción (hoy+22)
+    'start_date_amortization':
+        DateTime.now().add(Duration(days: 22)).millisecondsSinceEpoch,
     'next_amortization_date':
-        DateTime(2024, 6, 23).millisecondsSinceEpoch, // Cada semana
-    'end_date_amortization': DateTime(2024, 7, 14).millisecondsSinceEpoch,
+        DateTime.now().add(Duration(days: 23)).millisecondsSinceEpoch,
+    'end_date_amortization':
+        DateTime.now().add(Duration(days: 36)).millisecondsSinceEpoch,
   });
 
-  // Insertar en incomes
+// Insertar en incomes
   await db.insert('incomes', {
     'transaction_id': transaction2Id,
     'is_recurrent': 1,
-    'recurrent_income_type': 2, // Por ejemplo, 2: Mensual
-    'next_recurrent_date': DateTime(2024, 6, 10).millisecondsSinceEpoch,
+    'recurrent_income_type': RecurrentIncomeType.monthly.index,
+    'next_recurrent_date':
+        DateTime.now().add(Duration(days: 32)).millisecondsSinceEpoch,
     'active': 1,
   });
 
@@ -137,32 +244,18 @@ Future<void> seedDatabaseAll(Database db) async {
     'active': 1,
   });
 
-  // Insertar en chenges
+// Insertar en chenges
   await db.insert('chenges', {
-    'transaction_id': transaction1Id,
+    'transaction_id': transactionChange1Id,
     'currency_recived_id': 1, // USD
     'currency_spent_id': 1, // USD
     'amount_recived': 0.0,
   });
 
   await db.insert('chenges', {
-    'transaction_id': transaction2Id,
+    'transaction_id': transactionChange2Id,
     'currency_recived_id': 1, // USD
     'currency_spent_id': 1, // USD
     'amount_recived': 300.0,
-  });
-
-  await db.insert('chenges', {
-    'transaction_id': transaction3Id,
-    'currency_recived_id': 2, // CAD
-    'currency_spent_id': 2, // CAD
-    'amount_recived': 0.0,
-  });
-
-  await db.insert('chenges', {
-    'transaction_id': transaction4Id,
-    'currency_recived_id': 2, // CAD
-    'currency_spent_id': 2, // CAD
-    'amount_recived': 800.0,
   });
 }

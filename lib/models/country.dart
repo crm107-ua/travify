@@ -21,13 +21,15 @@ class Country {
     };
   }
 
-  factory Country.fromMap(Map<String, dynamic> map) {
+  factory Country.fromMap(Map<String, dynamic> map,
+      {List<Currency>? currencies}) {
     return Country(
       id: map['id'],
       name: map['name'],
       code: map['code'],
-      currencies: List<Currency>.from(
-          map['currencies'].map((currency) => Currency.fromMap(currency))),
+      currencies: currencies ??
+          List<Currency>.from(
+              map['currencies'].map((currency) => Currency.fromMap(currency))),
     );
   }
 

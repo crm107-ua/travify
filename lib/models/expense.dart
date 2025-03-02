@@ -9,23 +9,23 @@ class Expense extends Transaction {
 
   ExpenseCategory category;
   bool isAmortization;
-  double amortization;
-  DateTime startDateAmortization;
-  DateTime endDateAmortization;
-  DateTime lastAmortizationDate;
+  double? amortization;
+  DateTime? startDateAmortization;
+  DateTime? endDateAmortization;
+  DateTime? nextAmortizationDate;
 
-  Expense(
-      {required super.id,
-      required super.date,
-      super.description,
-      required super.amount,
-      required this.category,
-      required this.isAmortization,
-      required this.amortization,
-      required this.startDateAmortization,
-      required this.endDateAmortization,
-      required this.lastAmortizationDate,
-      required});
+  Expense({
+    required super.id,
+    required super.date,
+    super.description,
+    required super.amount,
+    required this.category,
+    required this.isAmortization,
+    this.amortization,
+    this.startDateAmortization,
+    this.endDateAmortization,
+    this.nextAmortizationDate,
+  });
 
   @override
   Map<String, dynamic> toMap() {
@@ -37,10 +37,11 @@ class Expense extends Transaction {
       'amount': amount,
       'category': category.index,
       'isAmortization': isAmortization ? 1 : 0,
-      'amortization': amortization,
-      'startDateAmortization': startDateAmortization.millisecondsSinceEpoch,
-      'endDateAmortization': endDateAmortization.millisecondsSinceEpoch,
-      'lastAmortizationDate': lastAmortizationDate.millisecondsSinceEpoch,
+      'amortization': amortization ?? 0,
+      'startDateAmortization':
+          startDateAmortization?.millisecondsSinceEpoch ?? 0,
+      'endDateAmortization': endDateAmortization?.millisecondsSinceEpoch ?? 0,
+      'nextAmortizationDate': nextAmortizationDate?.millisecondsSinceEpoch ?? 0,
     };
   }
 
@@ -54,12 +55,15 @@ class Expense extends Transaction {
       category: ExpenseCategory.values[map['category']],
       isAmortization: map['isAmortization'] == 1,
       amortization: map['amortization'],
-      startDateAmortization:
-          DateTime.fromMillisecondsSinceEpoch(map['startDateAmortization']),
-      endDateAmortization:
-          DateTime.fromMillisecondsSinceEpoch(map['endDateAmortization']),
-      lastAmortizationDate:
-          DateTime.fromMillisecondsSinceEpoch(map['lastAmortizationDate']),
+      startDateAmortization: (map['start_date_amortization'] != null)
+          ? DateTime.fromMillisecondsSinceEpoch(map['start_date_amortization'])
+          : null,
+      endDateAmortization: (map['end_date_amortization'] != null)
+          ? DateTime.fromMillisecondsSinceEpoch(map['end_date_amortization'])
+          : null,
+      nextAmortizationDate: (map['next_amortization_date'] != null)
+          ? DateTime.fromMillisecondsSinceEpoch(map['next_amortization_date'])
+          : null,
     );
   }
 
@@ -75,7 +79,7 @@ class Expense extends Transaction {
     double? amortization,
     DateTime? startDateAmortization,
     DateTime? endDateAmortization,
-    DateTime? lastAmortizationDate,
+    DateTime? nextAmortizationDate,
   }) {
     return Expense(
       id: id ?? this.id,
@@ -88,12 +92,12 @@ class Expense extends Transaction {
       startDateAmortization:
           startDateAmortization ?? this.startDateAmortization,
       endDateAmortization: endDateAmortization ?? this.endDateAmortization,
-      lastAmortizationDate: lastAmortizationDate ?? this.lastAmortizationDate,
+      nextAmortizationDate: nextAmortizationDate ?? this.nextAmortizationDate,
     );
   }
 
   @override
   String toString() {
-    return 'Expense{id: $id,  date: $date, description: $description, amount: $amount, category: $category, amortization: $amortization, startDateAmortization: $startDateAmortization, endDateAmortization: $endDateAmortization, lastAmortizationDate: $lastAmortizationDate}';
+    return 'Expense{id: $id,  date: $date, description: $description, amount: $amount, category: $category, amortization: $amortization, startDateAmortization: $startDateAmortization, endDateAmortization: $endDateAmortization, nextAmortizationDate: $nextAmortizationDate}';
   }
 }

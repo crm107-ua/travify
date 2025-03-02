@@ -3,13 +3,20 @@ class Currency {
   final String code;
   final String name;
   final String? symbol;
+  final String? symbolNative;
+  final int? decimalDigits;
+  final int? rounding;
+  final String? namePlural;
 
-  Currency({
-    required this.id,
-    required this.code,
-    required this.name,
-    this.symbol,
-  });
+  Currency(
+      {required this.id,
+      required this.code,
+      required this.name,
+      this.symbol,
+      this.symbolNative,
+      this.decimalDigits,
+      this.rounding,
+      this.namePlural});
 
   /// Convierte la instancia de [Currency] a un [Map].
   Map<String, dynamic> toMap() {
@@ -18,6 +25,10 @@ class Currency {
       'code': code,
       'name': name,
       'symbol': symbol,
+      'symbol_native': symbolNative,
+      'decimal_digits': decimalDigits,
+      'rounding': rounding,
+      'name_plural': namePlural,
     };
   }
 
@@ -28,6 +39,10 @@ class Currency {
       code: map['code'],
       name: map['name'],
       symbol: map['symbol'],
+      symbolNative: map['symbol_native'],
+      decimalDigits: map['decimal_digits'],
+      rounding: map['rounding'],
+      namePlural: map['name_plural'],
     );
   }
 
@@ -39,15 +54,18 @@ class Currency {
     String? symbol,
   }) {
     return Currency(
-      id: id ?? this.id,
-      code: code ?? this.code,
-      name: name ?? this.name,
-      symbol: symbol ?? this.symbol,
-    );
+        id: id ?? this.id,
+        code: code ?? this.code,
+        name: name ?? this.name,
+        symbol: symbol ?? this.symbol,
+        symbolNative: symbolNative,
+        decimalDigits: decimalDigits,
+        rounding: rounding,
+        namePlural: namePlural);
   }
 
   @override
   String toString() {
-    return 'Currency(id: $id, code: $code, name: $name, symbol: $symbol)';
+    return 'Currency(id: $id, code: $code, name: $name, symbol: $symbol, symbolNative: $symbolNative, decimalDigits: $decimalDigits, rounding: $rounding, namePlural: $namePlural)';
   }
 }

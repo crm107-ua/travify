@@ -44,7 +44,7 @@ class Change extends Transaction {
       amount: map['amount'],
       currencyRecived: Currency.fromMap(map['currencyRecived']),
       currencySpent: Currency.fromMap(map['currencySpent']),
-      amountRecived: map['amountRecived'],
+      amountRecived: map['amount_recived'],
     );
   }
 
