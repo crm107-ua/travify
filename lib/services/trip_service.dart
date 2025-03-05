@@ -21,6 +21,11 @@ class TripService {
     return await _tripDao.getTripById(id);
   }
 
+  // Obtener trip actual o el siguiente trip
+  Future<Trip?> getCurrentTripOrNextTrip() async {
+    return await _tripDao.getCurrentTripOrNextTrip();
+  }
+
   /// Actualiza un viaje existente.
   /// Retorna la cantidad de filas afectadas (1 si éxito, 0 si no existe).
   Future<int> updateTrip(Trip trip) async {
