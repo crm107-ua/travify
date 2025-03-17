@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:travify/constants/colors.dart';
+import 'package:travify/screens/forms/create_travel.dart';
 import 'home_content.dart';
 import 'settings_content.dart';
 import 'data_content.dart';
@@ -28,7 +29,10 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _onFabPressed() {
-    print("Botón + presionado");
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CreateTravelWizard()),
+    );
   }
 
   @override

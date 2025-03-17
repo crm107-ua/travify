@@ -28,8 +28,10 @@ class Country {
       name: map['name'],
       code: map['code'],
       currencies: currencies ??
-          List<Currency>.from(
-              map['currencies'].map((currency) => Currency.fromMap(currency))),
+          (map['currencies'] != null
+              ? List<Currency>.from(map['currencies']
+                  .map((currency) => Currency.fromMap(currency)))
+              : []),
     );
   }
 
