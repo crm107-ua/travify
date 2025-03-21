@@ -249,7 +249,9 @@ class _CreateTravelWizardState extends State<CreateTravelWizard> {
         dateStart: _dateStart ?? DateTime.now(),
         dateEnd: _dateEnd,
         destination: _destinationController.text,
-        image: _imageController.text,
+        image: _imageController.text == ''
+            ? "https://www.stokedtotravel.com/wp-content/uploads/2020/12/Railay-Bay.jpg"
+            : _imageController.text,
         open: true,
         budget: budget,
         countries: _selectedCountries,

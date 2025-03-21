@@ -68,7 +68,8 @@ Future<void> seedDatabaseAll(Database db) async {
     'date_start': DateTime.now().millisecondsSinceEpoch,
     'date_end': DateTime.now().add(Duration(days: 3)).millisecondsSinceEpoch,
     'destination': 'Nueva York',
-    'image': 'nyc.png',
+    'image':
+        'https://wallpapers.com/images/hd/4k-new-york-city-night-79y2vrc0ks0ucwh5.jpg',
     'open': 1,
     'budget_id': budget1Id,
   });
@@ -79,7 +80,8 @@ Future<void> seedDatabaseAll(Database db) async {
     'date_start': DateTime.now().add(Duration(days: 20)).millisecondsSinceEpoch,
     'date_end': DateTime.now().add(Duration(days: 30)).millisecondsSinceEpoch,
     'destination': 'Toronto',
-    'image': 'toronto.png',
+    'image':
+        'https://images.pexels.com/photos/1519088/pexels-photo-1519088.jpeg',
     'open': 1,
     'budget_id': budget2Id,
   });
@@ -90,7 +92,8 @@ Future<void> seedDatabaseAll(Database db) async {
     'date_start': DateTime.now().add(Duration(days: 40)).millisecondsSinceEpoch,
     'date_end': DateTime.now().add(Duration(days: 50)).millisecondsSinceEpoch,
     'destination': 'Alicante',
-    'image': 'spain.png',
+    'image':
+        'https://images.pexels.com/photos/1862308/pexels-photo-1862308.jpeg?cs=srgb&dl=pexels-alex-saquisilli-780432-1862308.jpg&fm=jpg',
     'open': 1,
     'budget_id': budget3Id,
   });
@@ -101,7 +104,8 @@ Future<void> seedDatabaseAll(Database db) async {
     'date_start': DateTime.now().add(Duration(days: 60)).millisecondsSinceEpoch,
     'date_end': DateTime.now().add(Duration(days: 70)).millisecondsSinceEpoch,
     'destination': 'Niza',
-    'image': 'france.png',
+    'image':
+        'https://media.istockphoto.com/id/1145618475/es/foto/villefranche-sur-mer-en-la-noche.jpg?s=612x612&w=0&k=20&c=yHaZtUg-Uo5aqgT-eOMKuNxd9HWOYX7TUUod7ml-rUg=',
     'open': 1,
     'budget_id': budget4Id,
   });

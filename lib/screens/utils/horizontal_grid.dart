@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:travify/models/trip.dart';
+import 'package:travify/screens/trip_screen.dart';
 
 class HorizontalGridWithIndicator extends StatefulWidget {
   final List<Trip> trips;
@@ -47,61 +48,69 @@ class _HorizontalGridWithIndicatorState
             ),
             itemBuilder: (context, index) {
               final trip = widget.trips[index];
-              return Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.white, width: 1.2),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 4,
-                      offset: Offset(2, 2),
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => TripDetailPage(trip: trip),
                     ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Sección 1: Destino y países
-                    Expanded(
-                      flex: 3,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            trip.destination,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            trip.countries
-                                .map((country) => country.name)
-                                .join(', '),
-                            style: const TextStyle(
-                                fontSize: 14, color: Colors.white),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                        ],
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white, width: 1.2),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 4,
+                        offset: Offset(2, 2),
                       ),
-                    ),
-                    // Sección 2: Fechas
-                    Expanded(
-                      flex: 5,
-                      child: Container(
-                        padding: const EdgeInsets.only(right: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Sección 1: Destino y países
+                      Expanded(
+                        flex: 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (trip.dateStart != null)
+                            Text(
+                              trip.destination,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              trip.countries
+                                  .map((country) => country.name)
+                                  .join(', '),
+                              style: const TextStyle(
+                                  fontSize: 14, color: Colors.white),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Sección 2: Fechas
+                      Expanded(
+                        flex: 5,
+                        child: Container(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
                               Text(
                                 DateFormat('dd/MM/yyyy')
                                     .format(trip.dateStart!),
@@ -111,26 +120,27 @@ class _HorizontalGridWithIndicatorState
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
-                            if (trip.dateStart != null &&
-                                trip.dateEnd != null) ...[
-                              const SizedBox(width: 8),
-                              const Icon(Icons.arrow_forward,
-                                  color: Colors.white, size: 18),
-                              const SizedBox(width: 8),
-                              Text(
-                                DateFormat('dd/MM/yyyy').format(trip.dateEnd!),
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w800,
+                              if (trip.dateEnd != null) ...[
+                                const SizedBox(width: 8),
+                                const Icon(Icons.arrow_forward,
+                                    color: Colors.white, size: 18),
+                                const SizedBox(width: 8),
+                                Text(
+                                  DateFormat('dd/MM/yyyy')
+                                      .format(trip.dateEnd!),
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w800,
+                                  ),
                                 ),
-                              ),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },

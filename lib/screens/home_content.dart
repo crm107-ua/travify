@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:travify/models/trip.dart';
+import 'package:travify/screens/trip_screen.dart';
 import 'package:travify/screens/utils/horizontal_grid.dart';
 import 'package:travify/services/trip_service.dart';
 
@@ -96,14 +97,6 @@ class _HomeContentState extends State<HomeContent>
     return Container(
       width: double.infinity,
       height: double.infinity,
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: NetworkImage(
-              'https://wallpapercat.com/w/full/7/9/c/293012-3840x2160-desktop-4k-new-york-wallpaper.jpg'),
-          fit: BoxFit.cover,
-          colorFilter: ColorFilter.mode(Colors.black54, BlendMode.darken),
-        ),
-      ),
       child: Align(
         alignment: Alignment.topCenter,
         child: Padding(
@@ -142,10 +135,7 @@ class _HomeContentState extends State<HomeContent>
             handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
             sliver: SliverAppBar(
               expandedHeight: 340,
-              collapsedHeight: currentTrip?.dateStart != null &&
-                      currentTrip!.dateStart.isAfter(DateTime.now())
-                  ? 150
-                  : 120,
+              collapsedHeight: 160,
               pinned: true,
               backgroundColor: Colors.black,
               flexibleSpace: ClipRRect(
@@ -170,8 +160,20 @@ class _HomeContentState extends State<HomeContent>
                       title: currentTrip == null
                           ? const Text("Sin viaje actual",
                               style: TextStyle(color: Colors.white))
-                          : _buildAppBarContent(currentTrip),
-                      background: _buildAppBarBackground(),
+                          : GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        TripDetailPage(trip: currentTrip),
+                                  ),
+                                );
+                              },
+                              child: _buildAppBarContent(currentTrip),
+                            ),
+                      background: _buildAppBarBackground(currentTrip?.image ??
+                          'https://images.pexels.com/photos/1519088/pexels-photo-1519088.jpeg'),
                     );
                   },
                 ),
@@ -351,12 +353,12 @@ class _HomeContentState extends State<HomeContent>
     );
   }
 
-  Widget _buildAppBarBackground() {
+  Widget _buildAppBarBackground(String image) {
     return Stack(
       fit: StackFit.expand,
       children: [
         Image.network(
-          'https://wallpapers.com/images/hd/4k-new-york-city-night-79y2vrc0ks0ucwh5.jpg',
+          image,
           fit: BoxFit.cover,
         ),
         Container(
