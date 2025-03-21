@@ -79,7 +79,18 @@ class CountryDao {
       'countries',
       orderBy: 'id DESC',
     );
-    return maps.map((map) => Country.fromMap(map)).toList();
+
+    List<Country> countries = [];
+
+    for (var map in maps) {
+      int countryId = map['id'];
+      List<Currency> currencies =
+          await _currencyDao.getCountryCurrencies(countryId);
+
+      countries.add(Country.fromMap(map, currencies: currencies));
+    }
+
+    return countries;
   }
 
   Future<int> updateCountry(Country country) async {

@@ -10,11 +10,10 @@ Future<void> seedDatabaseCurrencies(Database db) async {
     Map<String, dynamic> jsonResult = json.decode(data);
 
     // Verificar que los datos se han cargado correctamente
-    print(
-        'Datos cargados desde JSON: ${jsonResult.length} monedas encontradas.');
+    // print( 'Datos cargados desde JSON: ${jsonResult.length} monedas encontradas.');
 
     if (jsonResult.isEmpty) {
-      print('La lista de monedas está vacía. Verifica el archivo JSON.');
+      //print('La lista de monedas está vacía. Verifica el archivo JSON.');
       return;
     }
 
@@ -38,7 +37,21 @@ Future<void> seedDatabaseCurrencies(Database db) async {
     });
 
     await batch.commit(noResult: true);
-    print('Todas las monedas han sido insertadas exitosamente desde JSON.');
+
+    String countryData =
+        await rootBundle.loadString('assets/data/countries.json');
+    List<dynamic> jsonCountryData = json.decode(countryData);
+
+    for (int i = 1; i <= jsonCountryData.length; i++) {
+      await db
+          .insert('country_currencies', {'country_id': i, 'currency_id': 1});
+      await db
+          .insert('country_currencies', {'country_id': i, 'currency_id': 2});
+      await db
+          .insert('country_currencies', {'country_id': i, 'currency_id': 3});
+      await db
+          .insert('country_currencies', {'country_id': i, 'currency_id': 4});
+    }
   } catch (e) {
     print('Error al insertar monedas desde JSON: $e');
   }

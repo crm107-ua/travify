@@ -27,11 +27,7 @@ class Country {
       id: map['id'],
       name: map['name'],
       code: map['code'],
-      currencies: currencies ??
-          (map['currencies'] != null
-              ? List<Currency>.from(map['currencies']
-                  .map((currency) => Currency.fromMap(currency)))
-              : []),
+      currencies: currencies ?? [],
     );
   }
 

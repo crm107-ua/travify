@@ -8,6 +8,7 @@ class HorizontalGridWithIndicator extends StatefulWidget {
       : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _HorizontalGridWithIndicatorState createState() =>
       _HorizontalGridWithIndicatorState();
 }
@@ -18,20 +19,7 @@ class _HorizontalGridWithIndicatorState
   int _currentPage = 0;
 
   final double pageWidth = 400 + 16;
-  final int totalPages = 2;
-
-  @override
-  void initState() {
-    super.initState();
-    _gridController.addListener(() {
-      int page = (_gridController.offset / pageWidth).round();
-      if (page != _currentPage) {
-        setState(() {
-          _currentPage = page.clamp(0, totalPages - 1);
-        });
-      }
-    });
-  }
+  final int totalPages = 0;
 
   @override
   void dispose() {
@@ -41,10 +29,11 @@ class _HorizontalGridWithIndicatorState
 
   @override
   Widget build(BuildContext context) {
+    final int totalPages = (widget.trips.length / 3).ceil().clamp(1, 3);
     return Column(
       children: [
         SizedBox(
-          height: 300, // Altura total del grid (ajusta según tu diseño)
+          height: 300,
           child: GridView.builder(
             controller: _gridController,
             scrollDirection: Axis.horizontal,
@@ -88,6 +77,8 @@ class _HorizontalGridWithIndicatorState
                               color: Colors.white,
                               fontWeight: FontWeight.w700,
                             ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                           const SizedBox(height: 6),
                           Text(
@@ -95,10 +86,9 @@ class _HorizontalGridWithIndicatorState
                                 .map((country) => country.name)
                                 .join(', '),
                             style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.white70,
-                              fontWeight: FontWeight.w700,
-                            ),
+                                fontSize: 14, color: Colors.white),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         ],
                       ),

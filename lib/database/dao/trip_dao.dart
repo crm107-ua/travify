@@ -22,11 +22,36 @@ class TripDao {
   /// Inserta un nuevo viaje en la base de datos.
   Future<int> insertViaje(Trip viaje) async {
     sdb.Database db = await _databaseHelper.database;
-    return await db.insert(
+
+    int budgetId = await _budgetDao.insertBudget(viaje.budget);
+
+    int tripId = await db.insert(
       'trips',
-      viaje.toMap(),
+      {
+        'title': viaje.title,
+        'description': viaje.description,
+        'date_start': viaje.dateStart.millisecondsSinceEpoch,
+        'date_end': viaje.dateEnd?.millisecondsSinceEpoch,
+        'destination': viaje.destination,
+        'image': viaje.image,
+        'open': viaje.open ? 1 : 0,
+        'budget_id': budgetId, // Se almacena el ID del presupuesto
+      },
       conflictAlgorithm: sdb.ConflictAlgorithm.replace,
     );
+
+    for (var country in viaje.countries) {
+      await db.insert(
+        'trip_country',
+        {
+          'trip_id': tripId,
+          'country_id': country.id,
+        },
+        conflictAlgorithm: sdb.ConflictAlgorithm.replace,
+      );
+    }
+
+    return tripId;
   }
 
   // Funcion para obtener el viaje actual o el siguiente viaje
@@ -35,6 +60,35 @@ class TripDao {
     if (actualTrip != null) return actualTrip;
 
     return await getNextTrip();
+  }
+
+  // Comprobar que no exista un viaje entre esas fechas
+  Future<bool> checkTripExist(DateTime dateStart, DateTime dateEnd) async {
+    sdb.Database db = await _databaseHelper.database;
+
+    List<Map<String, dynamic>> tripMaps = await db.query(
+      'trips',
+      where: 'date_start <= ? AND date_end >= ?',
+      whereArgs: [
+        dateEnd.millisecondsSinceEpoch,
+        dateStart.millisecondsSinceEpoch
+      ],
+    );
+
+    return tripMaps.isNotEmpty;
+  }
+
+  // Comprobar que no se puede agregar un viaje con una fecha de inicio anterior a alguna ya existente y sin fecha de fin
+  Future<bool> checkTripExistWithDate(DateTime dateStart) async {
+    sdb.Database db = await _databaseHelper.database;
+
+    List<Map<String, dynamic>> tripMaps = await db.query(
+      'trips',
+      where: 'date_start >= ?',
+      whereArgs: [dateStart.millisecondsSinceEpoch],
+    );
+
+    return tripMaps.isNotEmpty;
   }
 
   // Funcion para obtener el proximo viaje
@@ -155,7 +209,7 @@ class TripDao {
     List<Trip> trips = [];
 
     for (Map<String, dynamic> tripMap in tripMaps) {
-      // Obtener los países asociados
+      // Obtener el presupuesto asociado
       int budgetId = tripMap['budget_id'];
       Budget? budget = await _budgetDao.getBudgetById(budgetId);
 
@@ -167,14 +221,10 @@ class TripDao {
       List<Transaction> transactions =
           await _transactionDao.getTransactions(tripMap['id']);
 
-      Trip test = Trip.fromMap(tripMap,
-          budget: budget, countries: countryMaps, transactions: transactions);
-
       trips.add(Trip.fromMap(tripMap,
           budget: budget, countries: countryMaps, transactions: transactions));
     }
 
-    print(trips);
     return trips;
   }
 
@@ -187,6 +237,38 @@ class TripDao {
       where: 'id = ?',
       whereArgs: [viaje.id],
     );
+  }
+
+  /// Obtiene los 6 viajes más próximos ordenados por fecha de inicio.
+  Future<List<Trip>> getUpcomingTrips() async {
+    sdb.Database db = await _databaseHelper.database;
+
+    int currentTime = DateTime.now().millisecondsSinceEpoch;
+
+    // Consulta para obtener los 6 viajes más próximos
+    List<Map<String, dynamic>> tripMaps = await db.query('trips',
+        where: 'date_start >= ?',
+        whereArgs: [currentTime],
+        orderBy: 'date_start ASC');
+
+    if (tripMaps.isEmpty) return [];
+
+    List<Trip> trips = [];
+
+    for (Map<String, dynamic> tripMap in tripMaps) {
+      int budgetId = tripMap['budget_id'];
+      Budget? budget = await _budgetDao.getBudgetById(budgetId);
+
+      List<Country> countryMaps =
+          await _countryDao.getTripCountries(tripMap['id']);
+      List<Transaction> transactions =
+          await _transactionDao.getTransactions(tripMap['id']);
+
+      trips.add(Trip.fromMap(tripMap,
+          budget: budget, countries: countryMaps, transactions: transactions));
+    }
+
+    return trips;
   }
 
   /// Elimina un viaje de la base de datos basado en su ID.

@@ -16,7 +16,7 @@ Future<void> seedDatabaseCountries(Database db) async {
         List<Map<String, dynamic>>.from(jsonResult);
 
     // Verificar que los datos se han cargado correctamente
-    print('Datos cargados desde JSON: ${countries.length} países encontrados.');
+    // print('Datos cargados desde JSON: ${countries.length} países encontrados.');
 
     if (countries.isEmpty) {
       print('La lista de países está vacía. Verifica el archivo JSON.');
@@ -38,7 +38,7 @@ Future<void> seedDatabaseCountries(Database db) async {
     }
 
     await batch.commit(noResult: true);
-    print('Todos los países han sido insertados exitosamente desde JSON.');
+    // print('Todos los países han sido insertados exitosamente desde JSON.');
   } catch (e) {
     print('Error al insertar países desde JSON: $e');
   }

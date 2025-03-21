@@ -51,12 +51,6 @@ Future<void> seedDatabaseAll(Database db) async {
       limit: 1, where: 'desired_limit = ?', whereArgs: [1000.0]);
   final List<Map<String, dynamic>> budget4 = await db.query('budgets',
       limit: 1, where: 'desired_limit = ?', whereArgs: [2000.0]);
-  final List<Map<String, dynamic>> currencyUSD =
-      await db.query('currencies', where: 'code = ?', whereArgs: ['USD']);
-  final List<Map<String, dynamic>> currencyCAD =
-      await db.query('currencies', where: 'code = ?', whereArgs: ['CAD']);
-  final List<Map<String, dynamic>> currencyEUR =
-      await db.query('currencies', where: 'code = ?', whereArgs: ['EUR']);
 
   final int countryUSId = countryUS.first['id'];
   final int countryCAId = countryCA.first['id'];
@@ -66,22 +60,6 @@ Future<void> seedDatabaseAll(Database db) async {
   final int budget2Id = budget2.first['id'];
   final int budget3Id = budget3.first['id'];
   final int budget4Id = budget4.first['id'];
-  final int currencyUSDId = currencyUSD.first['id'];
-  final int currencyCADId = currencyCAD.first['id'];
-  final int currencyEURId = currencyEUR.first['id'];
-
-  // Insertar currency_country (relación entre currencies y countries)
-  await db.insert('country_currencies',
-      {'country_id': countryUSId, 'currency_id': currencyUSDId});
-
-  await db.insert('country_currencies',
-      {'country_id': countryCAId, 'currency_id': currencyCADId});
-
-  await db.insert('country_currencies',
-      {'country_id': countryESId, 'currency_id': currencyEURId});
-
-  await db.insert('country_currencies',
-      {'country_id': countryFRId, 'currency_id': currencyEURId});
 
   // Insertar en trips
   final int tripNYId = await db.insert('trips', {
