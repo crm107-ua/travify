@@ -32,7 +32,6 @@ class CurrencyDao {
 
     if (countryIds.isEmpty) return [];
 
-    // 1️⃣ Obtener los IDs de monedas desde `country_currencies`
     List<Map<String, dynamic>> countryCurrencies = await db.query(
       'country_currencies',
       where: 'country_id IN (${countryIds.map((_) => '?').join(', ')})',
@@ -41,13 +40,11 @@ class CurrencyDao {
 
     if (countryCurrencies.isEmpty) return [];
 
-    // 2️⃣ Extraer los IDs únicos de las monedas
     List<int> currencyIds = countryCurrencies
         .map((map) => map['currency_id'] as int)
-        .toSet() // 🔥 elimina duplicados automáticamente
+        .toSet()
         .toList();
 
-    // 3️⃣ Obtener los datos completos desde `currencies`
     List<Map<String, dynamic>> currencyMaps = await db.query(
       'currencies',
       where: 'id IN (${currencyIds.map((_) => '?').join(', ')})',
