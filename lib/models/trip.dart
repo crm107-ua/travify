@@ -1,5 +1,6 @@
 import 'package:travify/models/budget.dart';
 import 'package:travify/models/country.dart';
+import 'package:travify/models/currency.dart';
 import 'package:travify/models/transaction.dart';
 
 class Trip {
@@ -12,6 +13,7 @@ class Trip {
   String? image;
   bool open;
   Budget budget;
+  Currency currency;
   List<Country> countries;
   List<Transaction> transactions;
 
@@ -25,6 +27,7 @@ class Trip {
     this.image,
     this.open = true,
     required this.budget,
+    required this.currency,
     required this.countries,
     List<Transaction>? transactions,
   }) : transactions = transactions ?? [];
@@ -40,6 +43,7 @@ class Trip {
       'image': image,
       'open': open ? 1 : 0,
       'budget': budget.toMap(),
+      'currency': currency.toMap(),
       'countries': countries.map((country) => country.toMap()).toList(),
       'transactions':
           transactions.map((transaction) => transaction.toMap()).toList(),
@@ -48,6 +52,7 @@ class Trip {
 
   factory Trip.fromMap(Map<String, dynamic> map,
       {Budget? budget,
+      Currency? currency,
       List<Country>? countries,
       List<Transaction>? transactions}) {
     return Trip(
@@ -62,6 +67,7 @@ class Trip {
       image: map['image'] ?? '',
       open: map['open'] == 1,
       budget: budget ?? Budget.fromMap(map['budget']),
+      currency: currency ?? Currency.fromMap(map['currency']),
       countries: countries ?? [],
       transactions: transactions ?? [],
     );
@@ -90,6 +96,7 @@ class Trip {
       image: image ?? this.image,
       open: open ?? this.open,
       budget: budget ?? this.budget,
+      currency: currency,
       countries: countries ?? this.countries,
       transactions: transactions ?? this.transactions,
     );
@@ -128,6 +135,6 @@ class Trip {
 
   @override
   String toString() {
-    return 'Trip{id: $id, title: $title, description: $description, dateStart: $dateStart, dateEnd: $dateEnd, destination: $destination, image: $image, open: $open, budget: $budget, countries: $countries, transactions: $transactions}';
+    return 'Trip{id: $id, title: $title, description: $description, dateStart: $dateStart, dateEnd: $dateEnd, destination: $destination, image: $image, open: $open, budget: $budget, currency: $currency, countries: $countries, transactions: $transactions}';
   }
 }

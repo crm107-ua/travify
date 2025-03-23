@@ -58,8 +58,10 @@ Future<void> createAllTables(Database db) async {
       image        TEXT,
       open         INTEGER NOT NULL DEFAULT 1,
       budget_id    INTEGER NOT NULL,
+      currency_id  INTEGER NOT NULL,
     
-      FOREIGN KEY(budget_id) REFERENCES budgets(id)
+      FOREIGN KEY(budget_id) REFERENCES budgets(id) ON DELETE CASCADE,
+      FOREIGN KEY(currency_id) REFERENCES currencies(id) ON DELETE CASCADE
     );
   ''');
 
@@ -82,7 +84,7 @@ Future<void> createAllTables(Database db) async {
       amount      REAL NOT NULL,
       trip_id     INTEGER NOT NULL,
     
-      FOREIGN KEY(trip_id) REFERENCES trips(id)
+      FOREIGN KEY(trip_id) REFERENCES trips(id) ON DELETE CASCADE
     )
   ''');
 
@@ -102,7 +104,7 @@ Future<void> createAllTables(Database db) async {
       next_amortization_date   INTEGER,
       end_date_amortization    INTEGER,
 
-      FOREIGN KEY(transaction_id) REFERENCES transactions(id)
+      FOREIGN KEY(transaction_id) REFERENCES transactions(id) ON DELETE CASCADE
     )
   ''');
 
@@ -118,7 +120,7 @@ Future<void> createAllTables(Database db) async {
       next_recurrent_date    INTEGER,
       active                 INTEGER DEFAULT 0,
 
-      FOREIGN KEY(transaction_id) REFERENCES transactions(id)
+      FOREIGN KEY(transaction_id) REFERENCES transactions(id) ON DELETE CASCADE
     )
   ''');
 
@@ -133,9 +135,9 @@ Future<void> createAllTables(Database db) async {
       currency_spent_id   INTEGER NOT NULL,
       amount_recived      REAL NOT NULL,
 
-      FOREIGN KEY(transaction_id) REFERENCES transactions(id),
-      FOREIGN KEY(currency_recived_id) REFERENCES currencies(id),
-      FOREIGN KEY(currency_spent_id)   REFERENCES currencies(id)
+      FOREIGN KEY(transaction_id) REFERENCES transactions(id) ON DELETE CASCADE,
+      FOREIGN KEY(currency_recived_id) REFERENCES currencies(id) ON DELETE CASCADE,
+      FOREIGN KEY(currency_spent_id)   REFERENCES currencies(id) ON DELETE CASCADE
     )
   ''');
 }

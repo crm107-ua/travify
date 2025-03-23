@@ -2,21 +2,17 @@ class Currency {
   final int id;
   final String code;
   final String name;
-  final String? symbol;
-  final String? symbolNative;
-  final int? decimalDigits;
-  final int? rounding;
-  final String? namePlural;
+  final String symbol;
+  final String symbolNative;
+  final int decimalDigits;
 
   Currency(
       {required this.id,
       required this.code,
       required this.name,
-      this.symbol,
-      this.symbolNative,
-      this.decimalDigits,
-      this.rounding,
-      this.namePlural});
+      required this.symbol,
+      required this.symbolNative,
+      required this.decimalDigits});
 
   /// Convierte la instancia de [Currency] a un [Map].
   Map<String, dynamic> toMap() {
@@ -26,24 +22,19 @@ class Currency {
       'name': name,
       'symbol': symbol,
       'symbol_native': symbolNative,
-      'decimal_digits': decimalDigits,
-      'rounding': rounding,
-      'name_plural': namePlural,
+      'decimal_digits': decimalDigits
     };
   }
 
   /// Crea una instancia de [Currency] a partir de un [Map].
   factory Currency.fromMap(Map<String, dynamic> map) {
     return Currency(
-      id: map['id'],
-      code: map['code'],
-      name: map['name'],
-      symbol: map['symbol'],
-      symbolNative: map['symbol_native'],
-      decimalDigits: map['decimal_digits'],
-      rounding: map['rounding'],
-      namePlural: map['name_plural'],
-    );
+        id: map['id'],
+        code: map['code'],
+        name: map['name'],
+        symbol: map['symbol'],
+        symbolNative: map['symbol_native'],
+        decimalDigits: map['decimal_digits']);
   }
 
   /// Crea una copia de la instancia actual con la posibilidad de sobrescribir algunos campos.
@@ -59,13 +50,11 @@ class Currency {
         name: name ?? this.name,
         symbol: symbol ?? this.symbol,
         symbolNative: symbolNative,
-        decimalDigits: decimalDigits,
-        rounding: rounding,
-        namePlural: namePlural);
+        decimalDigits: decimalDigits);
   }
 
   @override
   String toString() {
-    return 'Currency(id: $id, code: $code, name: $name, symbol: $symbol, symbolNative: $symbolNative, decimalDigits: $decimalDigits, rounding: $rounding, namePlural: $namePlural)';
+    return 'Currency(id: $id, code: $code, name: $name, symbol: $symbol, symbolNative: $symbolNative, decimalDigits: $decimalDigits)';
   }
 }

@@ -18,25 +18,36 @@ class CurrencyDao {
     );
   }
 
-  Future<List<Currency>> getCountryCurrencies(int countryId) async {
+  Future<List<Currency>> getAllCurrencies() async {
+    Database db = await _databaseHelper.database;
+    List<Map<String, dynamic>> maps = await db.query(
+      'currencies',
+      orderBy: 'id DESC',
+    );
+    return maps.map((map) => Currency.fromMap(map)).toList();
+  }
+
+  Future<List<Currency>> getCountriesCurrencies(List<int> countryIds) async {
     Database db = await _databaseHelper.database;
 
-    // 1️⃣ Obtener los IDs de las monedas desde `country_currencies`
+    if (countryIds.isEmpty) return [];
+
+    // 1️⃣ Obtener los IDs de monedas desde `country_currencies`
     List<Map<String, dynamic>> countryCurrencies = await db.query(
       'country_currencies',
-      where: 'country_id = ?',
-      whereArgs: [countryId],
+      where: 'country_id IN (${countryIds.map((_) => '?').join(', ')})',
+      whereArgs: countryIds,
     );
 
-    if (countryCurrencies.isEmpty) {
-      return [];
-    }
+    if (countryCurrencies.isEmpty) return [];
 
-    // 2️⃣ Extraer los IDs de las monedas
-    List<int> currencyIds =
-        countryCurrencies.map((map) => map['currency_id'] as int).toList();
+    // 2️⃣ Extraer los IDs únicos de las monedas
+    List<int> currencyIds = countryCurrencies
+        .map((map) => map['currency_id'] as int)
+        .toSet() // 🔥 elimina duplicados automáticamente
+        .toList();
 
-    // 3️⃣ Obtener los datos completos de las monedas desde `currencies`
+    // 3️⃣ Obtener los datos completos desde `currencies`
     List<Map<String, dynamic>> currencyMaps = await db.query(
       'currencies',
       where: 'id IN (${currencyIds.map((_) => '?').join(', ')})',

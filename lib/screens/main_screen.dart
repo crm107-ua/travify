@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:travify/constants/colors.dart';
 import 'package:travify/screens/forms/create_travel.dart';
 import 'home_content.dart';
 import 'settings_content.dart';
@@ -14,7 +13,6 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
-  // Las 4 pantallas (IndexedStack)
   final List<Widget> _screens = [
     HomeContent(),
     SearchContent(),
@@ -35,102 +33,126 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
+  Widget _buildNavItem({
+    required IconData icon,
+    required int index,
+    required Color activeColor,
+    required Color inactiveColor,
+  }) {
+    return GestureDetector(
+      onTap: () => _onItemTapped(index),
+      child: SizedBox(
+        height: 60, // igual a la altura del BottomAppBar
+        width: 50,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 27,
+              color: _currentIndex == index ? activeColor : inactiveColor,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
 
-    // 1. Colores principales según tema claro / oscuro
     final Color backgroundColor =
         (brightness == Brightness.dark) ? Colors.black : Colors.white;
-
-    // 2. Colores para íconos activos/inactivos
     final Color activeColor =
         (brightness == Brightness.dark) ? Colors.white : Colors.black;
     final Color inactiveColor =
         (brightness == Brightness.dark) ? Colors.grey[600]! : Colors.grey;
 
-    return Scaffold(
-      // Color de fondo principal
-      backgroundColor: backgroundColor,
-
-      // Cuerpo que muestra una de las 4 pantallas según _currentIndex
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
-
-      // Botón flotante centrado y desplazado hacia abajo
-      floatingActionButton: Transform.translate(
-        offset: Offset(0, 40),
-        child: SizedBox(
-          width: 70,
-          height: 70,
-          child: FloatingActionButton(
-            onPressed: _onFabPressed,
-            backgroundColor:
-                AppColors.primary, // Cambia este color al que prefieras
-            elevation: 10.0,
-            shape: CircleBorder(),
-            child: Icon(Icons.add, size: 30, color: Colors.white),
+    return Stack(
+      children: [
+        Scaffold(
+          backgroundColor: backgroundColor,
+          body: IndexedStack(
+            index: _currentIndex,
+            children: _screens,
+          ),
+          bottomNavigationBar: BottomAppBar(
+            shape: CircularNotchedRectangle(),
+            notchMargin: 8,
+            color: backgroundColor,
+            child: Container(
+              height: 60,
+              color: backgroundColor,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _buildNavItem(
+                      icon: Icons.home,
+                      index: 0,
+                      activeColor: activeColor,
+                      inactiveColor: inactiveColor),
+                  _buildNavItem(
+                      icon: Icons.search,
+                      index: 1,
+                      activeColor: activeColor,
+                      inactiveColor: inactiveColor),
+                  SizedBox(width: 50), // espacio para FAB
+                  _buildNavItem(
+                      icon: Icons.bar_chart,
+                      index: 2,
+                      activeColor: activeColor,
+                      inactiveColor: inactiveColor),
+                  _buildNavItem(
+                      icon: Icons.settings,
+                      index: 3,
+                      activeColor: activeColor,
+                      inactiveColor: inactiveColor),
+                ],
+              ),
+            ),
           ),
         ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      extendBody: true,
-      // Barra inferior con muesca para el FAB
-      bottomNavigationBar: BottomAppBar(
-        shape: CircularNotchedRectangle(),
-        notchMargin: 0,
-        // Aquí definimos el color de la barra según el tema
-        color: backgroundColor,
-        child: Container(
-          height: 60,
-          // También con el color del tema
-          color: backgroundColor,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              // Botón 1 (Home)
-              IconButton(
-                icon: Icon(
-                  Icons.home,
-                  size: 27,
-                  color: _currentIndex == 0 ? activeColor : inactiveColor,
+        Positioned(
+          bottom:
+              53, // 20 + altura del BottomAppBar (60) = 80 (efecto de bajar a 40)
+          left:
+              MediaQuery.of(context).size.width / 2 - 30, // 70 / 2 para centrar
+          child: GestureDetector(
+            onTap: _onFabPressed,
+            child: Container(
+              width: 60,
+              height: 43,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10.0),
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [
+                    Colors.white,
+                    Color.fromARGB(255, 97, 96, 96),
+                  ],
                 ),
-                onPressed: () => _onItemTapped(0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10,
+                    offset: Offset(0, 8),
+                  ),
+                ],
               ),
-              // Botón 2 (Search)
-              IconButton(
-                icon: Icon(
-                  Icons.search,
-                  size: 27,
-                  color: _currentIndex == 1 ? activeColor : inactiveColor,
+              child: Center(
+                child: Icon(
+                  Icons.add,
+                  size: 30,
+                  color: Colors.black,
                 ),
-                onPressed: () => _onItemTapped(1),
               ),
-              SizedBox(width: 50),
-              // Botón 3 (Bar Chart)
-              IconButton(
-                icon: Icon(
-                  Icons.bar_chart,
-                  size: 27,
-                  color: _currentIndex == 2 ? activeColor : inactiveColor,
-                ),
-                onPressed: () => _onItemTapped(2),
-              ),
-              // Botón 4 (Settings)
-              IconButton(
-                icon: Icon(
-                  Icons.settings,
-                  size: 27,
-                  color: _currentIndex == 3 ? activeColor : inactiveColor,
-                ),
-                onPressed: () => _onItemTapped(3),
-              ),
-            ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 }

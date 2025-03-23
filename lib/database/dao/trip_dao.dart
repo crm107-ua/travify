@@ -2,8 +2,10 @@ import 'package:sqflite/sqflite.dart' as sdb;
 import 'package:travify/database/dao/budget_dao.dart';
 import 'package:travify/database/dao/country_dao.dart';
 import 'package:travify/database/dao/transaction_dao.dart';
+import 'package:travify/database/dao/currency_dao.dart';
 import 'package:travify/models/budget.dart';
 import 'package:travify/models/country.dart';
+import 'package:travify/models/currency.dart';
 import 'package:travify/models/transaction.dart';
 import '../helpers/database_helper.dart';
 import '../../models/trip.dart';
@@ -13,6 +15,7 @@ class TripDao {
   static final TripDao _instance = TripDao._internal();
   static final BudgetDao _budgetDao = BudgetDao();
   static final CountryDao _countryDao = CountryDao();
+  static final CurrencyDao _currencyDao = CurrencyDao();
   static final TransactionDao _transactionDao = TransactionDao();
   factory TripDao() => _instance;
   TripDao._internal();
@@ -35,7 +38,8 @@ class TripDao {
         'destination': viaje.destination,
         'image': viaje.image,
         'open': viaje.open ? 1 : 0,
-        'budget_id': budgetId, // Se almacena el ID del presupuesto
+        'budget_id': budgetId,
+        'currency_id': viaje.currency.id,
       },
       conflictAlgorithm: sdb.ConflictAlgorithm.replace,
     );
@@ -112,6 +116,8 @@ class TripDao {
     // 🔹 Obtener el presupuesto asociado (Budget)
     int budgetId = tripMap['budget_id'];
     Budget? budget = await _budgetDao.getBudgetById(budgetId);
+    Currency currency =
+        await _currencyDao.getCurrencyById(tripMap['currency_id']);
 
     // Obtener los países asociados
     List<Country> countryMaps =
@@ -122,10 +128,16 @@ class TripDao {
         await _transactionDao.getTransactions(tripMap['id']);
 
     Trip test = Trip.fromMap(tripMap,
-        budget: budget, countries: countryMaps, transactions: transactions);
+        budget: budget,
+        currency: currency,
+        countries: countryMaps,
+        transactions: transactions);
     // 🔹 Construir el objeto Trip con el Budget recuperado
     return Trip.fromMap(tripMap,
-        budget: budget, countries: countryMaps, transactions: transactions);
+        budget: budget,
+        currency: currency,
+        countries: countryMaps,
+        transactions: transactions);
   }
 
   // Funcion para obtener el viaje que se esta realizando ahora
@@ -147,6 +159,8 @@ class TripDao {
     // 🔹 Obtener el presupuesto asociado (Budget)
     int budgetId = tripMap['budget_id'];
     Budget? budget = await _budgetDao.getBudgetById(budgetId);
+    Currency currency =
+        await _currencyDao.getCurrencyById(tripMap['currency_id']);
 
     // Obtener los países asociados
     List<Country> countryMaps =
@@ -157,10 +171,16 @@ class TripDao {
         await _transactionDao.getTransactions(tripMap['id']);
 
     Trip test = Trip.fromMap(tripMap,
-        budget: budget, countries: countryMaps, transactions: transactions);
+        budget: budget,
+        currency: currency,
+        countries: countryMaps,
+        transactions: transactions);
     // 🔹 Construir el objeto Trip con el Budget recuperado
     return Trip.fromMap(tripMap,
-        budget: budget, countries: countryMaps, transactions: transactions);
+        budget: budget,
+        currency: currency,
+        countries: countryMaps,
+        transactions: transactions);
   }
 
   /// Recupera un viaje de la base de datos basado en su ID.
@@ -212,6 +232,8 @@ class TripDao {
       // Obtener el presupuesto asociado
       int budgetId = tripMap['budget_id'];
       Budget? budget = await _budgetDao.getBudgetById(budgetId);
+      Currency currency =
+          await _currencyDao.getCurrencyById(tripMap['currency_id']);
 
       // Obtener los países asociados
       List<Country> countryMaps =
@@ -222,7 +244,10 @@ class TripDao {
           await _transactionDao.getTransactions(tripMap['id']);
 
       trips.add(Trip.fromMap(tripMap,
-          budget: budget, countries: countryMaps, transactions: transactions));
+          budget: budget,
+          currency: currency,
+          countries: countryMaps,
+          transactions: transactions));
     }
 
     return trips;
@@ -259,13 +284,19 @@ class TripDao {
       int budgetId = tripMap['budget_id'];
       Budget? budget = await _budgetDao.getBudgetById(budgetId);
 
+      Currency currency =
+          await _currencyDao.getCurrencyById(tripMap['currency_id']);
+
       List<Country> countryMaps =
           await _countryDao.getTripCountries(tripMap['id']);
       List<Transaction> transactions =
           await _transactionDao.getTransactions(tripMap['id']);
 
       trips.add(Trip.fromMap(tripMap,
-          budget: budget, countries: countryMaps, transactions: transactions));
+          budget: budget,
+          currency: currency,
+          countries: countryMaps,
+          transactions: transactions));
     }
 
     return trips;

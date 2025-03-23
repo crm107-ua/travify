@@ -61,7 +61,7 @@ class CountryDao {
     for (var map in countryMaps) {
       int countryId = map['id'];
       List<Currency> currencies =
-          await _currencyDao.getCountryCurrencies(countryId);
+          await _currencyDao.getCountriesCurrencies([countryId]);
 
       // Crear el objeto `Country` con su lista de `Currency`
       Country country = Country.fromMap(map, currencies: currencies);
@@ -85,7 +85,7 @@ class CountryDao {
     for (var map in maps) {
       int countryId = map['id'];
       List<Currency> currencies =
-          await _currencyDao.getCountryCurrencies(countryId);
+          await _currencyDao.getCountriesCurrencies([countryId]);
 
       countries.add(Country.fromMap(map, currencies: currencies));
     }

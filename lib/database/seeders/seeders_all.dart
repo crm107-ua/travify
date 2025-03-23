@@ -72,6 +72,7 @@ Future<void> seedDatabaseAll(Database db) async {
         'https://wallpapers.com/images/hd/4k-new-york-city-night-79y2vrc0ks0ucwh5.jpg',
     'open': 1,
     'budget_id': budget1Id,
+    'currency_id': 1, // USD
   });
 
   final int tripTorontoId = await db.insert('trips', {
@@ -84,6 +85,7 @@ Future<void> seedDatabaseAll(Database db) async {
         'https://images.pexels.com/photos/1519088/pexels-photo-1519088.jpeg',
     'open': 1,
     'budget_id': budget2Id,
+    'currency_id': 1, // USD
   });
 
   final int tripSpainId = await db.insert('trips', {
@@ -96,6 +98,7 @@ Future<void> seedDatabaseAll(Database db) async {
         'https://images.pexels.com/photos/1862308/pexels-photo-1862308.jpeg?cs=srgb&dl=pexels-alex-saquisilli-780432-1862308.jpg&fm=jpg',
     'open': 1,
     'budget_id': budget3Id,
+    'currency_id': 3, // EUR
   });
 
   final int tripFranceId = await db.insert('trips', {
@@ -108,6 +111,7 @@ Future<void> seedDatabaseAll(Database db) async {
         'https://media.istockphoto.com/id/1145618475/es/foto/villefranche-sur-mer-en-la-noche.jpg?s=612x612&w=0&k=20&c=yHaZtUg-Uo5aqgT-eOMKuNxd9HWOYX7TUUod7ml-rUg=',
     'open': 1,
     'budget_id': budget4Id,
+    'currency_id': 3, // EUR
   });
 
   // Insertar en trip_country (relación entre trips y countries)

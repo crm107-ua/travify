@@ -30,120 +30,135 @@ class _HorizontalGridWithIndicatorState
 
   @override
   Widget build(BuildContext context) {
-    final int totalPages = (widget.trips.length / 3).ceil().clamp(1, 3);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final int totalPages = (widget.trips.length / 3).ceil();
+
     return Column(
       children: [
         SizedBox(
           height: 300,
-          child: GridView.builder(
-            controller: _gridController,
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.all(16),
-            itemCount: widget.trips.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3, // 3 filas (por columna horizontal)
-              mainAxisSpacing: 16, // Espaciado horizontal entre celdas
-              crossAxisSpacing: 16, // Espaciado vertical entre celdas
-              mainAxisExtent: 400, // Ancho fijo para cada celda
-            ),
-            itemBuilder: (context, index) {
-              final trip = widget.trips[index];
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => TripDetailPage(trip: trip),
-                    ),
-                  );
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.white, width: 1.2),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black26,
-                        blurRadius: 4,
-                        offset: Offset(2, 2),
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (ScrollNotification scrollInfo) {
+              if (scrollInfo.metrics.axis == Axis.horizontal &&
+                  scrollInfo is ScrollUpdateNotification) {
+                final newPage =
+                    (scrollInfo.metrics.pixels / screenWidth).round();
+                if (newPage != _currentPage) {
+                  setState(() {
+                    _currentPage = newPage;
+                  });
+                }
+              }
+              return false;
+            },
+            child: GridView.builder(
+              controller: _gridController,
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.all(16),
+              itemCount: widget.trips.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                mainAxisSpacing: 13,
+                crossAxisSpacing: 13,
+                mainAxisExtent: screenWidth - 50,
+              ),
+              itemBuilder: (context, index) {
+                final trip = widget.trips[index];
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TripDetailPage(trip: trip),
                       ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Sección 1: Destino y países
-                      Expanded(
-                        flex: 3,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              trip.destination,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              trip.countries
-                                  .map((country) => country.name)
-                                  .join(', '),
-                              style: const TextStyle(
-                                  fontSize: 14, color: Colors.white),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                          ],
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.white, width: 1.2),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black26,
+                          blurRadius: 4,
+                          offset: Offset(2, 2),
                         ),
-                      ),
-                      // Sección 2: Fechas
-                      Expanded(
-                        flex: 5,
-                        child: Container(
-                          padding: const EdgeInsets.only(right: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                DateFormat('dd/MM/yyyy')
-                                    .format(trip.dateStart!),
+                                trip.destination,
                                 style: const TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 18,
                                   color: Colors.white,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w700,
                                 ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
-                              if (trip.dateEnd != null) ...[
-                                const SizedBox(width: 8),
-                                const Icon(Icons.arrow_forward,
-                                    color: Colors.white, size: 18),
-                                const SizedBox(width: 8),
+                              const SizedBox(height: 6),
+                              Text(
+                                trip.countries
+                                    .map((country) => country.name)
+                                    .join(', '),
+                                style: const TextStyle(
+                                    fontSize: 14, color: Colors.white),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          flex: 5,
+                          child: Container(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
                                 Text(
                                   DateFormat('dd/MM/yyyy')
-                                      .format(trip.dateEnd!),
+                                      .format(trip.dateStart!),
                                   style: const TextStyle(
-                                    fontSize: 14,
+                                    fontSize: 12,
                                     color: Colors.white,
                                     fontWeight: FontWeight.w800,
                                   ),
                                 ),
+                                if (trip.dateEnd != null) ...[
+                                  const SizedBox(width: 8),
+                                  const Icon(Icons.arrow_forward,
+                                      color: Colors.white, size: 18),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    DateFormat('dd/MM/yyyy')
+                                        .format(trip.dateEnd!),
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                ],
                               ],
-                            ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
         // Indicador de páginas (3 puntos)
@@ -159,7 +174,7 @@ class _HorizontalGridWithIndicatorState
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: _currentPage == index
-                      ? const Color.fromARGB(255, 255, 255, 255)
+                      ? Colors.white
                       : const Color.fromARGB(255, 119, 118, 118),
                 ),
               );

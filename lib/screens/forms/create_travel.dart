@@ -1,9 +1,12 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:travify/models/currency.dart';
 import 'package:travify/models/trip.dart';
 import 'package:travify/models/budget.dart';
 import 'package:travify/models/country.dart';
 import 'package:travify/services/country_service.dart';
+import 'package:travify/services/currency_service.dart';
 import 'package:travify/services/trip_service.dart';
 
 class CreateTravelWizard extends StatefulWidget {
@@ -18,6 +21,7 @@ class _CreateTravelWizardState extends State<CreateTravelWizard> {
   int _currentStep = 0;
   final _formKey = GlobalKey<FormState>();
   final CountryService _countryService = CountryService();
+  final CurrencyService _currencyService = CurrencyService();
   final TripService _tripService = TripService();
 
   // Paso 0: Información general
@@ -29,6 +33,8 @@ class _CreateTravelWizardState extends State<CreateTravelWizard> {
   // Paso 1: Selección de países
   List<Country> _allCountries = [];
   List<Country> _selectedCountries = [];
+  List<Currency> _allCurrencies = [];
+  Currency? _selectedCurrency;
 
   // Paso 2: Fechas del viaje
   DateTime? _dateStart;
@@ -53,6 +59,15 @@ class _CreateTravelWizardState extends State<CreateTravelWizard> {
     List<Country> countries = await _countryService.getAllCountries();
     setState(() {
       _allCountries = countries;
+    });
+  }
+
+  Future<void> _loadCurrencies(List<int> ids) async {
+    List<Currency> currencies =
+        await _currencyService.getCountriesCurrencies(ids);
+    setState(() {
+      _allCurrencies = currencies;
+      _selectedCurrency = currencies.isNotEmpty ? currencies.first : null;
     });
   }
 
@@ -155,6 +170,7 @@ class _CreateTravelWizardState extends State<CreateTravelWizard> {
                   onPressed: () {
                     setState(() {
                       _selectedCountries = tempSelected;
+                      _loadCurrencies(tempSelected.map((c) => c.id).toList());
                     });
                     Navigator.pop(context);
                   },
@@ -254,6 +270,7 @@ class _CreateTravelWizardState extends State<CreateTravelWizard> {
             : _imageController.text,
         open: true,
         budget: budget,
+        currency: _selectedCurrency!,
         countries: _selectedCountries,
       );
 
@@ -270,9 +287,24 @@ class _CreateTravelWizardState extends State<CreateTravelWizard> {
   }
 
   void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    Flushbar(
+      duration: Duration(seconds: 2),
+      borderRadius: BorderRadius.circular(8),
+      margin: EdgeInsets.all(16),
+      flushbarPosition: FlushbarPosition.BOTTOM,
+      dismissDirection: FlushbarDismissDirection.VERTICAL,
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Colors.grey[850]!
+          : Colors.grey[200]!,
+      messageText: Text(
+        message,
+        style: TextStyle(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white
+              : Colors.black,
+        ),
+      ),
+    ).show(context);
   }
 
   @override
@@ -289,30 +321,38 @@ class _CreateTravelWizardState extends State<CreateTravelWizard> {
       ),
       body: Form(
         key: _formKey,
-        child: Stepper(
-          currentStep: _currentStep,
-          onStepContinue: _onStepContinue,
-          onStepCancel: _onStepCancel,
-          steps: [
-            Step(
-                title:
-                    Text('Información', style: TextStyle(color: Colors.white)),
-                isActive: _currentStep >= 0,
-                content: _buildInfoStep()),
-            Step(
-                title: Text('Países', style: TextStyle(color: Colors.white)),
-                isActive: _currentStep >= 1,
-                content: _buildCountryStep()),
-            Step(
-                title: Text('Fechas', style: TextStyle(color: Colors.white)),
-                isActive: _currentStep >= 2,
-                content: _buildDateStep()),
-            Step(
-                title:
-                    Text('Presupuesto', style: TextStyle(color: Colors.white)),
-                isActive: _currentStep >= 3,
-                content: _buildBudgetStep()),
-          ],
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: Theme.of(context).colorScheme.copyWith(
+                  primary: Colors.white,
+                  secondary: Colors.white,
+                ),
+          ),
+          child: Stepper(
+            currentStep: _currentStep,
+            onStepContinue: _onStepContinue,
+            onStepCancel: _onStepCancel,
+            steps: [
+              Step(
+                  title: Text('Información',
+                      style: TextStyle(color: Colors.white)),
+                  isActive: _currentStep >= 0,
+                  content: _buildInfoStep()),
+              Step(
+                  title: Text('Países', style: TextStyle(color: Colors.white)),
+                  isActive: _currentStep >= 1,
+                  content: _buildCountryStep()),
+              Step(
+                  title: Text('Fechas', style: TextStyle(color: Colors.white)),
+                  isActive: _currentStep >= 2,
+                  content: _buildDateStep()),
+              Step(
+                  title: Text('Presupuesto',
+                      style: TextStyle(color: Colors.white)),
+                  isActive: _currentStep >= 3,
+                  content: _buildBudgetStep()),
+            ],
+          ),
         ),
       ),
     );
@@ -361,6 +401,34 @@ class _CreateTravelWizardState extends State<CreateTravelWizard> {
       );
 
   Widget _buildBudgetStep() => Column(children: [
+        DropdownButtonFormField<Currency>(
+          value: _selectedCurrency,
+          isExpanded: true,
+          dropdownColor: Colors.grey[850],
+          decoration: InputDecoration(
+            labelText: "Divisa por defecto",
+            labelStyle: TextStyle(color: Colors.white),
+          ),
+          style: TextStyle(color: Colors.white),
+          items: _allCurrencies.map((Currency currency) {
+            return DropdownMenuItem<Currency>(
+              value: currency,
+              child: Text('${currency.symbol} - ${currency.name}'),
+            );
+          }).toList(),
+          onChanged: (Currency? newCurrency) {
+            setState(() {
+              _selectedCurrency = newCurrency;
+            });
+          },
+          validator: (Currency? value) {
+            if (_allCurrencies.isNotEmpty && value == null) {
+              return 'Seleccione una moneda';
+            }
+            return null; // No valida si aún no existen monedas disponibles
+          },
+        ),
+        SizedBox(height: 5),
         _buildCurrencyTextField(
             _maxLimitController, 'Límite Máximo', _maxLimitTouched, () {
           setState(() {
