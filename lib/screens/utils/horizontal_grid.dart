@@ -60,7 +60,7 @@ class _HorizontalGridWithIndicatorState
                 crossAxisCount: 3,
                 mainAxisSpacing: 13,
                 crossAxisSpacing: 13,
-                mainAxisExtent: screenWidth - 50,
+                mainAxisExtent: screenWidth - 20,
               ),
               itemBuilder: (context, index) {
                 final trip = widget.trips[index];
@@ -119,10 +119,10 @@ class _HorizontalGridWithIndicatorState
                           ),
                         ),
                         Expanded(
-                          flex: 5,
+                          flex: 2,
                           child: Container(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: Row(
+                            padding: const EdgeInsets.only(left: 5),
+                            child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
@@ -136,7 +136,7 @@ class _HorizontalGridWithIndicatorState
                                 ),
                                 if (trip.dateEnd != null) ...[
                                   const SizedBox(width: 8),
-                                  const Icon(Icons.arrow_forward,
+                                  const Icon(Icons.arrow_downward,
                                       color: Colors.white, size: 18),
                                   const SizedBox(width: 8),
                                   Text(

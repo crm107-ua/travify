@@ -313,7 +313,7 @@ class _HomeContentState extends State<HomeContent>
           trip.title,
           style: const TextStyle(fontSize: 25, color: Colors.white),
           overflow: TextOverflow.ellipsis,
-          maxLines: 1,
+          maxLines: 2,
         ),
         const SizedBox(height: 5),
         Text(

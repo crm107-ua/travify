@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:travify/enums/expense_category.dart';
+import 'package:travify/enums/transaction_type.dart';
+import 'package:travify/models/change.dart';
+import 'package:travify/models/expense.dart';
+import 'package:travify/models/income.dart';
 import 'package:travify/models/trip.dart';
 
 class TripDetailPage extends StatefulWidget {
@@ -17,7 +22,7 @@ class _TripDetailPageState extends State<TripDetailPage>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this); // 3 pestañas
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -244,21 +249,12 @@ class _TripDetailPageState extends State<TripDetailPage>
           body: TabBarView(
             controller: _tabController,
             children: [
-              _buildExpenseList(), // ← nueva función que vas a crear
-              _buildPlaceholder("Incomes del viaje"),
-              _buildPlaceholder("Cambios de divisa"),
+              _buildExpenseList(trip),
+              _buildIncomeList(trip),
+              _buildChangeList(trip),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildPlaceholder(String text) {
-    return Center(
-      child: Text(
-        text,
-        style: const TextStyle(color: Colors.white),
       ),
     );
   }
@@ -315,13 +311,11 @@ void _showBudgetDialog(BuildContext context, Trip trip) {
   );
 }
 
-Widget _buildExpenseList() {
-  // Aquí deberías usar widget.trip.expenses si lo tienes
-  final expenses = [
-    {'desc': 'Hotel', 'amount': 120.0, 'date': DateTime.now()},
-    {'desc': 'Comida', 'amount': 45.0, 'date': DateTime.now()},
-    {'desc': 'Transporte', 'amount': 30.0, 'date': DateTime.now()},
-  ];
+Widget _buildExpenseList(Trip trip) {
+  final expenses = trip.transactions
+      .where((transaction) => transaction.type == TransactionType.expense)
+      .whereType<Expense>()
+      .toList();
 
   return ListView.builder(
     padding: const EdgeInsets.all(16),
@@ -341,16 +335,36 @@ Widget _buildExpenseList() {
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              "titulo",
-              style: const TextStyle(color: Colors.white, fontSize: 16),
+            Expanded(
+              // <-- Añadir aquí Expanded
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    expense.description ?? 'Sin descripción',
+                    style: const TextStyle(fontSize: 15, color: Colors.white),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    DateFormat('dd/MM/yyyy').format(expense.date),
+                    style: const TextStyle(fontSize: 13, color: Colors.white70),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
+                  ),
+                ],
+              ),
             ),
+            const SizedBox(width: 30),
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  '${expense['amount']} €',
+                  '-${expense.amount}${trip.currency.symbol}',
                   style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -358,8 +372,162 @@ Widget _buildExpenseList() {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "descripcion",
+                  expense.category.label,
                   style: const TextStyle(color: Colors.white70, fontSize: 13),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+Widget _buildIncomeList(Trip trip) {
+  final incomes = trip.transactions
+      .where((transaction) => transaction.type == TransactionType.income)
+      .whereType<Income>()
+      .toList();
+
+  return ListView.builder(
+    padding: const EdgeInsets.all(16),
+    itemCount: incomes.length,
+    itemBuilder: (context, index) {
+      final income = incomes[index];
+      return Container(
+        margin: const EdgeInsets.only(bottom: 20),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Colors.white,
+            width: 1.2,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              // <-- Añadir aquí Expanded
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    income.description ?? 'Sin descripción',
+                    style: const TextStyle(fontSize: 15, color: Colors.white),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    DateFormat('dd/MM/yyyy').format(income.date),
+                    style: const TextStyle(fontSize: 13, color: Colors.white70),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 30),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '+${income.amount}${trip.currency.symbol}',
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  income.isRecurrent == true
+                      ? 'Ingreso recurrente'
+                      : 'Ingreso único',
+                  style: const TextStyle(color: Colors.white70, fontSize: 13),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
+Widget _buildChangeList(Trip trip) {
+  final changes = trip.transactions
+      .where((transaction) => transaction.type == TransactionType.change)
+      .whereType<Change>()
+      .toList();
+
+  return ListView.builder(
+    padding: const EdgeInsets.all(16),
+    itemCount: changes.length,
+    itemBuilder: (context, index) {
+      final change = changes[index];
+      return Container(
+        margin: const EdgeInsets.only(bottom: 20),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: Colors.white,
+            width: 1.2,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              // <-- Añadir aquí Expanded
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    change.description ?? 'Sin descripción',
+                    style: const TextStyle(fontSize: 15, color: Colors.white),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    DateFormat('dd/MM/yyyy').format(change.date),
+                    style: const TextStyle(fontSize: 13, color: Colors.white70),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 30),
+            Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.center, // altura mínima posible
+              children: [
+                Text(
+                  '${change.amount}${change.currencySpent.symbol}',
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13),
+                ),
+                const SizedBox(height: 3),
+                const Icon(Icons.arrow_downward, color: Colors.white, size: 18),
+                const SizedBox(height: 3),
+                Text(
+                  '${change.amountRecived}${change.currencyRecived.symbol}',
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13),
                 ),
               ],
             ),
