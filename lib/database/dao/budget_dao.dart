@@ -55,7 +55,12 @@ class BudgetDao {
     Database db = await _databaseHelper.database;
     return await db.update(
       'budgets',
-      presupuesto.toMap(),
+      {
+        'max_limit': presupuesto.maxLimit,
+        'desired_limit': presupuesto.desiredLimit,
+        'accumulated': presupuesto.accumulated,
+        'limit_increase': presupuesto.limitIncrease ? 1 : 0,
+      },
       where: 'id = ?',
       whereArgs: [presupuesto.id],
     );

@@ -29,7 +29,7 @@ class _MainScreenState extends State<MainScreen> {
   void _onFabPressed() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => CreateTravelWizard()),
+      MaterialPageRoute(builder: (context) => CreateOrEditTravelWizard()),
     );
   }
 

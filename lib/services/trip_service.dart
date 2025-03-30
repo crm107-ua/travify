@@ -15,14 +15,18 @@ class TripService {
     return await _tripDao.getUpcomingTrips();
   }
 
-  /// Verifica si existe un viaje con las mismas fechas.
-  Future<bool> checkTripExists(DateTime dateStart, DateTime dateEnd) async {
-    return await _tripDao.checkTripExist(dateStart, dateEnd);
+  /// Verifica si existe un viaje con las mismas fechas, excluyendo opcionalmente un viaje.
+  Future<bool> checkTripExists(DateTime dateStart, DateTime dateEnd,
+      {int? excludeTripId}) async {
+    return await _tripDao.checkTripExists(dateStart, dateEnd,
+        excludeTripId: excludeTripId);
   }
 
-  // Comprobar que no se puede agregar un viaje con una fecha de inicio anterior a alguna ya existente y sin fecha de fin
-  Future<bool> checkTripExistWithDate(DateTime date) async {
-    return await _tripDao.checkTripExistWithDate(date);
+  /// Comprobar conflictos con fecha de inicio sin fecha de fin, excluyendo opcionalmente un viaje.
+  Future<bool> checkTripExistWithDate(DateTime date,
+      {int? excludeTripId}) async {
+    return await _tripDao.checkTripExistWithDate(date,
+        excludeTripId: excludeTripId);
   }
 
   /// Obtiene todos los viajes ordenados por ID descendente.

@@ -9,16 +9,20 @@ import 'package:travify/services/country_service.dart';
 import 'package:travify/services/currency_service.dart';
 import 'package:travify/services/trip_service.dart';
 
-class CreateTravelWizard extends StatefulWidget {
-  const CreateTravelWizard({super.key});
+class CreateOrEditTravelWizard extends StatefulWidget {
+  final Trip? trip;
+
+  const CreateOrEditTravelWizard({super.key, this.trip});
 
   @override
   // ignore: library_private_types_in_public_api
-  _CreateTravelWizardState createState() => _CreateTravelWizardState();
+  _CreateOrEditTravelWizardState createState() =>
+      _CreateOrEditTravelWizardState();
 }
 
-class _CreateTravelWizardState extends State<CreateTravelWizard> {
+class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
   int _currentStep = 0;
+
   final _formKey = GlobalKey<FormState>();
   final CountryService _countryService = CountryService();
   final CurrencyService _currencyService = CurrencyService();
@@ -52,7 +56,35 @@ class _CreateTravelWizardState extends State<CreateTravelWizard> {
   @override
   void initState() {
     super.initState();
-    _loadCountries();
+    _loadCountries().then((_) {
+      if (widget.trip != null) {
+        _loadTripData(widget.trip!);
+      }
+    });
+  }
+
+  void _loadTripData(Trip trip) async {
+    setState(() {
+      _titleController.text = trip.title;
+      _descriptionController.text = trip.description ?? '';
+      _destinationController.text = trip.destination;
+      _imageController.text = trip.image ?? '';
+      _dateStart = trip.dateStart;
+      _dateEnd = trip.dateEnd;
+      _selectedCountries = trip.countries;
+      _maxLimitController.text = trip.budget.maxLimit.toString();
+      _desiredLimitController.text = trip.budget.desiredLimit.toString();
+      _accumulatedController.text = trip.budget.accumulated.toString();
+      _limitIncrease = trip.budget.limitIncrease;
+      _loadCurrencies(trip.countries.map((c) => c.id).toList()).then((_) {
+        setState(() {
+          if (_allCurrencies.isNotEmpty) {
+            _selectedCurrency =
+                _allCurrencies.firstWhere((c) => c.id == trip.currency.id);
+          }
+        });
+      });
+    });
   }
 
   Future<void> _loadCountries() async {
@@ -72,23 +104,37 @@ class _CreateTravelWizardState extends State<CreateTravelWizard> {
   }
 
   Future<void> _saveTrip(Trip trip) async {
-    if (trip.dateEnd == null) {
-      final exists = await _tripService.checkTripExistWithDate(trip.dateStart);
-      if (exists) {
-        _showSnackBar(
-            "No puedes crear un viaje sin fecha de fin para esa fecha, ya tienes viajes programados");
-        return;
-      }
-    } else {
-      final exists =
-          await _tripService.checkTripExists(trip.dateStart, trip.dateEnd!);
-      if (exists) {
-        _showSnackBar("Ya existe un viaje en esas fechas");
+    bool tripExistsWithDate = await _tripService.checkTripExistWithDate(
+      trip.dateStart,
+      excludeTripId: trip.id != 0 ? trip.id : null,
+    );
+
+    if (tripExistsWithDate) {
+      _showSnackBar(
+          "No puedes crear un viaje con fecha de inicio anterior o sin fecha fin en conflicto con otro viaje");
+      return;
+    }
+
+    if (trip.dateEnd != null) {
+      bool tripExists = await _tripService.checkTripExists(
+        trip.dateStart,
+        trip.dateEnd!,
+        excludeTripId: trip.id != 0 ? trip.id : null,
+      );
+
+      if (tripExists) {
+        _showSnackBar("Ya existe otro viaje en esas mismas fechas");
         return;
       }
     }
 
-    await _tripService.createTrip(trip);
+    // Guardar o actualizar
+    if (trip.id == 0) {
+      await _tripService.createTrip(trip);
+    } else {
+      await _tripService.updateTrip(trip);
+    }
+
     Navigator.pop(context, true);
   }
 
@@ -251,7 +297,7 @@ class _CreateTravelWizardState extends State<CreateTravelWizard> {
     } else {
       // Crear y guardar viaje si todo está bien
       Budget budget = Budget(
-        id: 0,
+        id: widget.trip?.budget.id ?? 0,
         maxLimit: double.tryParse(_maxLimitController.text) ?? 0.0,
         desiredLimit: double.tryParse(_desiredLimitController.text) ?? 0.0,
         accumulated: double.tryParse(_accumulatedController.text) ?? 0.0,
@@ -259,7 +305,7 @@ class _CreateTravelWizardState extends State<CreateTravelWizard> {
       );
 
       Trip trip = Trip(
-        id: 0,
+        id: widget.trip?.id ?? 0,
         title: _titleController.text,
         description: _descriptionController.text,
         dateStart: _dateStart ?? DateTime.now(),
@@ -313,7 +359,7 @@ class _CreateTravelWizardState extends State<CreateTravelWizard> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         title: Text(
-          'Crea tu nuevo viaje',
+          widget.trip != null ? 'Editar viaje' : 'Crea tu nuevo viaje',
           style: TextStyle(fontSize: 20),
         ),
         backgroundColor: Colors.black,

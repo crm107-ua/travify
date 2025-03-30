@@ -58,6 +58,38 @@ class TripDao {
     return tripId;
   }
 
+  /// Actualiza un viaje existente en la base de datos.
+  Future<int> updateViaje(Trip viaje) async {
+    final db = await _databaseHelper.database;
+
+    await _budgetDao.updateBudget(viaje.budget);
+
+    await db
+        .delete('trip_country', where: 'trip_id = ?', whereArgs: [viaje.id]);
+
+    for (var country in viaje.countries) {
+      await db.insert(
+          'trip_country', {'trip_id': viaje.id, 'country_id': country.id});
+    }
+
+    return await db.update(
+      'trips',
+      {
+        'title': viaje.title,
+        'description': viaje.description,
+        'date_start': viaje.dateStart.millisecondsSinceEpoch,
+        'date_end': viaje.dateEnd?.millisecondsSinceEpoch,
+        'destination': viaje.destination,
+        'image': viaje.image,
+        'open': viaje.open ? 1 : 0,
+        'budget_id': viaje.budget.id,
+        'currency_id': viaje.currency.id,
+      },
+      where: 'id = ?',
+      whereArgs: [viaje.id],
+    );
+  }
+
   // Funcion para obtener el viaje actual o el siguiente viaje
   Future<Trip?> getCurrentTripOrNextTrip() async {
     Trip? actualTrip = await getActualTrip();
@@ -66,33 +98,53 @@ class TripDao {
     return await getNextTrip();
   }
 
-  // Comprobar que no exista un viaje entre esas fechas
-  Future<bool> checkTripExist(DateTime dateStart, DateTime dateEnd) async {
-    sdb.Database db = await _databaseHelper.database;
+// Comprobar que no exista un viaje entre esas fechas, excluyendo el propio viaje en edición
+// Comprobar fechas de inicio-fin evitando conflictos consigo mismo
+  Future<bool> checkTripExists(DateTime dateStart, DateTime dateEnd,
+      {int? excludeTripId}) async {
+    final db = await _databaseHelper.database;
 
-    List<Map<String, dynamic>> tripMaps = await db.query(
+    final query = excludeTripId != null
+        ? 'id != ? AND date_start <= ? AND date_end >= ?'
+        : 'date_start <= ? AND date_end >= ?';
+
+    final args = excludeTripId != null
+        ? [
+            excludeTripId,
+            dateEnd.millisecondsSinceEpoch,
+            dateStart.millisecondsSinceEpoch
+          ]
+        : [dateEnd.millisecondsSinceEpoch, dateStart.millisecondsSinceEpoch];
+
+    final result = await db.query(
       'trips',
-      where: 'date_start <= ? AND date_end >= ?',
-      whereArgs: [
-        dateEnd.millisecondsSinceEpoch,
-        dateStart.millisecondsSinceEpoch
-      ],
+      where: query,
+      whereArgs: args,
     );
 
-    return tripMaps.isNotEmpty;
+    return result.isNotEmpty;
   }
 
-  // Comprobar que no se puede agregar un viaje con una fecha de inicio anterior a alguna ya existente y sin fecha de fin
-  Future<bool> checkTripExistWithDate(DateTime dateStart) async {
-    sdb.Database db = await _databaseHelper.database;
+// Comprobar conflictos de fechas sin fecha fin, excluyendo opcionalmente un viaje
+  Future<bool> checkTripExistWithDate(DateTime dateStart,
+      {int? excludeTripId}) async {
+    final db = await _databaseHelper.database;
 
-    List<Map<String, dynamic>> tripMaps = await db.query(
+    final query = excludeTripId != null
+        ? 'id != ? AND date_end IS NULL AND date_start <= ?'
+        : 'date_end IS NULL AND date_start <= ?';
+
+    final args = excludeTripId != null
+        ? [excludeTripId, dateStart.millisecondsSinceEpoch]
+        : [dateStart.millisecondsSinceEpoch];
+
+    final result = await db.query(
       'trips',
-      where: 'date_start >= ?',
-      whereArgs: [dateStart.millisecondsSinceEpoch],
+      where: query,
+      whereArgs: args,
     );
 
-    return tripMaps.isNotEmpty;
+    return result.isNotEmpty;
   }
 
   // Funcion para obtener el proximo viaje
@@ -202,17 +254,22 @@ class TripDao {
     int budgetId = tripMap['budget_id'];
     Budget? budget = await _budgetDao.getBudgetById(budgetId);
 
+    // Obtener la moneda asociada
+    Currency currency =
+        await _currencyDao.getCurrencyById(tripMap['currency_id']);
+
     // Obtener los países asociados
     List<Country> countryMaps = await _countryDao.getTripCountries(id);
 
     // Obtener las transacciones asociadas
     List<Transaction> transactions = await _transactionDao.getTransactions(id);
 
-    Trip test = Trip.fromMap(tripMap,
-        budget: budget, countries: countryMaps, transactions: transactions);
     // 🔹 Construir el objeto Trip con el Budget recuperado
     return Trip.fromMap(tripMap,
-        budget: budget, countries: countryMaps, transactions: transactions);
+        budget: budget,
+        currency: currency,
+        countries: countryMaps,
+        transactions: transactions);
   }
 
   /// Recupera todos los trips de la base de datos, ordenados por ID descendente.
@@ -251,17 +308,6 @@ class TripDao {
     }
 
     return trips;
-  }
-
-  /// Actualiza un viaje existente en la base de datos.
-  Future<int> updateViaje(Trip viaje) async {
-    sdb.Database db = await _databaseHelper.database;
-    return await db.update(
-      'trips',
-      viaje.toMap(),
-      where: 'id = ?',
-      whereArgs: [viaje.id],
-    );
   }
 
   /// Obtiene los 6 viajes más próximos ordenados por fecha de inicio.

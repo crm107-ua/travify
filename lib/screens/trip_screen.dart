@@ -6,6 +6,8 @@ import 'package:travify/models/change.dart';
 import 'package:travify/models/expense.dart';
 import 'package:travify/models/income.dart';
 import 'package:travify/models/trip.dart';
+import 'package:travify/screens/forms/create_travel.dart';
+import 'package:travify/services/trip_service.dart';
 
 class TripDetailPage extends StatefulWidget {
   final Trip trip;
@@ -18,11 +20,22 @@ class TripDetailPage extends StatefulWidget {
 class _TripDetailPageState extends State<TripDetailPage>
     with TickerProviderStateMixin {
   late TabController _tabController;
+  late Trip _trip;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _trip = widget.trip;
+  }
+
+  Future<void> _reloadTrip() async {
+    final updated = await TripService().getTripById(_trip.id);
+    if (updated != null) {
+      setState(() {
+        _trip = updated;
+      });
+    }
   }
 
   @override
@@ -32,7 +45,7 @@ class _TripDetailPageState extends State<TripDetailPage>
   }
 
   Widget _buildAppBarFlexibleContent() {
-    final trip = widget.trip;
+    final trip = _trip;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -42,14 +55,14 @@ class _TripDetailPageState extends State<TripDetailPage>
           trip.title,
           style: const TextStyle(fontSize: 20, color: Colors.white),
           overflow: TextOverflow.ellipsis,
-          maxLines: 1,
+          maxLines: 2,
         ),
         const SizedBox(height: 5),
         Text(
           '${trip.destination} • ${trip.countries.map((c) => c.name).join(', ')}',
           style: const TextStyle(fontSize: 13, color: Colors.white70),
           overflow: TextOverflow.ellipsis,
-          maxLines: 1,
+          maxLines: 2,
         ),
         const SizedBox(height: 10),
         Row(
@@ -103,7 +116,7 @@ class _TripDetailPageState extends State<TripDetailPage>
 
   @override
   Widget build(BuildContext context) {
-    final trip = widget.trip;
+    final trip = _trip;
 
     return DefaultTabController(
       length: 3,
@@ -117,6 +130,54 @@ class _TripDetailPageState extends State<TripDetailPage>
               pinned: true,
               backgroundColor: Colors.black,
               actions: [
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.white, size: 23),
+                  onPressed: () async {
+                    final result = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        backgroundColor: Colors.black87,
+                        title: const Text('Eliminar viaje',
+                            style: TextStyle(color: Colors.white)),
+                        content: const Text(
+                            '¿Estás seguro de que deseas eliminar este viaje?',
+                            style: TextStyle(color: Colors.white70)),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text('Cancelar',
+                                style: TextStyle(color: Colors.white)),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text('Eliminar',
+                                style: TextStyle(color: Colors.red)),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    if (result == true) {
+                      await TripService().deleteTrip(trip.id);
+                      Navigator.pop(context, true);
+                    }
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.white, size: 23),
+                  onPressed: () async {
+                    final updated = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => CreateOrEditTravelWizard(trip: _trip),
+                      ),
+                    );
+
+                    if (updated == true) {
+                      await _reloadTrip(); // Recargar los datos actualizados
+                    }
+                  },
+                ),
                 PopupMenuButton<String>(
                   icon: const Icon(Icons.add, color: Colors.white, size: 30),
                   color: Colors.grey[900],
@@ -345,14 +406,14 @@ Widget _buildExpenseList(Trip trip) {
                 children: [
                   Text(
                     expense.description ?? 'Sin descripción',
-                    style: const TextStyle(fontSize: 15, color: Colors.white),
+                    style: const TextStyle(fontSize: 16, color: Colors.white),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 2,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     DateFormat('dd/MM/yyyy').format(expense.date),
-                    style: const TextStyle(fontSize: 13, color: Colors.white70),
+                    style: const TextStyle(fontSize: 14, color: Colors.white70),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 2,
                   ),
@@ -368,12 +429,12 @@ Widget _buildExpenseList(Trip trip) {
                   style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
-                      fontSize: 15),
+                      fontSize: 16),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   expense.category.label,
-                  style: const TextStyle(color: Colors.white70, fontSize: 13),
+                  style: const TextStyle(color: Colors.white70, fontSize: 14),
                 ),
               ],
             ),
@@ -411,7 +472,6 @@ Widget _buildIncomeList(Trip trip) {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-              // <-- Añadir aquí Expanded
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
