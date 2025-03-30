@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:travify/screens/forms/create_travel.dart';
+import 'package:travify/screens/forms/form_travel.dart';
 import 'home_content.dart';
 import 'settings_content.dart';
 import 'data_content.dart';

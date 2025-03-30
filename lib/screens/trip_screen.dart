@@ -6,7 +6,8 @@ import 'package:travify/models/change.dart';
 import 'package:travify/models/expense.dart';
 import 'package:travify/models/income.dart';
 import 'package:travify/models/trip.dart';
-import 'package:travify/screens/forms/create_travel.dart';
+import 'package:travify/screens/forms/form_income.dart';
+import 'package:travify/screens/forms/form_travel.dart';
 import 'package:travify/services/trip_service.dart';
 
 class TripDetailPage extends StatefulWidget {
@@ -21,6 +22,7 @@ class _TripDetailPageState extends State<TripDetailPage>
     with TickerProviderStateMixin {
   late TabController _tabController;
   late Trip _trip;
+  final TripService _tripService = TripService();
 
   @override
   void initState() {
@@ -92,7 +94,7 @@ class _TripDetailPageState extends State<TripDetailPage>
         ),
         const SizedBox(height: 10),
         ElevatedButton.icon(
-          onPressed: () => _showBudgetDialog(context, trip),
+          onPressed: () => _showTripSummaryDialog(context, trip),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.white,
             foregroundColor: Colors.black,
@@ -105,8 +107,8 @@ class _TripDetailPageState extends State<TripDetailPage>
           ),
           icon: const Icon(Icons.account_balance_wallet, size: 14),
           label: const Text(
-            "Ver presupuesto",
-            style: TextStyle(fontSize: 11),
+            "Más información",
+            style: TextStyle(fontSize: 10),
           ),
         ),
         const SizedBox(height: 20),
@@ -174,21 +176,41 @@ class _TripDetailPageState extends State<TripDetailPage>
                     );
 
                     if (updated == true) {
-                      await _reloadTrip(); // Recargar los datos actualizados
+                      await _reloadTrip();
                     }
                   },
                 ),
                 PopupMenuButton<String>(
                   icon: const Icon(Icons.add, color: Colors.white, size: 30),
                   color: Colors.grey[900],
-                  onSelected: (value) {
+                  onSelected: (value) async {
                     switch (value) {
                       case 'expense':
                         print("Nuevo gasto");
                         break;
                       case 'income':
-                        print("Nuevo ingreso");
+                        final newIncome = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => IncomeForm(
+                              trip: _trip,
+                              onSave: (income) {
+                                Navigator.pop(context, income);
+                              },
+                            ),
+                          ),
+                        );
+
+                        if (newIncome != null && newIncome is Income) {
+                          setState(() {
+                            _trip.transactions.add(newIncome);
+                            _tabController.animateTo(1);
+                            //_tripService
+                          });
+                        }
+
                         break;
+
                       case 'change':
                         print("Nuevo cambio");
                         break;
@@ -321,55 +343,93 @@ class _TripDetailPageState extends State<TripDetailPage>
   }
 }
 
-void _showBudgetDialog(BuildContext context, Trip trip) {
+void _showTripSummaryDialog(BuildContext context, Trip trip) {
   final budget = trip.budget;
-
-  if (budget == null) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: Colors.black87,
-        title: const Text('Presupuesto', style: TextStyle(color: Colors.white)),
-        content: const Text('No hay presupuesto asignado.',
-            style: TextStyle(color: Colors.white70)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cerrar', style: TextStyle(color: Colors.white)),
-          )
-        ],
-      ),
-    );
-    return;
-  }
 
   showDialog(
     context: context,
     builder: (_) => AlertDialog(
       backgroundColor: Colors.black,
-      title: const Text('Presupuesto', style: TextStyle(color: Colors.white)),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Límite Máximo: ${budget.maxLimit} €',
-              style: const TextStyle(color: Colors.white)),
-          Text('Límite Deseado: ${budget.desiredLimit} €',
-              style: const TextStyle(color: Colors.white)),
-          Text('Acumulado: ${budget.accumulated} €',
-              style: const TextStyle(color: Colors.white)),
-          Text('¿Aumentar límite?: ${budget.limitIncrease ? "Sí" : "No"}',
-              style: const TextStyle(color: Colors.white)),
-        ],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+      content: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.95,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Resumen del Viaje',
+                  style: TextStyle(color: Colors.white, fontSize: 22)),
+              const SizedBox(height: 10),
+              Text(trip.title,
+                  style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500)),
+              const SizedBox(height: 24),
+              _buildSectionTitle('Destino'),
+              _buildInfoText(trip.destination),
+              const SizedBox(height: 16),
+              _buildSectionTitle('Países'),
+              _buildInfoText(trip.countries.map((c) => c.name).join(', ')),
+              const SizedBox(height: 16),
+              _buildSectionTitle('Fechas'),
+              _buildInfoText(_formatTripDates(trip)),
+              const SizedBox(height: 16),
+              _buildSectionTitle('Divisa'),
+              _buildInfoText('${trip.currency.symbol} - ${trip.currency.name}'),
+              const SizedBox(height: 16),
+              _buildSectionTitle('Presupuesto'),
+              if (budget != null) ...[
+                _buildInfoText('Límite Máximo: ${budget.maxLimit} €'),
+                _buildInfoText('Límite Deseado: ${budget.desiredLimit} €'),
+                _buildInfoText('Acumulado: ${budget.accumulated} €'),
+                _buildInfoText(
+                    '¿Aumentar límite?: ${budget.limitIncrease ? "Sí" : "No"}'),
+              ] else
+                _buildInfoText('No hay presupuesto asignado.'),
+            ],
+          ),
+        ),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cerrar', style: TextStyle(color: Colors.white)),
-        )
+          child: const Text('Cerrar', style: TextStyle(color: Colors.white70)),
+        ),
       ],
     ),
   );
+}
+
+Widget _buildSectionTitle(String title) {
+  return Text(
+    title,
+    style: const TextStyle(
+      fontSize: 16,
+      color: Colors.white,
+      fontWeight: FontWeight.bold,
+    ),
+  );
+}
+
+Widget _buildInfoText(String text) {
+  return Padding(
+    padding: const EdgeInsets.only(top: 4.0),
+    child: Text(
+      text,
+      style: const TextStyle(color: Colors.white70, fontSize: 14),
+    ),
+  );
+}
+
+String _formatTripDates(Trip trip) {
+  final start = DateFormat('dd-MM-yyyy').format(trip.dateStart!);
+  if (trip.dateEnd != null) {
+    final end = DateFormat('dd-MM-yyyy').format(trip.dateEnd!);
+    return '$start → $end';
+  }
+  return start;
 }
 
 Widget _buildExpenseList(Trip trip) {
@@ -478,7 +538,7 @@ Widget _buildIncomeList(Trip trip) {
                 children: [
                   Text(
                     income.description ?? 'Sin descripción',
-                    style: const TextStyle(fontSize: 15, color: Colors.white),
+                    style: const TextStyle(fontSize: 16, color: Colors.white),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 2,
                   ),
@@ -553,7 +613,7 @@ Widget _buildChangeList(Trip trip) {
                 children: [
                   Text(
                     change.description ?? 'Sin descripción',
-                    style: const TextStyle(fontSize: 15, color: Colors.white),
+                    style: const TextStyle(fontSize: 16, color: Colors.white),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 2,
                   ),

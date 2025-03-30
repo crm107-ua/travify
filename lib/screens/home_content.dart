@@ -328,7 +328,7 @@ class _HomeContentState extends State<HomeContent>
             Text(
               DateFormat('dd-MM-yyyy').format(trip.dateStart!),
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
               ),
@@ -340,7 +340,7 @@ class _HomeContentState extends State<HomeContent>
               Text(
                 DateFormat('dd-MM-yyyy').format(trip.dateEnd!),
                 style: const TextStyle(
-                  fontSize: 14,
+                  fontSize: 12,
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
                 ),

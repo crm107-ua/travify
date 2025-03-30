@@ -119,7 +119,7 @@ class _HorizontalGridWithIndicatorState
                           ),
                         ),
                         Expanded(
-                          flex: 2,
+                          flex: 1,
                           child: Container(
                             padding: const EdgeInsets.only(left: 5),
                             child: Column(

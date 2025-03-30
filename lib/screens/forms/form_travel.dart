@@ -360,7 +360,7 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
       appBar: AppBar(
         title: Text(
           widget.trip != null ? 'Editar viaje' : 'Crea tu nuevo viaje',
-          style: TextStyle(fontSize: 20),
+          style: TextStyle(fontSize: 19),
         ),
         backgroundColor: Colors.black,
         foregroundColor: Colors.white,
