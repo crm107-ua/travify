@@ -202,7 +202,7 @@ Future<void> seedDatabaseAll(Database db) async {
     'transaction_id': transaction3Id,
     'category': ExpenseCategory.transport.index,
     'isAmortization': 1,
-    'amortization': 500,
+    'amortization': 33.33,
     // Ajustamos las fechas a partir de la fecha de la transacción (hoy+22)
     'start_date_amortization':
         DateTime.now().add(Duration(days: 22)).millisecondsSinceEpoch,

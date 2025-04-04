@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:travify/enums/expense_category.dart';
+import 'package:travify/enums/recurrent_income_type.dart';
 import 'package:travify/enums/transaction_type.dart';
 import 'package:travify/models/change.dart';
 import 'package:travify/models/expense.dart';
 import 'package:travify/models/income.dart';
 import 'package:travify/models/trip.dart';
+import 'package:travify/screens/forms/form_expense.dart';
 import 'package:travify/screens/forms/form_income.dart';
 import 'package:travify/screens/forms/form_travel.dart';
 import 'package:travify/services/trip_service.dart';
 
 class TripDetailPage extends StatefulWidget {
   final Trip trip;
-  const TripDetailPage({Key? key, required this.trip}) : super(key: key);
+  const TripDetailPage({super.key, required this.trip});
 
   @override
   State<TripDetailPage> createState() => _TripDetailPageState();
@@ -186,7 +188,25 @@ class _TripDetailPageState extends State<TripDetailPage>
                   onSelected: (value) async {
                     switch (value) {
                       case 'expense':
-                        print("Nuevo gasto");
+                        final newExpense = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ExpenseForm(
+                              trip: _trip,
+                              onSave: (expense) {
+                                Navigator.pop(context, expense);
+                              },
+                            ),
+                          ),
+                        );
+
+                        if (newExpense != null && newExpense is Expense) {
+                          setState(() {
+                            _trip.transactions.add(newExpense);
+                            _tabController.animateTo(0);
+                          });
+                        }
+
                         break;
                       case 'income':
                         final newIncome = await Navigator.push(
@@ -459,7 +479,6 @@ Widget _buildExpenseList(Trip trip) {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-              // <-- Añadir aquí Expanded
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -484,18 +503,49 @@ Widget _buildExpenseList(Trip trip) {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  '-${expense.amount}${trip.currency.symbol}',
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16),
+                expense.isAmortization == true
+                    ? Text(
+                        '-${expense.amortization?.toStringAsFixed(2)}${trip.currency.symbol}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      )
+                    : Text(
+                        '-${expense.amount.toStringAsFixed(2)}${trip.currency.symbol}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    if (expense.isAmortization == true)
+                      Text(
+                        'Total: (${expense.amount.toStringAsFixed(2)}${trip.currency.symbol}) - ',
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 13),
+                      ),
+                    Text(
+                      "${expense.category.label}"
+                      "${expense.isAmortization == false ? ' - Gasto único' : ''}",
+                      style:
+                          const TextStyle(color: Colors.white70, fontSize: 14),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  expense.category.label,
-                  style: const TextStyle(color: Colors.white70, fontSize: 14),
-                ),
+                if (expense.isAmortization == true &&
+                    expense.startDateAmortization != null &&
+                    expense.endDateAmortization != null)
+                  Text(
+                    '${DateFormat('dd/MM/yyyy').format(expense.startDateAmortization!)} - ${DateFormat('dd/MM/yyyy').format(expense.endDateAmortization!)}',
+                    style: const TextStyle(color: Colors.white70, fontSize: 13),
+                  ),
               ],
             ),
           ],
@@ -566,7 +616,9 @@ Widget _buildIncomeList(Trip trip) {
                 const SizedBox(height: 4),
                 Text(
                   income.isRecurrent == true
-                      ? 'Ingreso recurrente'
+                      ? income.nextRecurrentDate != null
+                          ? 'Próximo ingreso: ${DateFormat('dd/MM/yyyy').format(income.nextRecurrentDate!)}'
+                          : 'Recurrente'
                       : 'Ingreso único',
                   style: const TextStyle(color: Colors.white70, fontSize: 13),
                 ),

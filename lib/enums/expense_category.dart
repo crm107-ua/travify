@@ -10,15 +10,15 @@ extension ExpenseCategoryExtension on ExpenseCategory {
   String get label {
     switch (this) {
       case ExpenseCategory.accommodation:
-        return 'Accommodation';
+        return 'Alojamiento';
       case ExpenseCategory.food:
-        return 'Food';
+        return 'Comida';
       case ExpenseCategory.transport:
-        return 'Transport';
+        return 'Transporte';
       case ExpenseCategory.tourism:
-        return 'Tourism';
+        return 'Turismo';
       case ExpenseCategory.others:
-        return 'Others';
+        return 'Otros';
     }
   }
 }

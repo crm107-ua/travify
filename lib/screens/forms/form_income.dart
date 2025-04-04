@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:travify/enums/recurrent_income_type.dart';
 import 'package:travify/models/income.dart';
@@ -130,7 +131,11 @@ class _IncomeFormState extends State<IncomeForm> {
                   labelText: 'Cantidad (${widget.trip.currency.symbol})',
                   labelStyle: const TextStyle(color: Colors.white70),
                 ),
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
+                ],
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Este campo es obligatorio';

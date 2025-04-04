@@ -9,13 +9,13 @@ extension RecurrentIncomeTypeExtension on RecurrentIncomeType {
   String get label {
     switch (this) {
       case RecurrentIncomeType.daily:
-        return 'Daily';
+        return 'Diaria';
       case RecurrentIncomeType.weekly:
-        return 'Weekly';
+        return 'Semanal';
       case RecurrentIncomeType.monthly:
-        return 'Monthly';
+        return 'Mensual';
       case RecurrentIncomeType.yearly:
-        return 'Yearly';
+        return 'Anual';
     }
   }
 }
