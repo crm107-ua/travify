@@ -176,7 +176,10 @@ class _ExpenseFormState extends State<ExpenseForm> {
                       style: const TextStyle(color: Colors.white)),
                   trailing:
                       const Icon(Icons.calendar_today, color: Colors.white),
-                  onTap: () => _selectDate(context, true),
+                  onTap: () async {
+                    _selectDate(context, true);
+                    _calculateDailyAmortization();
+                  },
                 ),
                 ListTile(
                   title: Text(
@@ -186,7 +189,10 @@ class _ExpenseFormState extends State<ExpenseForm> {
                       style: const TextStyle(color: Colors.white)),
                   trailing:
                       const Icon(Icons.calendar_today, color: Colors.white),
-                  onTap: () => _selectDate(context, false),
+                  onTap: () async {
+                    await _selectDate(context, false);
+                    _calculateDailyAmortization();
+                  },
                 ),
                 if (_dailyAmortization != null)
                   Padding(
