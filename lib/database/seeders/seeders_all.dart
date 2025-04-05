@@ -69,7 +69,7 @@ Future<void> seedDatabaseAll(Database db) async {
     'date_end': DateTime.now().add(Duration(days: 3)).millisecondsSinceEpoch,
     'destination': 'Nueva York',
     'image':
-        'https://wallpapers.com/images/hd/4k-new-york-city-night-79y2vrc0ks0ucwh5.jpg',
+        'https://images.unsplash.com/photo-1500916434205-0c77489c6cf7?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8bmV3JTIweW9yayUyMGNpdHklMjB3YWxscGFwZXJ8ZW58MHx8MHx8fDA%3D',
     'open': 1,
     'budget_id': budget1Id,
     'currency_id': 1, // USD
