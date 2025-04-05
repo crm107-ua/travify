@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:travify/enums/expense_category.dart';
-import 'package:travify/enums/recurrent_income_type.dart';
+import 'package:travify/services/transaction_service.dart';
 import 'package:travify/enums/transaction_type.dart';
 import 'package:travify/models/change.dart';
 import 'package:travify/models/expense.dart';
@@ -24,7 +24,7 @@ class _TripDetailPageState extends State<TripDetailPage>
     with TickerProviderStateMixin {
   late TabController _tabController;
   late Trip _trip;
-  final TripService _tripService = TripService();
+  final TransactionService _transactionService = TransactionService();
 
   @override
   void initState() {
@@ -201,13 +201,15 @@ class _TripDetailPageState extends State<TripDetailPage>
                         );
 
                         if (newExpense != null && newExpense is Expense) {
+                          await _transactionService
+                              .createTransaction(newExpense);
                           setState(() {
                             _trip.transactions.add(newExpense);
                             _tabController.animateTo(0);
                           });
                         }
-
                         break;
+
                       case 'income':
                         final newIncome = await Navigator.push(
                           context,
@@ -222,13 +224,13 @@ class _TripDetailPageState extends State<TripDetailPage>
                         );
 
                         if (newIncome != null && newIncome is Income) {
+                          await _transactionService
+                              .createTransaction(newIncome);
                           setState(() {
                             _trip.transactions.add(newIncome);
                             _tabController.animateTo(1);
-                            //_tripService
                           });
                         }
-
                         break;
 
                       case 'change':

@@ -16,8 +16,6 @@ class TransactionDao {
   TransactionDao._internal();
 
   final DatabaseHelper _databaseHelper = DatabaseHelper();
-  final BudgetDao _budgetDao = BudgetDao();
-  final CountryDao _countryDao = CountryDao();
   final CurrencyDao _currencyDao = CurrencyDao();
 
   Future<List<Transaction>> getTransactions(int tripId) async {
@@ -120,5 +118,57 @@ class TransactionDao {
       'currencyRecived': currencyRecived.toMap(),
       'currencySpent': currencySpent.toMap(),
     });
+  }
+
+  /// Inserta una transacción
+  Future<int> createTransaction(Transaction transaction) async {
+    final db = await _databaseHelper.database;
+
+    // Solo inserta los campos válidos para `transactions`
+    final transactionMap = transaction.toTransactionMap();
+    int transactionId = await db.insert('transactions', transactionMap);
+
+    // Luego inserta los datos específicos
+    switch (transaction.type) {
+      case TransactionType.expense:
+        final expense = transaction as Expense;
+        await db.insert('expenses', {
+          'transaction_id': transactionId,
+          'category': expense.category.index,
+          'isAmortization': expense.isAmortization ? 1 : 0,
+          'amortization': expense.amortization ?? 0,
+          'start_date_amortization':
+              expense.startDateAmortization?.millisecondsSinceEpoch,
+          'end_date_amortization':
+              expense.endDateAmortization?.millisecondsSinceEpoch,
+          'next_amortization_date':
+              expense.nextAmortizationDate?.millisecondsSinceEpoch,
+        });
+        break;
+
+      case TransactionType.income:
+        final income = transaction as Income;
+        await db.insert('incomes', {
+          'transaction_id': transactionId,
+          'is_recurrent': income.isRecurrent == true ? 1 : 0,
+          'recurrent_income_type': income.recurrentIncomeType?.index,
+          'next_recurrent_date':
+              income.nextRecurrentDate?.millisecondsSinceEpoch,
+          'active': income.active == true ? 1 : 0,
+        });
+        break;
+
+      case TransactionType.change:
+        final change = transaction as Change;
+        await db.insert('chenges', {
+          'transaction_id': transactionId,
+          'currency_recived_id': change.currencyRecived.id,
+          'currency_spent_id': change.currencySpent.id,
+          'amount_recived': change.amountRecived,
+        });
+        break;
+    }
+
+    return transactionId;
   }
 }

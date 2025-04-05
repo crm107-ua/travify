@@ -5,6 +5,7 @@ import 'package:travify/models/income.dart';
 
 abstract class Transaction {
   final int id;
+  final int tripId;
   DateTime date;
   String? description;
   double amount;
@@ -13,10 +14,21 @@ abstract class Transaction {
 
   Transaction({
     required this.id,
+    required this.tripId,
     required this.date,
     this.description,
     required this.amount,
   });
+
+  Map<String, dynamic> toTransactionMap() {
+    return {
+      'trip_id': tripId,
+      'type': type.index,
+      'date': date.millisecondsSinceEpoch,
+      'description': description,
+      'amount': amount,
+    };
+  }
 
   Map<String, dynamic> toMap();
 

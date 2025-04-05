@@ -16,6 +16,7 @@ class Expense extends Transaction {
 
   Expense({
     required super.id,
+    required super.tripId,
     required super.date,
     super.description,
     required super.amount,
@@ -31,6 +32,7 @@ class Expense extends Transaction {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'trip_id': tripId,
       'type': type.index,
       'date': date.millisecondsSinceEpoch,
       'description': description,
@@ -49,6 +51,7 @@ class Expense extends Transaction {
   factory Expense.fromMap(Map<String, dynamic> map) {
     return Expense(
       id: map['id'],
+      tripId: map['trip_id'],
       date: DateTime.fromMillisecondsSinceEpoch(map['date']),
       description: map['description'],
       amount: map['amount'],
@@ -70,6 +73,7 @@ class Expense extends Transaction {
   @override
   Expense copy({
     int? id,
+    int? tripId,
     int? modeId,
     DateTime? date,
     String? description,
@@ -83,6 +87,7 @@ class Expense extends Transaction {
   }) {
     return Expense(
       id: id ?? this.id,
+      tripId: tripId ?? this.tripId,
       date: date ?? this.date,
       description: description ?? this.description,
       amount: amount ?? this.amount,
@@ -98,6 +103,6 @@ class Expense extends Transaction {
 
   @override
   String toString() {
-    return 'Expense{id: $id,  date: $date, description: $description, amount: $amount, category: $category, amortization: $amortization, startDateAmortization: $startDateAmortization, endDateAmortization: $endDateAmortization, nextAmortizationDate: $nextAmortizationDate}';
+    return 'Expense{id: $id, tripId: $tripId, date: $date, description: $description, amount: $amount, category: $category, isAmortization: $isAmortization, amortization: $amortization, startDateAmortization: $startDateAmortization, endDateAmortization: $endDateAmortization, nextAmortizationDate: $nextAmortizationDate}';
   }
 }

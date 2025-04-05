@@ -14,6 +14,7 @@ class Income extends Transaction {
 
   Income({
     required super.id,
+    required super.tripId,
     required super.date,
     super.description,
     required super.amount,
@@ -27,6 +28,7 @@ class Income extends Transaction {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'trip_id': tripId,
       'type': type.index,
       'date': date.millisecondsSinceEpoch,
       'description': description,
@@ -42,6 +44,7 @@ class Income extends Transaction {
   factory Income.fromMap(Map<String, dynamic> map) {
     return Income(
       id: map['id'],
+      tripId: map['trip_id'],
       date: DateTime.fromMillisecondsSinceEpoch(map['date']),
       description: map['description'],
       amount: map['amount'],
@@ -74,6 +77,7 @@ class Income extends Transaction {
   }) {
     return Income(
         id: id ?? this.id,
+        tripId: trip?.id ?? this.tripId,
         date: date ?? this.date,
         description: description ?? this.description,
         amount: amount ?? this.amount,
@@ -85,6 +89,6 @@ class Income extends Transaction {
 
   @override
   String toString() {
-    return 'Income{id: $id, date: $date, description: $description, amount: $amount, recurrentIncomeType: $recurrentIncomeType, isRecurrent: $isRecurrent, nextRecurrentDate: $nextRecurrentDate, active: $active}';
+    return 'Income{id: $id, tripId: $tripId, date: $date, description: $description, amount: $amount, recurrentIncomeType: $recurrentIncomeType, isRecurrent: $isRecurrent, nextRecurrentDate: $nextRecurrentDate, active: $active}';
   }
 }

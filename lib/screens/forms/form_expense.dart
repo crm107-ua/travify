@@ -1,7 +1,9 @@
+import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:travify/enums/expense_category.dart';
+import 'package:travify/enums/transaction_type.dart';
 import 'package:travify/models/expense.dart';
 import 'package:travify/models/trip.dart';
 import 'package:travify/services/trip_service.dart';
@@ -25,9 +27,9 @@ class ExpenseForm extends StatefulWidget {
 class _ExpenseFormState extends State<ExpenseForm> {
   final _formKey = GlobalKey<FormState>();
 
-  final TripService _tripService = TripService();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
+  final TripService _tripService = TripService();
 
   DateTime _selectedDate = DateTime.now();
   ExpenseCategory? _category;
@@ -50,6 +52,27 @@ class _ExpenseFormState extends State<ExpenseForm> {
       _endDateAmortization = expense.endDateAmortization;
       _calculateDailyAmortization();
     }
+  }
+
+  void _showSnackBar(String message) {
+    Flushbar(
+      duration: Duration(seconds: 2),
+      borderRadius: BorderRadius.circular(8),
+      margin: EdgeInsets.all(16),
+      flushbarPosition: FlushbarPosition.BOTTOM,
+      dismissDirection: FlushbarDismissDirection.VERTICAL,
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Colors.grey[850]!
+          : Colors.grey[200]!,
+      messageText: Text(
+        message,
+        style: TextStyle(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white
+              : Colors.black,
+        ),
+      ),
+    ).show(context);
   }
 
   void _calculateDailyAmortization() {
@@ -204,11 +227,12 @@ class _ExpenseFormState extends State<ExpenseForm> {
               ],
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (!_formKey.currentState!.validate()) return;
 
                   final expense = Expense(
                     id: widget.expense?.id ?? 0,
+                    tripId: widget.trip.id,
                     date: _selectedDate,
                     description: _descriptionController.text,
                     amount: double.parse(_amountController.text),
@@ -218,6 +242,24 @@ class _ExpenseFormState extends State<ExpenseForm> {
                     startDateAmortization: _startDateAmortization,
                     endDateAmortization: _endDateAmortization,
                   );
+
+                  Trip trip =
+                      await _tripService.getTripById(widget.trip.id) as Trip;
+
+                  final double totalExpenses = trip.transactions
+                      .where((t) => t.type == TransactionType.expense)
+                      .whereType<Expense>()
+                      .fold(0.0, (sum, e) => sum + e.amount);
+
+                  final double totalWithNew = totalExpenses + expense.amount;
+
+                  if (trip.budget.limitIncrease) {
+                    if (totalWithNew > trip.budget.maxLimit) {
+                      _showSnackBar(
+                          'El gasto excede el límite del presupuesto: ${trip.budget.maxLimit} ${trip.currency.symbol}');
+                      return;
+                    }
+                  }
 
                   widget.onSave(expense);
                 },

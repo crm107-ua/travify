@@ -85,6 +85,7 @@ class _IncomeFormState extends State<IncomeForm> {
 
     final income = Income(
       id: widget.income?.id ?? 0,
+      tripId: widget.trip.id,
       date: _selectedDate,
       description: _descriptionController.text,
       amount: double.tryParse(_amountController.text) ?? 0.0,
