@@ -256,7 +256,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                   if (trip.budget.limitIncrease) {
                     if (totalWithNew > trip.budget.maxLimit) {
                       _showSnackBar(
-                          'El gasto excede el límite del presupuesto: ${trip.budget.maxLimit} ${trip.currency.symbol}');
+                          'Vas a exceder el límite del presupuesto: ${trip.budget.maxLimit} ${trip.currency.symbol}');
                       return;
                     }
                   }

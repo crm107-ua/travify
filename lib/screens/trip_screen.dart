@@ -458,7 +458,20 @@ Widget _buildExpenseList(Trip trip) {
   final expenses = trip.transactions
       .where((transaction) => transaction.type == TransactionType.expense)
       .whereType<Expense>()
-      .toList();
+      .toList()
+    ..sort((a, b) => a.date.compareTo(b.date));
+
+  if (expenses.isEmpty) {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.only(bottom: 80),
+        child: Text(
+          'Crea tu primer gasto ✨',
+          style: TextStyle(color: Colors.white, fontSize: 19),
+        ),
+      ),
+    );
+  }
 
   return ListView.builder(
     padding: const EdgeInsets.all(16),
@@ -561,7 +574,20 @@ Widget _buildIncomeList(Trip trip) {
   final incomes = trip.transactions
       .where((transaction) => transaction.type == TransactionType.income)
       .whereType<Income>()
-      .toList();
+      .toList()
+    ..sort((a, b) => b.date.compareTo(a.date)); // más reciente primero
+
+  if (incomes.isEmpty) {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.only(bottom: 80),
+        child: Text(
+          'Crea tu primer ingreso ✨',
+          style: TextStyle(color: Colors.white, fontSize: 19),
+        ),
+      ),
+    );
+  }
 
   return ListView.builder(
     padding: const EdgeInsets.all(16),
@@ -637,7 +663,20 @@ Widget _buildChangeList(Trip trip) {
   final changes = trip.transactions
       .where((transaction) => transaction.type == TransactionType.change)
       .whereType<Change>()
-      .toList();
+      .toList()
+    ..sort((a, b) => a.date.compareTo(b.date));
+
+  if (changes.isEmpty) {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.only(bottom: 80),
+        child: Text(
+          'Crea tu primer cambio ✨',
+          style: TextStyle(color: Colors.white, fontSize: 19),
+        ),
+      ),
+    );
+  }
 
   return ListView.builder(
     padding: const EdgeInsets.all(16),
