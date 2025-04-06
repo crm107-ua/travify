@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:travify/enums/expense_category.dart';
 import 'package:travify/enums/transaction_type.dart';
 import 'package:travify/models/expense.dart';
+import 'package:travify/models/income.dart';
 import 'package:travify/models/trip.dart';
 import 'package:travify/services/trip_service.dart';
 
@@ -246,12 +247,25 @@ class _ExpenseFormState extends State<ExpenseForm> {
                   Trip trip =
                       await _tripService.getTripById(widget.trip.id) as Trip;
 
-                  final double totalExpenses = trip.transactions
-                      .where((t) => t.type == TransactionType.expense)
+                  final totalExpenses = trip.transactions
+                      .where((transaction) =>
+                          transaction.type == TransactionType.expense)
                       .whereType<Expense>()
-                      .fold(0.0, (sum, e) => sum + e.amount);
+                      .fold(0.0, (sum, expense) {
+                    if (expense.isAmortization == true) {
+                      return sum + expense.amortization!;
+                    } else {
+                      return sum + expense.amount;
+                    }
+                  });
 
-                  final double totalWithNew = totalExpenses + expense.amount;
+                  final totalIncomes = trip.transactions
+                      .where((transaction) =>
+                          transaction.type == TransactionType.income)
+                      .whereType<Income>()
+                      .fold(0.0, (sum, income) => sum + income.amount);
+
+                  final double totalWithNew = totalIncomes - totalExpenses;
 
                   if (trip.budget.limitIncrease) {
                     if (totalWithNew > trip.budget.maxLimit) {

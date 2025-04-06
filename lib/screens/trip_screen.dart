@@ -25,12 +25,14 @@ class _TripDetailPageState extends State<TripDetailPage>
   late TabController _tabController;
   late Trip _trip;
   final TransactionService _transactionService = TransactionService();
+  double _realBalance = 0.0;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _trip = widget.trip;
+    _calcRealBalance();
   }
 
   Future<void> _reloadTrip() async {
@@ -38,7 +40,39 @@ class _TripDetailPageState extends State<TripDetailPage>
     if (updated != null) {
       setState(() {
         _trip = updated;
+        _calcRealBalance();
       });
+    }
+  }
+
+  void _calcRealBalance() {
+    final totalExpenses = _trip.transactions
+        .where((transaction) => transaction.type == TransactionType.expense)
+        .whereType<Expense>()
+        .fold(0.0, (sum, expense) {
+      if (expense.isAmortization == true) {
+        return sum + expense.amortization!;
+      } else {
+        return sum + expense.amount;
+      }
+    });
+
+    final totalIncomes = _trip.transactions
+        .where((transaction) => transaction.type == TransactionType.income)
+        .whereType<Income>()
+        .fold(0.0, (sum, income) => sum + income.amount);
+
+    _realBalance = totalIncomes - totalExpenses;
+  }
+
+  Color _getBalanceColor() {
+    final positiveRealBalance = _realBalance.abs();
+    if (_realBalance < 0 && positiveRealBalance > _trip.budget.desiredLimit) {
+      return Colors.redAccent;
+    } else if (_realBalance > 0) {
+      return Colors.greenAccent;
+    } else {
+      return Colors.amberAccent;
     }
   }
 
@@ -94,26 +128,70 @@ class _TripDetailPageState extends State<TripDetailPage>
             ],
           ],
         ),
-        const SizedBox(height: 10),
-        ElevatedButton.icon(
-          onPressed: () => _showTripSummaryDialog(context, trip),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            minimumSize: const Size(5, 26),
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(30),
+        const SizedBox(height: 15),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Flexible(
+              child: Row(
+                children: [
+                  const Icon(Icons.flag, color: Colors.white70, size: 18),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Deseado: ${trip.budget.desiredLimit.toStringAsFixed(2)} ${trip.currency.symbol}',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.white70,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-          icon: const Icon(Icons.account_balance_wallet, size: 14),
-          label: const Text(
-            "Más información",
-            style: TextStyle(fontSize: 10),
-          ),
+            trip.transactions.isNotEmpty
+                ? Flexible(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Icon(
+                          _realBalance > 0
+                              ? Icons.arrow_upward
+                              : _realBalance < 0
+                                  ? Icons.arrow_downward
+                                  : Icons.equalizer,
+                          color: _getBalanceColor(),
+                          size: 18,
+                        ),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              _realBalance > 0
+                                  ? '+${_realBalance.toStringAsFixed(2)} ${trip.currency.symbol}'
+                                  : '${_realBalance.toStringAsFixed(2)} ${trip.currency.symbol}',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: _getBalanceColor(),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                      ],
+                    ),
+                  )
+                : const SizedBox.shrink(),
+          ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 30),
       ],
     );
   }
@@ -135,52 +213,86 @@ class _TripDetailPageState extends State<TripDetailPage>
               backgroundColor: Colors.black,
               actions: [
                 IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.white, size: 23),
-                  onPressed: () async {
-                    final result = await showDialog<bool>(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        backgroundColor: Colors.black87,
-                        title: const Text('Eliminar viaje',
-                            style: TextStyle(color: Colors.white)),
-                        content: const Text(
-                            '¿Estás seguro de que deseas eliminar este viaje?',
-                            style: TextStyle(color: Colors.white70)),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, false),
-                            child: const Text('Cancelar',
+                  icon: const Icon(Icons.account_balance_wallet,
+                      color: Colors.white, size: 23),
+                  onPressed: () => _showTripSummaryDialog(context, trip),
+                ),
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert,
+                      color: Colors.white, size: 23),
+                  color: Colors.grey[900],
+                  onSelected: (value) async {
+                    switch (value) {
+                      case 'edit':
+                        final updated = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                CreateOrEditTravelWizard(trip: _trip),
+                          ),
+                        );
+
+                        if (updated == true) {
+                          await _reloadTrip();
+                        }
+                        break;
+
+                      case 'delete':
+                        final result = await showDialog<bool>(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            backgroundColor: Colors.black87,
+                            title: const Text('Eliminar viaje',
                                 style: TextStyle(color: Colors.white)),
+                            content: const Text(
+                                '¿Estás seguro de que deseas eliminar este viaje?',
+                                style: TextStyle(color: Colors.white70)),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: const Text('Cancelar',
+                                    style: TextStyle(color: Colors.white)),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                child: const Text('Eliminar',
+                                    style: TextStyle(color: Colors.red)),
+                              ),
+                            ],
                           ),
-                          TextButton(
-                            onPressed: () => Navigator.pop(context, true),
-                            child: const Text('Eliminar',
-                                style: TextStyle(color: Colors.red)),
-                          ),
+                        );
+
+                        if (result == true) {
+                          await TripService().deleteTrip(trip.id);
+                          Navigator.pop(context, true);
+                        }
+                        break;
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 'edit',
+                      child: Row(
+                        children: [
+                          Icon(Icons.edit, color: Colors.white70, size: 18),
+                          SizedBox(width: 10),
+                          Text('Editar viaje',
+                              style: TextStyle(color: Colors.white)),
                         ],
                       ),
-                    );
-
-                    if (result == true) {
-                      await TripService().deleteTrip(trip.id);
-                      Navigator.pop(context, true);
-                    }
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.white, size: 23),
-                  onPressed: () async {
-                    final updated = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => CreateOrEditTravelWizard(trip: _trip),
+                    ),
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: Row(
+                        children: [
+                          Icon(Icons.delete, color: Colors.red, size: 18),
+                          SizedBox(width: 10),
+                          Text('Eliminar viaje',
+                              style: TextStyle(color: Colors.white)),
+                        ],
                       ),
-                    );
-
-                    if (updated == true) {
-                      await _reloadTrip();
-                    }
-                  },
+                    ),
+                  ],
                 ),
                 PopupMenuButton<String>(
                   icon: const Icon(Icons.add, color: Colors.white, size: 30),
@@ -206,6 +318,7 @@ class _TripDetailPageState extends State<TripDetailPage>
                           setState(() {
                             _trip.transactions.add(newExpense);
                             _tabController.animateTo(0);
+                            _calcRealBalance();
                           });
                         }
                         break;
@@ -229,6 +342,7 @@ class _TripDetailPageState extends State<TripDetailPage>
                           setState(() {
                             _trip.transactions.add(newIncome);
                             _tabController.animateTo(1);
+                            _calcRealBalance();
                           });
                         }
                         break;

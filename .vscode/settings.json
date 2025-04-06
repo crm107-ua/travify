@@ -1,0 +1,11 @@
+{
+    "sqltools.useNodeRuntime": true,
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "Travify",
+            "database": "/Users/carlosrobles/Library/Developer/CoreSimulator/Devices/54C0FE9B-F924-4053-8C41-107609B161B4/data/Containers/Data/Application/88F9C9ED-E389-4F17-949C-6938949E2476/Documents/travify.db"
+        }
+    ]
+}
