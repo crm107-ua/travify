@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'screens/main_screen.dart';
 import 'screens/pin_login_screen.dart';
 import 'services/settings_service.dart';
 import 'database/helpers/database_helper.dart';
+import 'package:travify/services/official_rates_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,16 +14,49 @@ void main() async {
   runApp(MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  final Connectivity _connectivity = Connectivity();
+
+  @override
+  void initState() {
+    super.initState();
+    _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
+      (List<ConnectivityResult> connectivityResults) {
+        final result = connectivityResults.isNotEmpty
+            ? connectivityResults.first
+            : ConnectivityResult.none;
+        _updateConnectionStatus(result);
+      },
+    );
+  }
+
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      _connectionStatus = result;
+    });
+    if (_connectionStatus != ConnectivityResult.none) {
+      await updateOfficialRates();
+    }
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'travify',
       debugShowCheckedModeBanner: false,
-
-      // -------------------------
-      // 1. Definimos el Tema Claro
-      // -------------------------
       theme: ThemeData(
         brightness: Brightness.light,
         primarySwatch: Colors.blue,
@@ -33,10 +69,6 @@ class MyApp extends StatelessWidget {
               color: Colors.black, fontSize: 40, fontWeight: FontWeight.bold),
         ),
       ),
-
-      // -------------------------
-      // 2. Definimos el Tema Oscuro
-      // -------------------------
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         primarySwatch: Colors.blue,
@@ -49,18 +81,7 @@ class MyApp extends StatelessWidget {
               color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold),
         ),
       ),
-
-      // -------------------------
-      // 3. Cómo decides el tema
-      // -------------------------
-      // - ThemeMode.system: sigue la configuración del dispositivo
-      // - ThemeMode.light: fuerza el tema claro
-      // - ThemeMode.dark: fuerza el tema oscuro
       themeMode: ThemeMode.dark,
-
-      // -------------------------
-      // 4. Lógica de PIN opcional
-      // -------------------------
       home: FutureBuilder<String?>(
         future: SettingsService.getPin(),
         builder: (context, snapshot) {
@@ -69,11 +90,9 @@ class MyApp extends StatelessWidget {
               body: Center(child: CircularProgressIndicator()),
             );
           }
-          // Si existe PIN, primero validarlo
           if (snapshot.data != null && snapshot.data!.isNotEmpty) {
             return PinLoginScreen();
           } else {
-            // Si no hay PIN, directamente a la MainScreen
             return MainScreen();
           }
         },

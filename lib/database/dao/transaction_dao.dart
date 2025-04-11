@@ -90,13 +90,11 @@ class TransactionDao {
     return Income.fromMap({...transactionMap, ...incomeMap.first});
   }
 
-  /// Obtiene un `Change` con todos sus datos y resuelve claves foráneas de `currencies`
   Future<Change> _getChange(Map<String, dynamic> transactionMap) async {
     sdb.Database db = await _databaseHelper.database;
 
-    // Buscar datos en la tabla `chenges`
     List<Map<String, dynamic>> changeMap = await db.query(
-      'chenges',
+      'changes',
       where: 'transaction_id = ?',
       whereArgs: [transactionMap['id']],
     );
@@ -160,7 +158,7 @@ class TransactionDao {
 
       case TransactionType.change:
         final change = transaction as Change;
-        await db.insert('chenges', {
+        await db.insert('changes', {
           'transaction_id': transactionId,
           'currency_recived_id': change.currencyRecived.id,
           'currency_spent_id': change.currencySpent.id,

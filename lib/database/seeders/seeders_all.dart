@@ -230,18 +230,20 @@ Future<void> seedDatabaseAll(Database db) async {
     'active': 1,
   });
 
-// Insertar en chenges
-  await db.insert('chenges', {
+// Insertar en changes
+  await db.insert('changes', {
     'transaction_id': transactionChange1Id,
-    'currency_recived_id': 1, // USD
-    'currency_spent_id': 1, // USD
+    'currency_recived_id': 1,
+    'currency_spent_id': 1,
+    'commission': 0.02,
     'amount_recived': 0.0,
   });
 
-  await db.insert('chenges', {
+  await db.insert('changes', {
     'transaction_id': transactionChange2Id,
-    'currency_recived_id': 1, // USD
-    'currency_spent_id': 1, // USD
+    'currency_recived_id': 1,
+    'currency_spent_id': 1,
+    'commission': 0.02,
     'amount_recived': 300.0,
   });
 }

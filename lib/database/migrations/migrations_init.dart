@@ -124,18 +124,32 @@ Future<void> createAllTables(Database db) async {
     )
   ''');
 
-  // 8) Tabla chenges (para Chenge)
+  // 8) Tabla changes (para Chenge)
   //
   // Relación 1:1 con "transactions"
   // - currency_recived_id, currency_spent_id apuntan a "currencies"
   await db.execute('''
-    CREATE TABLE chenges (
+    CREATE TABLE changes (
       transaction_id      INTEGER PRIMARY KEY,
       currency_recived_id INTEGER NOT NULL,
       currency_spent_id   INTEGER NOT NULL,
+      commission          REAL NOT NULL,
       amount_recived      REAL NOT NULL,
 
       FOREIGN KEY(transaction_id) REFERENCES transactions(id) ON DELETE CASCADE,
+      FOREIGN KEY(currency_recived_id) REFERENCES currencies(id) ON DELETE CASCADE,
+      FOREIGN KEY(currency_spent_id)   REFERENCES currencies(id) ON DELETE CASCADE
+    )
+  ''');
+
+  // 9) Tabla oficial_rates (para CurrencyRate)
+  await db.execute('''
+    CREATE TABLE official_rates (
+      id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+      currency_recived_id INTEGER NOT NULL,
+      currency_spent_id   INTEGER NOT NULL,
+      rate                REAL NOT NULL,
+
       FOREIGN KEY(currency_recived_id) REFERENCES currencies(id) ON DELETE CASCADE,
       FOREIGN KEY(currency_spent_id)   REFERENCES currencies(id) ON DELETE CASCADE
     )

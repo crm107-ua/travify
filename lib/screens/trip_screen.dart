@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:travify/enums/expense_category.dart';
+import 'package:travify/screens/forms/form_change.dart';
 import 'package:travify/services/transaction_service.dart';
 import 'package:travify/enums/transaction_type.dart';
 import 'package:travify/models/change.dart';
@@ -142,7 +143,7 @@ class _TripDetailPageState extends State<TripDetailPage>
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'Deseado: ${trip.budget.desiredLimit.toStringAsFixed(2)} ${trip.currency.symbol}',
+                        'Gasto Deseado: ${trip.budget.desiredLimit.toStringAsFixed(2)} ${trip.currency.symbol}',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.white70,
@@ -348,7 +349,26 @@ class _TripDetailPageState extends State<TripDetailPage>
                         break;
 
                       case 'change':
-                        print("Nuevo cambio");
+                        final newChange = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChangeForm(
+                              trip: _trip,
+                              onSave: (change) {
+                                Navigator.pop(context, change);
+                              },
+                            ),
+                          ),
+                        );
+                        if (newChange != null && newChange is Change) {
+                          await _transactionService
+                              .createTransaction(newChange);
+                          setState(() {
+                            _trip.transactions.add(newChange);
+                            _tabController.animateTo(2);
+                            _calcRealBalance();
+                          });
+                        }
                         break;
                     }
                   },
