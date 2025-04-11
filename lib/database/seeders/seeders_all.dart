@@ -153,14 +153,6 @@ Future<void> seedDatabaseAll(Database db) async {
     'trip_id': tripNYId,
   });
 
-  final int transactionChange1Id = await db.insert('transactions', {
-    'type': TransactionType.change.index,
-    'date': DateTime.now().add(Duration(days: 1)).millisecondsSinceEpoch,
-    'description': 'Cambio de moneda',
-    'amount': 1200.0,
-    'trip_id': tripNYId,
-  });
-
   // Transacciones para el viaje a Toronto
   // (hoy + 22) y (hoy + 25) caen dentro de [hoy+20, hoy+30]
   final int transaction3Id = await db.insert('transactions', {
@@ -176,14 +168,6 @@ Future<void> seedDatabaseAll(Database db) async {
     'date': DateTime.now().add(Duration(days: 25)).millisecondsSinceEpoch,
     'description': 'Patrocinio de viaje',
     'amount': 800.0,
-    'trip_id': tripTorontoId,
-  });
-
-  final int transactionChange2Id = await db.insert('transactions', {
-    'type': TransactionType.change.index,
-    'date': DateTime.now().add(Duration(days: 26)).millisecondsSinceEpoch,
-    'description': 'Cambio de moneda',
-    'amount': 500.0,
     'trip_id': tripTorontoId,
   });
 
@@ -230,20 +214,150 @@ Future<void> seedDatabaseAll(Database db) async {
     'active': 1,
   });
 
+  // CHANGES
+
+  final int transactionChange1Id = await db.insert('transactions', {
+    'type': TransactionType.change.index,
+    'date': DateTime.now().add(Duration(days: 1)).millisecondsSinceEpoch,
+    'description': 'Cambio de moneda',
+    'amount': 1200.0,
+    'trip_id': tripNYId,
+  });
+
+  final int transactionChange2Id = await db.insert('transactions', {
+    'type': TransactionType.change.index,
+    'date': DateTime.now().add(Duration(days: 26)).millisecondsSinceEpoch,
+    'description': 'Cambio de moneda',
+    'amount': 100.0,
+    'trip_id': tripTorontoId,
+  });
+
+  final int transactionChange3Id = await db.insert('transactions', {
+    'type': TransactionType.change.index,
+    'date': DateTime.now().add(Duration(days: 26)).millisecondsSinceEpoch,
+    'description': 'Cambio de moneda',
+    'amount': 200.0,
+    'trip_id': tripTorontoId,
+  });
+
+  final int transactionChange4Id = await db.insert('transactions', {
+    'type': TransactionType.change.index,
+    'date': DateTime.now().add(Duration(days: 26)).millisecondsSinceEpoch,
+    'description': 'Cambio de moneda',
+    'amount': 150.0,
+    'trip_id': tripTorontoId,
+  });
+
+  final int transactionChange5Id = await db.insert('transactions', {
+    'type': TransactionType.change.index,
+    'date': DateTime.now().add(Duration(days: 26)).millisecondsSinceEpoch,
+    'description': 'Cambio de moneda',
+    'amount': 150.0,
+    'trip_id': tripTorontoId,
+  });
+
+  final int transactionChange6Id = await db.insert('transactions', {
+    'type': TransactionType.change.index,
+    'date': DateTime.now().add(Duration(days: 26)).millisecondsSinceEpoch,
+    'description': 'Cambio de moneda',
+    'amount': 500.0,
+    'trip_id': tripTorontoId,
+  });
+
+  final int transactionChange7Id = await db.insert('transactions', {
+    'type': TransactionType.change.index,
+    'date': DateTime.now().add(Duration(days: 26)).millisecondsSinceEpoch,
+    'description': 'Cambio de moneda',
+    'amount': 100.0,
+    'trip_id': tripTorontoId,
+  });
+
+  final int transactionChange8Id = await db.insert('transactions', {
+    'type': TransactionType.change.index,
+    'date': DateTime.now().add(Duration(days: 26)).millisecondsSinceEpoch,
+    'description': 'Cambio de moneda',
+    'amount': 50.0,
+    'trip_id': tripTorontoId,
+  });
+
+  final int transactionChange9Id = await db.insert('transactions', {
+    'type': TransactionType.change.index,
+    'date': DateTime.now().add(Duration(days: 26)).millisecondsSinceEpoch,
+    'description': 'Cambio de moneda',
+    'amount': 10000.0,
+    'trip_id': tripTorontoId,
+  });
+
 // Insertar en changes
   await db.insert('changes', {
     'transaction_id': transactionChange1Id,
-    'currency_recived_id': 1,
-    'currency_spent_id': 1,
+    'currency_recived_id': 3,
+    'currency_spent_id': 101,
     'commission': 0.02,
-    'amount_recived': 0.0,
+    'amount_recived': 3600.0,
   });
 
   await db.insert('changes', {
     'transaction_id': transactionChange2Id,
-    'currency_recived_id': 1,
-    'currency_spent_id': 1,
+    'currency_spent_id': 3,
+    'currency_recived_id': 101,
     'commission': 0.02,
-    'amount_recived': 300.0,
+    'amount_recived': 3600.0,
+  });
+
+  await db.insert('changes', {
+    'transaction_id': transactionChange3Id,
+    'currency_spent_id': 3,
+    'currency_recived_id': 1,
+    'commission': 0.0015,
+    'amount_recived': 210.5,
+  });
+
+  await db.insert('changes', {
+    'transaction_id': transactionChange4Id,
+    'currency_spent_id': 1,
+    'currency_recived_id': 101,
+    'commission': 0.03,
+    'amount_recived': 4950.0,
+  });
+
+  await db.insert('changes', {
+    'transaction_id': transactionChange5Id,
+    'currency_spent_id': 3,
+    'currency_recived_id': 101,
+    'commission': 0.02,
+    'amount_recived': 5500.0,
+  });
+
+  await db.insert('changes', {
+    'transaction_id': transactionChange6Id,
+    'currency_spent_id': 2,
+    'currency_recived_id': 55,
+    'commission': 0.025,
+    'amount_recived': 48000.0,
+  });
+
+  await db.insert('changes', {
+    'transaction_id': transactionChange7Id,
+    'currency_spent_id': 3,
+    'currency_recived_id': 1,
+    'commission': 0.01,
+    'amount_recived': 106.2,
+  });
+
+  await db.insert('changes', {
+    'transaction_id': transactionChange8Id,
+    'currency_spent_id': 1,
+    'currency_recived_id': 101,
+    'commission': 0.03,
+    'amount_recived': 1690.0,
+  });
+
+  await db.insert('changes', {
+    'transaction_id': transactionChange9Id,
+    'currency_spent_id': 55,
+    'currency_recived_id': 38,
+    'commission': 0.015,
+    'amount_recived': 53.0,
   });
 }

@@ -11,7 +11,6 @@ import '../helpers/database_helper.dart';
 import '../../models/trip.dart';
 
 class TripDao {
-  // Singleton Pattern
   static final TripDao _instance = TripDao._internal();
   static final BudgetDao _budgetDao = BudgetDao();
   static final CountryDao _countryDao = CountryDao();
