@@ -64,6 +64,16 @@ class CurrencyDao {
     return Currency.fromMap(currencyMaps.first);
   }
 
+  Future<Currency> getCurrencyByCode(String code) async {
+    Database db = await _databaseHelper.database;
+    List<Map<String, dynamic>> currencyMaps = await db.query(
+      'currencies',
+      where: 'code = ?',
+      whereArgs: [code],
+    );
+    return Currency.fromMap(currencyMaps.first);
+  }
+
   Future<List<Currency>> getCurrencies() async {
     Database db = await _databaseHelper.database;
     List<Map<String, dynamic>> maps = await db.query(

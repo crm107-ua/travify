@@ -11,4 +11,10 @@ class CurrencyService {
   Future<List<Currency>> getCountriesCurrencies(List<int> countriesIds) async {
     return await _currencyDao.getCountriesCurrencies(countriesIds);
   }
+
+  Future<Currency?> getCurrencyByCode(String code) async {
+    final List<Currency> currencies = await _currencyDao.getAllCurrencies();
+    return currencies.firstWhere((currency) => currency.code == code,
+        orElse: () => currencies.first);
+  }
 }

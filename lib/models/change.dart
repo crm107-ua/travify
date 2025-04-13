@@ -9,6 +9,7 @@ class Change extends Transaction {
 
   Currency currencyRecived;
   Currency currencySpent;
+  double commission;
   double amountRecived;
 
   Change({
@@ -19,6 +20,7 @@ class Change extends Transaction {
     required super.amount,
     required this.currencyRecived,
     required this.currencySpent,
+    required this.commission,
     required this.amountRecived,
   });
 
@@ -33,6 +35,7 @@ class Change extends Transaction {
       'amount': amount,
       'currencyRecived': currencyRecived.toMap(),
       'currencySpent': currencySpent.toMap(),
+      'commission': commission,
       'amountRecived': amountRecived,
     };
   }
@@ -47,6 +50,7 @@ class Change extends Transaction {
       amount: map['amount'],
       currencyRecived: Currency.fromMap(map['currencyRecived']),
       currencySpent: Currency.fromMap(map['currencySpent']),
+      commission: map['commission'],
       amountRecived: map['amount_recived'],
     );
   }
@@ -62,6 +66,7 @@ class Change extends Transaction {
     Trip? trip,
     Currency? currencyRecived,
     Currency? currencySpent,
+    double? commission,
     double? amountRecived,
   }) {
     return Change(
@@ -72,12 +77,13 @@ class Change extends Transaction {
       amount: amount ?? this.amount,
       currencyRecived: currencyRecived ?? this.currencyRecived,
       currencySpent: currencySpent ?? this.currencySpent,
+      commission: commission ?? this.commission,
       amountRecived: amountRecived ?? this.amountRecived,
     );
   }
 
   @override
   String toString() {
-    return 'Change{id: $id, tripId: $tripId, date: $date, description: $description, amount: $amount, currencyRecived: $currencyRecived, currencySpent: $currencySpent, amountRecived: $amountRecived}';
+    return 'Change{id: $id, tripId: $tripId, date: $date, description: $description, amount: $amount, currencyRecived: $currencyRecived, currencySpent: $currencySpent, commission: $commission, amountRecived: $amountRecived}';
   }
 }

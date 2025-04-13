@@ -855,16 +855,30 @@ Widget _buildChangeList(Trip trip) {
               ),
             ),
             const SizedBox(width: 30),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      'Com.: ${(change.commission * 100).toStringAsFixed(1)}%',
+                      style: const TextStyle(color: Colors.white, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
             Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.center, // altura mínima posible
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   '${change.amount}${change.currencySpent.symbol}',
                   style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13),
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
                 ),
                 const SizedBox(height: 3),
                 const Icon(Icons.arrow_downward, color: Colors.white, size: 18),
@@ -872,9 +886,10 @@ Widget _buildChangeList(Trip trip) {
                 Text(
                   '${change.amountRecived}${change.currencyRecived.symbol}',
                   style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13),
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
                 ),
               ],
             ),

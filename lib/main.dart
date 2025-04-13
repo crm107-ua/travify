@@ -23,6 +23,7 @@ class _MyAppState extends State<MyApp> {
   late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
   ConnectivityResult _connectionStatus = ConnectivityResult.none;
   final Connectivity _connectivity = Connectivity();
+  final OfficialRatesService _officialRatesService = OfficialRatesService();
 
   @override
   void initState() {
@@ -42,7 +43,7 @@ class _MyAppState extends State<MyApp> {
       _connectionStatus = result;
     });
     if (_connectionStatus != ConnectivityResult.none) {
-      await updateOfficialRates();
+      //await _officialRatesService.updateOfficialRates();
     }
   }
 
