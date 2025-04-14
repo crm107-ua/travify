@@ -524,7 +524,6 @@ class _ChangeFormState extends State<ChangeForm> {
                                     child: Text(
                                       'Directa',
                                       style: TextStyle(
-                                        // Podemos ajustar el tamaño del texto aquí si queremos
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -532,7 +531,7 @@ class _ChangeFormState extends State<ChangeForm> {
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 12),
+                                        horizontal: 12, vertical: 15.5),
                                     child: Text(
                                       'Óptima',
                                       style: TextStyle(
