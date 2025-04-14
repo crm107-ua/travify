@@ -170,4 +170,42 @@ class TransactionDao {
 
     return transactionId;
   }
+
+  // Devlver todos los changes de todos los viajes
+  Future<List<Change>> getAllChanges() async {
+    final db = await _databaseHelper.database;
+
+    // Join entre transactions y changes para obtener todos los campos en una sola consulta
+    final List<Map<String, dynamic>> maps = await db.rawQuery('''
+    SELECT t.*, c.currency_recived_id, c.currency_spent_id, c.commission, c.amount_recived
+    FROM transactions t
+    JOIN changes c ON t.id = c.transaction_id
+    ORDER BY t.date DESC
+  ''');
+
+    final List<Change> changes = [];
+
+    for (final map in maps) {
+      final currencyRecived =
+          await _currencyDao.getCurrencyById(map['currency_recived_id']);
+      final currencySpent =
+          await _currencyDao.getCurrencyById(map['currency_spent_id']);
+
+      final change = Change(
+        id: map['id'],
+        tripId: map['trip_id'],
+        date: DateTime.fromMillisecondsSinceEpoch(map['date']),
+        description: map['description'],
+        amount: (map['amount'] as num).toDouble(),
+        currencyRecived: currencyRecived,
+        currencySpent: currencySpent,
+        commission: (map['commission'] as num).toDouble(),
+        amountRecived: (map['amount_recived'] as num).toDouble(),
+      );
+
+      changes.add(change);
+    }
+
+    return changes;
+  }
 }

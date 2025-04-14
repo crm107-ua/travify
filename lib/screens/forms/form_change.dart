@@ -61,13 +61,19 @@ class _ChangeFormState extends State<ChangeForm> {
     _toAmountController.addListener(_onFormChanged);
     _commissionController.addListener(_onFormChanged);
 
-    // Cargar cambios históricos del viaje
-    changes = widget.trip.transactions.whereType<Change>().toList();
+    // Cargar cambios de todos los viajes
+    _loadAllChanges();
   }
 
   void _onFormChanged() {
-    // Esta función se llamará cada vez que un campo cambie de valor
     setState(() {});
+  }
+
+  void _loadAllChanges() async {
+    final allChanges = await _changeService.getAllChanges();
+    setState(() {
+      changes = allChanges;
+    });
   }
 
   void _loadCurrencies() async {

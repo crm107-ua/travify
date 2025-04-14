@@ -1,5 +1,6 @@
 import 'package:travify/database/dao/currency_dao.dart';
 import 'package:travify/database/dao/rate_dao.dart';
+import 'package:travify/database/dao/transaction_dao.dart';
 import 'package:travify/models/change.dart';
 import 'package:travify/models/currency.dart';
 import 'package:travify/models/rate.dart';
@@ -8,8 +9,14 @@ import 'package:travify/screens/forms/form_change.dart';
 class ChangeService {
   final rateDao = RateDao();
   final currencyDao = CurrencyDao();
+  final transactioDao = TransactionDao();
+
   List<Map<String, dynamic>> historicalMap = [];
   Map<String, double> ratesMap = {};
+
+  Future<List<Change>> getAllChanges() async {
+    return await transactioDao.getAllChanges();
+  }
 
   Future<void> getOfficialRatesAsMap() async {
     final List<Rate> rates = await rateDao.getAllRates();
