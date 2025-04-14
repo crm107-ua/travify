@@ -3,6 +3,7 @@ import 'package:travify/database/dao/rate_dao.dart';
 import 'package:travify/models/change.dart';
 import 'package:travify/models/currency.dart';
 import 'package:travify/models/rate.dart';
+import 'package:travify/screens/forms/form_change.dart';
 
 class ChangeService {
   final rateDao = RateDao();
@@ -222,19 +223,22 @@ class ChangeService {
 
   Future<List<Change>> confirmChange(
       List<String>? optimalRoute,
+      String? fromCode,
+      String? toCode,
       double initialAmount,
       double commissionInput,
-      List<Change> changes) async {
+      List<Change> changes,
+      RouteOption? selectedOption) async {
     List<Change> changesToSave = [];
 
     double currentAmount = initialAmount;
 
     if (optimalRoute != null) {
-      for (int i = 0; i < optimalRoute.length - 1; i++) {
-        final result = await ejemploDeUso(
+      if (selectedOption == RouteOption.direct) {
+        final result = await initChange(
           changes,
-          optimalRoute[i],
-          optimalRoute[i + 1],
+          fromCode!,
+          toCode!,
           commissionInput,
           currentAmount,
         );
@@ -248,10 +252,8 @@ class ChangeService {
           currentAmount = montoDirecto;
         }
 
-        Currency? fromCurrency =
-            await currencyDao.getCurrencyByCode(optimalRoute[i]);
-        Currency? toCurrency =
-            await currencyDao.getCurrencyByCode(optimalRoute[i + 1]);
+        Currency? fromCurrency = await currencyDao.getCurrencyByCode(fromCode);
+        Currency? toCurrency = await currencyDao.getCurrencyByCode(toCode);
 
         Change newChange = Change(
           id: 0,
@@ -266,6 +268,44 @@ class ChangeService {
         );
 
         changesToSave.add(newChange);
+      } else {
+        for (int i = 0; i < optimalRoute.length - 1; i++) {
+          final result = await initChange(
+            changes,
+            optimalRoute[i],
+            optimalRoute[i + 1],
+            commissionInput,
+            currentAmount,
+          );
+
+          final montoInicial = result['montoInicial'];
+          final origen = result['origen'];
+          final destino = result['destino'];
+          final montoDirecto = result['montoDirecto'];
+
+          if (montoDirecto != null) {
+            currentAmount = montoDirecto;
+          }
+
+          Currency? fromCurrency =
+              await currencyDao.getCurrencyByCode(optimalRoute[i]);
+          Currency? toCurrency =
+              await currencyDao.getCurrencyByCode(optimalRoute[i + 1]);
+
+          Change newChange = Change(
+            id: 0,
+            tripId: changes.first.tripId,
+            date: DateTime.now(),
+            description: 'Cambio de $origen a $destino',
+            amount: montoInicial,
+            currencyRecived: toCurrency!,
+            currencySpent: fromCurrency!,
+            commission: commissionInput,
+            amountRecived: montoDirecto,
+          );
+
+          changesToSave.add(newChange);
+        }
       }
     } else {
       print("No se encontró ruta óptima.");
@@ -273,7 +313,7 @@ class ChangeService {
     return changesToSave;
   }
 
-  Future<Map<String, dynamic>> ejemploDeUso(
+  Future<Map<String, dynamic>> initChange(
     List<Change> changes,
     String origenUsuario,
     String destinoUsuario,

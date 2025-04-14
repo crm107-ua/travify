@@ -43,6 +43,7 @@ class _ChangeFormState extends State<ChangeForm> {
   List<Currency> _currencies = [];
   bool _isLoading = true;
   RouteOption? _selectedOption;
+  int _selectedChipIndex = 0;
 
   @override
   void initState() {
@@ -285,7 +286,7 @@ class _ChangeFormState extends State<ChangeForm> {
     }
 
     return FutureBuilder<Map<String, dynamic>>(
-      future: _changeService.ejemploDeUso(
+      future: _changeService.initChange(
         changes,
         fromCode,
         toCode,
@@ -328,34 +329,54 @@ class _ChangeFormState extends State<ChangeForm> {
         final (double mejorMonto, List<String> mejorRuta) =
             data['mejorRuta'] as (double, List<String>);
 
-        final top3Chips = top3.asMap().entries.map((entry) {
-          final i = entry.key + 1;
+        final List<Widget> top3ChoiceChips = top3.asMap().entries.map((entry) {
+          final i = entry.key;
           final (monto, ruta) = entry.value;
-          return Chip(
+
+          return ChoiceChip(
             label: Text(
-              '#$i: ${ruta.join(' → ')} => ${monto.toStringAsFixed(2)} $destino',
+              '#${i + 1}: ${ruta.join(' → ')} => ${monto.toStringAsFixed(2)} $destino',
               style: const TextStyle(color: Colors.white, fontSize: 14),
             ),
+            selectedColor: Colors.blueGrey,
+            disabledColor: Colors.grey[700],
             backgroundColor: Colors.grey[700],
+            selected: _selectedChipIndex == i,
+            onSelected: (bool selected) {
+              _selectedOption = RouteOption.best;
+              setState(() {
+                if (selected) {
+                  _selectedChipIndex = i;
+                }
+              });
+            },
           );
         }).toList();
 
-        // Texto sobre la ruta óptima
-        final mejorText =
-            'Ruta óptima (#1): ${mejorRuta.join(' → ')} => ${mejorMonto.toStringAsFixed(2)} $destino';
+        final double chosenMonto = _selectedOption == RouteOption.direct
+            ? mejorMonto
+            : top3[_selectedChipIndex].$1;
 
-        // Para la comparación
+        final double displayMonto = _selectedOption == RouteOption.direct
+            ? (montoDirecto ?? mejorMonto)
+            : top3[_selectedChipIndex].$1;
+
+        final String rutaTexto = _selectedOption == RouteOption.direct
+            ? 'ruta directa'
+            : 'ruta #${_selectedChipIndex + 1}';
+
         String comparacion = 'No se puede comparar con ruta directa.';
         if (montoDirecto != null) {
-          final diff = mejorMonto - montoDirecto;
+          final diff = chosenMonto - montoDirecto;
           if (diff > 0) {
             comparacion =
-                'La ruta #1 supera a la directa en ${diff.toStringAsFixed(2)} $destino.';
+                'La ruta #${_selectedOption == RouteOption.direct ? 1 : _selectedChipIndex + 1} supera a la directa en ${diff.toStringAsFixed(2)} $destino.';
           } else if (diff < 0) {
             comparacion =
-                'La ruta directa supera a la #1 en ${(-diff).toStringAsFixed(2)} $destino.';
+                'La ruta directa supera a la #${_selectedOption == RouteOption.direct ? 1 : _selectedChipIndex + 1} en ${(-diff).toStringAsFixed(2)} $destino.';
           } else {
-            comparacion = 'La ruta directa y la óptima dan el mismo resultado.';
+            comparacion =
+                'La ruta directa y la seleccionada dan el mismo resultado.';
           }
         }
 
@@ -381,13 +402,20 @@ class _ChangeFormState extends State<ChangeForm> {
                             child: SizedBox(
                               child: ElevatedButton.icon(
                                 onPressed: () {
+                                  final List<String> chosenRoute =
+                                      _selectedOption == RouteOption.direct
+                                          ? mejorRuta
+                                          : top3[_selectedChipIndex].$2;
                                   _changeService
                                       .confirmChange(
-                                          mejorRuta,
+                                          chosenRoute,
+                                          fromCode,
+                                          toCode,
                                           double.tryParse(fromValue) ?? 0.0,
                                           double.tryParse(commissionValue)! /
                                               100,
-                                          changes)
+                                          changes,
+                                          _selectedOption)
                                       .then((changesToSave) {
                                     if (changesToSave.isNotEmpty) {
                                       print(changesToSave);
@@ -429,8 +457,10 @@ class _ChangeFormState extends State<ChangeForm> {
                                   setState(() {
                                     if (index == 0) {
                                       _selectedOption = RouteOption.direct;
+                                      _selectedChipIndex = -1;
                                     } else {
                                       _selectedOption = RouteOption.best;
+                                      _selectedChipIndex = 0;
                                     }
                                   });
                                 },
@@ -495,11 +525,7 @@ class _ChangeFormState extends State<ChangeForm> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          _selectedOption == RouteOption.direct
-                              ? 'Has elegido la ruta directa: '
-                                  '${montoDirecto?.toStringAsFixed(2)} $destino.'
-                              : 'Has elegido la ruta óptima: '
-                                  '${mejorMonto.toStringAsFixed(2)} $destino.',
+                          'Has elegido la $rutaTexto: ${displayMonto.toStringAsFixed(2)} $destino.',
                           style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,
@@ -542,24 +568,9 @@ class _ChangeFormState extends State<ChangeForm> {
                             Wrap(
                               spacing: 6,
                               runSpacing: 6,
-                              children: top3Chips,
+                              children: top3ChoiceChips,
                             ),
                           ],
-                        ),
-                      )
-                    : const SizedBox.shrink(),
-                hasDirectRoute
-                    ? Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[800],
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          mejorText,
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 14),
                         ),
                       )
                     : const SizedBox.shrink(),
