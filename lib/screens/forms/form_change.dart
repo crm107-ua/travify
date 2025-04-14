@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:search_choices/search_choices.dart';
 import 'package:travify/models/change.dart';
 import 'package:travify/models/currency.dart';
-import 'package:travify/models/income.dart';
 import 'package:travify/models/trip.dart';
 import 'package:travify/services/change_service.dart';
 import 'package:travify/services/currency_service.dart';
@@ -13,7 +12,7 @@ enum RouteOption { direct, best }
 class ChangeForm extends StatefulWidget {
   final Currency? initialFromCurrency;
   final Currency? initialToCurrency;
-  final void Function(Income) onSave;
+  final void Function(List<Change>) onSave;
   final Trip trip;
 
   const ChangeForm({
@@ -44,6 +43,7 @@ class _ChangeFormState extends State<ChangeForm> {
   bool _isLoading = true;
   RouteOption? _selectedOption;
   int _selectedChipIndex = 0;
+  bool _isConfirming = false;
 
   @override
   void initState() {
@@ -400,40 +400,87 @@ class _ChangeFormState extends State<ChangeForm> {
                         children: [
                           Expanded(
                             child: SizedBox(
-                              child: ElevatedButton.icon(
-                                onPressed: () {
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  if (_isConfirming) return;
+
+                                  setState(() {
+                                    _isConfirming = true;
+                                  });
+
                                   final List<String> chosenRoute =
                                       _selectedOption == RouteOption.direct
                                           ? mejorRuta
                                           : top3[_selectedChipIndex].$2;
+
                                   _changeService
                                       .confirmChange(
-                                          chosenRoute,
-                                          fromCode,
-                                          toCode,
-                                          double.tryParse(fromValue) ?? 0.0,
-                                          double.tryParse(commissionValue)! /
-                                              100,
-                                          changes,
-                                          _selectedOption)
+                                    chosenRoute,
+                                    fromCode,
+                                    toCode,
+                                    double.tryParse(fromValue) ?? 0.0,
+                                    double.tryParse(commissionValue)! / 100,
+                                    changes,
+                                    _selectedOption,
+                                  )
                                       .then((changesToSave) {
                                     if (changesToSave.isNotEmpty) {
-                                      print(changesToSave);
+                                      widget.onSave(changesToSave);
                                     }
+                                  }).whenComplete(() {
+                                    setState(() {
+                                      _isConfirming = false;
+                                    });
                                   });
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.white, // Fondo blanco
-                                  foregroundColor:
-                                      Colors.black, // Texto/Icono en negro
+                                  backgroundColor: Colors.white,
+                                  foregroundColor: Colors.black,
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 16),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                icon: const Icon(Icons.currency_exchange),
-                                label: const Text('Confirmar cambio'),
+                                child: _isConfirming
+                                    ? Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: const [
+                                          SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                      Colors.black),
+                                            ),
+                                          ),
+                                          SizedBox(width: 12),
+                                          Text(
+                                            'Confirmando...',
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.black),
+                                          ),
+                                        ],
+                                      )
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: const [
+                                          Icon(Icons.currency_exchange,
+                                              color: Colors.black),
+                                          SizedBox(width: 12),
+                                          Text(
+                                            'Confirmar cambio',
+                                            style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.black),
+                                          ),
+                                        ],
+                                      ),
                               ),
                             ),
                           ),

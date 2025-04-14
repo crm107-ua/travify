@@ -162,6 +162,7 @@ class TransactionDao {
           'transaction_id': transactionId,
           'currency_recived_id': change.currencyRecived.id,
           'currency_spent_id': change.currencySpent.id,
+          'commission': change.commission,
           'amount_recived': change.amountRecived,
         });
         break;

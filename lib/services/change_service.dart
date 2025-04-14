@@ -260,11 +260,11 @@ class ChangeService {
           tripId: changes.first.tripId,
           date: DateTime.now(),
           description: 'Cambio de $origen a $destino',
-          amount: montoInicial,
-          currencyRecived: toCurrency!,
-          currencySpent: fromCurrency!,
-          commission: commissionInput,
-          amountRecived: montoDirecto,
+          amount: double.parse(montoInicial.toStringAsFixed(2)),
+          currencyRecived: toCurrency,
+          currencySpent: fromCurrency,
+          commission: double.parse(commissionInput.toStringAsFixed(2)),
+          amountRecived: double.parse(montoDirecto.toStringAsFixed(2)),
         );
 
         changesToSave.add(newChange);
@@ -297,13 +297,13 @@ class ChangeService {
             tripId: changes.first.tripId,
             date: DateTime.now(),
             description: 'Cambio de $origen a $destino',
-            amount: montoInicial,
-            currencyRecived: toCurrency!,
-            currencySpent: fromCurrency!,
-            commission: commissionInput,
-            amountRecived: montoDirecto,
+            amount: double.parse(montoInicial.toStringAsFixed(2)),
+            currencyRecived: toCurrency,
+            currencySpent: fromCurrency,
+            commission: double.parse(commissionInput.toStringAsFixed(2)),
+            amountRecived: double.parse(montoDirecto.toStringAsFixed(2)),
           );
-
+          // invertir el orden de changesToSave
           changesToSave.add(newChange);
         }
       }

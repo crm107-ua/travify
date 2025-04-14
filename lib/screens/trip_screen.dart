@@ -347,27 +347,25 @@ class _TripDetailPageState extends State<TripDetailPage>
                           });
                         }
                         break;
-
                       case 'change':
-                        final newChange = await Navigator.push(
+                        final newChanges = await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (_) => ChangeForm(
                               trip: _trip,
-                              onSave: (change) {
-                                Navigator.pop(context, change);
+                              onSave: (List<Change> changes) {
+                                Navigator.pop(context, changes);
                               },
                             ),
                           ),
                         );
-                        if (newChange != null && newChange is Change) {
-                          await _transactionService
-                              .createTransaction(newChange);
-                          setState(() {
-                            _trip.transactions.add(newChange);
-                            _tabController.animateTo(2);
-                            _calcRealBalance();
-                          });
+                        if (newChanges != null && newChanges is List<Change>) {
+                          for (final change in newChanges) {
+                            await _transactionService.createTransaction(change);
+                            setState(() {
+                              _trip.transactions.add(change);
+                            });
+                          }
                         }
                         break;
                     }
