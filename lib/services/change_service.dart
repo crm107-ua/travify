@@ -31,6 +31,7 @@ class ChangeService {
   }
 
   void changesToHistoricData(List<Change> changes) {
+    historicalMap.clear();
     for (final change in changes) {
       historicalMap.add({
         "from": change.currencySpent.code,

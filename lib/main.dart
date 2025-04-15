@@ -43,7 +43,7 @@ class _MyAppState extends State<MyApp> {
       _connectionStatus = result;
     });
     if (_connectionStatus != ConnectivityResult.none) {
-      //await _officialRatesService.updateOfficialRates();
+      // await _officialRatesService.updateOfficialRates();
     }
   }
 

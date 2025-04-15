@@ -276,7 +276,7 @@ class _ChangeFormState extends State<ChangeForm> {
     final commissionValue = _commissionController.text.trim();
 
     double commission = double.tryParse(commissionValue) ?? 0.0;
-    if (commission > 1.0) {
+    if (commission >= 1.0) {
       commission /= 100;
     }
 
