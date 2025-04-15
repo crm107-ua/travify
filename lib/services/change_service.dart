@@ -90,6 +90,8 @@ class ChangeService {
       acumulador[key]!.add(comision);
     }
 
+    print(acumulador.length);
+
     // 2. Agregar la comisión del usuario como si fuera un "dato" adicional
     //    en la historia para el par específico que está convirtiendo
     if (userCommission != null &&
@@ -100,6 +102,8 @@ class ChangeService {
       acumulador[userKey]!.add(userCommission);
     }
 
+    print(acumulador['$origenUsuario-$destinoUsuario']);
+
     // 3. Calcular los promedios
     final Map<String, double> comisionesMedias = {};
     acumulador.forEach((key, listaComisiones) {
@@ -108,6 +112,7 @@ class ChangeService {
       comisionesMedias[key] = promedio;
     });
 
+    print(comisionesMedias['$origenUsuario-$destinoUsuario']);
     return comisionesMedias;
   }
 

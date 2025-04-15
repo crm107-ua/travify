@@ -98,7 +98,7 @@ Future<void> seedDatabaseAll(Database db) async {
         'https://images.pexels.com/photos/1862308/pexels-photo-1862308.jpeg?cs=srgb&dl=pexels-alex-saquisilli-780432-1862308.jpg&fm=jpg',
     'open': 1,
     'budget_id': budget3Id,
-    'currency_id': 3, // EUR
+    'currency_id': 2, // EUR
   });
 
   final int tripFranceId = await db.insert('trips', {
@@ -111,7 +111,7 @@ Future<void> seedDatabaseAll(Database db) async {
         'https://media.istockphoto.com/id/1145618475/es/foto/villefranche-sur-mer-en-la-noche.jpg?s=612x612&w=0&k=20&c=yHaZtUg-Uo5aqgT-eOMKuNxd9HWOYX7TUUod7ml-rUg=',
     'open': 1,
     'budget_id': budget4Id,
-    'currency_id': 3, // EUR
+    'currency_id': 2, // EUR
   });
 
   // Insertar en trip_country (relación entre trips y countries)
@@ -291,23 +291,23 @@ Future<void> seedDatabaseAll(Database db) async {
 // Insertar en changes
   await db.insert('changes', {
     'transaction_id': transactionChange1Id,
-    'currency_recived_id': 3,
-    'currency_spent_id': 101,
+    'currency_recived_id': 2,
+    'currency_spent_id': 1,
     'commission': 0.02,
-    'amount_recived': 3600.0,
+    'amount_recived': 1325.8,
   });
 
   await db.insert('changes', {
     'transaction_id': transactionChange2Id,
-    'currency_spent_id': 3,
-    'currency_recived_id': 101,
+    'currency_spent_id': 2,
+    'currency_recived_id': 20,
     'commission': 0.02,
     'amount_recived': 3600.0,
   });
 
   await db.insert('changes', {
     'transaction_id': transactionChange3Id,
-    'currency_spent_id': 3,
+    'currency_spent_id': 2,
     'currency_recived_id': 1,
     'commission': 0.0015,
     'amount_recived': 210.5,
@@ -316,30 +316,30 @@ Future<void> seedDatabaseAll(Database db) async {
   await db.insert('changes', {
     'transaction_id': transactionChange4Id,
     'currency_spent_id': 1,
-    'currency_recived_id': 101,
+    'currency_recived_id': 20,
     'commission': 0.03,
     'amount_recived': 4950.0,
   });
 
   await db.insert('changes', {
     'transaction_id': transactionChange5Id,
-    'currency_spent_id': 3,
-    'currency_recived_id': 101,
+    'currency_spent_id': 2,
+    'currency_recived_id': 20,
     'commission': 0.02,
     'amount_recived': 5500.0,
   });
 
   await db.insert('changes', {
     'transaction_id': transactionChange6Id,
-    'currency_spent_id': 2,
-    'currency_recived_id': 55,
+    'currency_spent_id': 6,
+    'currency_recived_id': 3,
     'commission': 0.025,
     'amount_recived': 48000.0,
   });
 
   await db.insert('changes', {
     'transaction_id': transactionChange7Id,
-    'currency_spent_id': 3,
+    'currency_spent_id': 2,
     'currency_recived_id': 1,
     'commission': 0.01,
     'amount_recived': 106.2,
@@ -348,15 +348,15 @@ Future<void> seedDatabaseAll(Database db) async {
   await db.insert('changes', {
     'transaction_id': transactionChange8Id,
     'currency_spent_id': 1,
-    'currency_recived_id': 101,
+    'currency_recived_id': 20,
     'commission': 0.03,
     'amount_recived': 1690.0,
   });
 
   await db.insert('changes', {
     'transaction_id': transactionChange9Id,
-    'currency_spent_id': 55,
-    'currency_recived_id': 38,
+    'currency_spent_id': 3,
+    'currency_recived_id': 4,
     'commission': 0.015,
     'amount_recived': 53.0,
   });

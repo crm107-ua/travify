@@ -275,9 +275,10 @@ class _ChangeFormState extends State<ChangeForm> {
     final toCode = _toCurrency?.code ?? '';
     final commissionValue = _commissionController.text.trim();
 
-    // Se convierte la comisión (de porcentaje a decimal)
     double commission = double.tryParse(commissionValue) ?? 0.0;
-    commission /= 100;
+    if (commission > 1.0) {
+      commission /= 100;
+    }
 
     final bool allFieldsFilled = fromValue.isNotEmpty &&
         fromCode.isNotEmpty &&

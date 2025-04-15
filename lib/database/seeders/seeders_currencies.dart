@@ -48,9 +48,17 @@ Future<void> seedDatabaseCurrencies(Database db) async {
       await db
           .insert('country_currencies', {'country_id': i, 'currency_id': 2});
       await db
+          .insert('country_currencies', {'country_id': i, 'currency_id': 8});
+      await db
+          .insert('country_currencies', {'country_id': i, 'currency_id': 21});
+      await db
+          .insert('country_currencies', {'country_id': i, 'currency_id': 23});
+      await db
           .insert('country_currencies', {'country_id': i, 'currency_id': 3});
       await db
-          .insert('country_currencies', {'country_id': i, 'currency_id': 4});
+          .insert('country_currencies', {'country_id': i, 'currency_id': 5});
+      await db
+          .insert('country_currencies', {'country_id': i, 'currency_id': 6});
     }
   } catch (e) {
     print('Error al insertar monedas desde JSON: $e');
