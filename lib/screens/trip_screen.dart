@@ -366,6 +366,7 @@ class _TripDetailPageState extends State<TripDetailPage>
                               _trip.transactions.add(change);
                             });
                           }
+                          _tabController.animateTo(2);
                         }
                         break;
                     }
@@ -796,7 +797,8 @@ Widget _buildChangeList(Trip trip) {
       .where((transaction) => transaction.type == TransactionType.change)
       .whereType<Change>()
       .toList()
-    ..sort((a, b) => a.date.compareTo(b.date));
+      .reversed
+      .toList();
 
   if (changes.isEmpty) {
     return const Center(
