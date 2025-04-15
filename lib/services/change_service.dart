@@ -80,7 +80,6 @@ class ChangeService {
   }) {
     final Map<String, List<double>> acumulador = {};
 
-    // 1. Recorremos el histórico y agrupamos todas las comisiones por par 'from-to'
     for (final row in historicData) {
       final String origen = row["from"];
       final String destino = row["to"];
@@ -91,10 +90,7 @@ class ChangeService {
       acumulador[key]!.add(comision);
     }
 
-    print(acumulador.length);
-
-    // 2. Agregar la comisión del usuario como si fuera un "dato" adicional
-    //    en la historia para el par específico que está convirtiendo
+    // se agrega la comision del usuario
     if (userCommission != null &&
         origenUsuario != null &&
         destinoUsuario != null) {
@@ -103,9 +99,7 @@ class ChangeService {
       acumulador[userKey]!.add(userCommission);
     }
 
-    print(acumulador['$origenUsuario-$destinoUsuario']);
-
-    // 3. Calcular los promedios
+    // promedios
     final Map<String, double> comisionesMedias = {};
     acumulador.forEach((key, listaComisiones) {
       final promedio =
@@ -113,7 +107,6 @@ class ChangeService {
       comisionesMedias[key] = promedio;
     });
 
-    print(comisionesMedias['$origenUsuario-$destinoUsuario']);
     return comisionesMedias;
   }
 
