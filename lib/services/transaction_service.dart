@@ -26,16 +26,6 @@ class TransactionService {
     return all.where((t) => t.type == TransactionType.income).toList();
   }
 
-  /// Elimina una transacción por su ID.
-  Future<int> deleteTransaction(int id) async {
-    throw UnimplementedError("deleteTransaction aún no implementado en el DAO");
-  }
-
-  /// Actualiza una transacción existente.
-  Future<void> updateTransaction(Expense transaction) async {
-    await _transactionDao.updateExpenseNextAmortizationDate(transaction);
-  }
-
   Future<List<Expense>> getAmortizationsForToday(Trip trip) async {
     final dao = TransactionDao();
     final List transactions = await dao.getTransactions(trip.id);
@@ -60,8 +50,7 @@ class TransactionService {
   }
 
   Future<void> generateAmortizations(Trip trip) async {
-    final transactionDao = TransactionDao();
-    final List transactions = await transactionDao.getTransactions(trip.id);
+    final List transactions = await _transactionDao.getTransactions(trip.id);
 
     final today = DateTime.now();
     final todayDate = DateTime(today.year, today.month, today.day);
@@ -90,7 +79,7 @@ class TransactionService {
           isAmortization: false,
         );
 
-        await transactionDao.createTransaction(nuevaAmortizacion);
+        await _transactionDao.createTransaction(nuevaAmortizacion);
 
         final siguiente = nextDate.add(const Duration(days: 1));
         if (expense.endDateAmortization != null &&
@@ -103,14 +92,12 @@ class TransactionService {
         }
       }
 
-      // Actualizar el nextAmortizationDate final
-      await transactionDao.updateExpenseNextAmortizationDate(expense);
+      await _transactionDao.updateExpenseNextAmortizationDate(expense);
     }
   }
 
   Future<void> generateRecurrentIncomes(Trip trip) async {
-    final dao = TransactionDao();
-    final allTransactions = await dao.getTransactions(trip.id);
+    final allTransactions = await _transactionDao.getTransactions(trip.id);
 
     final recurrentIncomes = allTransactions
         .whereType<Income>()
@@ -129,7 +116,7 @@ class TransactionService {
 
       // Desactiva el income original
       income.active = false;
-      await dao.updateIncomeNextRecurrentDate(income);
+      await _transactionDao.updateIncomeNextRecurrentDate(income);
 
       while (!nextDate.isAfter(todayDate)) {
         final newIncome = Income(
@@ -145,7 +132,7 @@ class TransactionService {
           nextRecurrentDate: null,
         );
 
-        await dao.createTransaction(newIncome);
+        await _transactionDao.createTransaction(newIncome);
 
         // Calcular la siguiente fecha
         switch (income.recurrentIncomeType) {
@@ -172,8 +159,16 @@ class TransactionService {
       if (nextDate.isAfter(todayDate)) {
         income.nextRecurrentDate = nextDate;
         income.active = true;
-        await dao.updateIncomeNextRecurrentDate(income);
+        await _transactionDao.updateIncomeNextRecurrentDate(income);
       }
     }
+  }
+
+  Future<void> updateIncomeActive(Income income) async {
+    await _transactionDao.updateIncomeActive(income);
+  }
+
+  Future<void> deleteTransaction(Transaction transaction) async {
+    await _transactionDao.deleteTransaction(transaction);
   }
 }

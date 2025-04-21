@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:travify/enums/expense_category.dart';
+import 'package:travify/enums/recurrent_income_type.dart';
+import 'package:travify/models/transaction.dart';
 import 'package:travify/screens/forms/form_change.dart';
 import 'package:travify/services/transaction_service.dart';
 import 'package:travify/enums/transaction_type.dart';
@@ -210,6 +212,17 @@ class _TripDetailPageState extends State<TripDetailPage>
         ),
         const SizedBox(height: 30),
       ],
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 16,
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
+      ),
     );
   }
 
@@ -517,409 +530,658 @@ class _TripDetailPageState extends State<TripDetailPage>
       ),
     );
   }
-}
 
-void _showTripSummaryDialog(BuildContext context, Trip trip) {
-  final budget = trip.budget;
+  void _showTripSummaryDialog(BuildContext context, Trip trip) {
+    final budget = trip.budget;
 
-  showDialog(
-    context: context,
-    builder: (_) => AlertDialog(
-      backgroundColor: Colors.black,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-      content: SizedBox(
-        width: MediaQuery.of(context).size.width * 0.95,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Resumen del Viaje',
-                  style: TextStyle(color: Colors.white, fontSize: 22)),
-              const SizedBox(height: 10),
-              Text(trip.title,
-                  style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500)),
-              const SizedBox(height: 24),
-              _buildSectionTitle('Destino'),
-              _buildInfoText(trip.destination),
-              const SizedBox(height: 16),
-              _buildSectionTitle('Países'),
-              _buildInfoText(trip.countries.map((c) => c.name).join(', ')),
-              const SizedBox(height: 16),
-              _buildSectionTitle('Fechas'),
-              _buildInfoText(_formatTripDates(trip)),
-              const SizedBox(height: 16),
-              _buildSectionTitle('Divisa'),
-              _buildInfoText('${trip.currency.symbol} - ${trip.currency.name}'),
-              const SizedBox(height: 16),
-              _buildSectionTitle('Presupuesto'),
-              if (budget != null) ...[
-                _buildInfoText('Límite Máximo: ${budget.maxLimit} €'),
-                _buildInfoText('Límite Deseado: ${budget.desiredLimit} €'),
-                _buildInfoText('Acumulado: ${budget.accumulated} €'),
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: Colors.black,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        content: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.95,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Resumen del Viaje',
+                    style: TextStyle(color: Colors.white, fontSize: 22)),
+                const SizedBox(height: 10),
+                Text(trip.title,
+                    style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500)),
+                const SizedBox(height: 24),
+                _buildSectionTitle('Destino'),
+                _buildInfoText(trip.destination),
+                const SizedBox(height: 16),
+                _buildSectionTitle('Países'),
+                _buildInfoText(trip.countries.map((c) => c.name).join(', ')),
+                const SizedBox(height: 16),
+                _buildSectionTitle('Fechas'),
+                _buildInfoText(_formatTripDates(trip)),
+                const SizedBox(height: 16),
+                _buildSectionTitle('Divisa'),
+                _buildInfoText(
+                    '${trip.currency.symbol} - ${trip.currency.name}'),
+                const SizedBox(height: 16),
+                _buildSectionTitle('Presupuesto'),
+                _buildInfoText(
+                    'Límite Máximo: ${budget.maxLimit}${trip.currency.symbol}'),
+                _buildInfoText(
+                    'Límite Deseado: ${budget.desiredLimit}${trip.currency.symbol}'),
+                _buildInfoText(
+                    'Acumulado: ${budget.accumulated}${trip.currency.symbol}'),
                 _buildInfoText(
                     '¿Aumentar límite?: ${budget.limitIncrease ? "Sí" : "No"}'),
-              ] else
-                _buildInfoText('No hay presupuesto asignado.'),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cerrar', style: TextStyle(color: Colors.white70)),
-        ),
-      ],
-    ),
-  );
-}
-
-Widget _buildSectionTitle(String title) {
-  return Text(
-    title,
-    style: const TextStyle(
-      fontSize: 16,
-      color: Colors.white,
-      fontWeight: FontWeight.bold,
-    ),
-  );
-}
-
-Widget _buildInfoText(String text) {
-  return Padding(
-    padding: const EdgeInsets.only(top: 4.0),
-    child: Text(
-      text,
-      style: const TextStyle(color: Colors.white70, fontSize: 14),
-    ),
-  );
-}
-
-String _formatTripDates(Trip trip) {
-  final start = DateFormat('dd-MM-yyyy').format(trip.dateStart!);
-  if (trip.dateEnd != null) {
-    final end = DateFormat('dd-MM-yyyy').format(trip.dateEnd!);
-    return '$start → $end';
-  }
-  return start;
-}
-
-Widget _buildExpenseList(Trip trip) {
-  final expenses = trip.transactions
-      .where((transaction) => transaction.type == TransactionType.expense)
-      .whereType<Expense>()
-      .toList();
-
-  if (expenses.isEmpty) {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.only(bottom: 80),
-        child: Text(
-          'Crea tu primer gasto ✨',
-          style: TextStyle(color: Colors.white, fontSize: 19),
-        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child:
+                const Text('Cerrar', style: TextStyle(color: Colors.white70)),
+          ),
+        ],
       ),
     );
   }
 
-  return ListView.builder(
-    padding: const EdgeInsets.all(16),
-    itemCount: expenses.length,
-    itemBuilder: (context, index) {
-      final expense = expenses[index];
-      return Container(
-        margin: const EdgeInsets.only(bottom: 20),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Colors.white,
-            width: 1.2,
+  Widget _buildInfoText(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4.0),
+      child: Text(
+        text,
+        style: const TextStyle(color: Colors.white70, fontSize: 14),
+      ),
+    );
+  }
+
+  String _formatTripDates(Trip trip) {
+    final start = DateFormat('dd-MM-yyyy').format(trip.dateStart!);
+    if (trip.dateEnd != null) {
+      final end = DateFormat('dd-MM-yyyy').format(trip.dateEnd!);
+      return '$start → $end';
+    }
+    return start;
+  }
+
+  Widget _buildExpenseList(Trip trip) {
+    final expenses = trip.transactions
+        .where((transaction) => transaction.type == TransactionType.expense)
+        .whereType<Expense>()
+        .toList();
+
+    if (expenses.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.only(bottom: 80),
+          child: Text(
+            'Crea tu primer gasto ✨',
+            style: TextStyle(color: Colors.white, fontSize: 19),
           ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    expense.description ?? 'Sin descripción',
-                    style: const TextStyle(fontSize: 16, color: Colors.white),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    DateFormat('dd/MM/yyyy').format(expense.date),
-                    style: const TextStyle(fontSize: 14, color: Colors.white70),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
-                  ),
-                ],
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: expenses.length,
+      itemBuilder: (context, index) {
+        final expense = expenses[index];
+        return GestureDetector(
+          onTap: () =>
+              showTransactionDetailDialog(trip, context, expense, () async {
+            _transactionService.deleteTransaction(expense).then((_) {
+              setState(() {
+                _trip.transactions.remove(expense);
+              });
+            });
+          }, (active) async {
+            {}
+          }),
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 20),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.white,
+                width: 1.2,
               ),
             ),
-            const SizedBox(width: 30),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                expense.isAmortization == true
-                    ? Text(
-                        '-${expense.amortization?.toStringAsFixed(2)}${trip.currency.symbol}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      )
-                    : Text(
-                        '-${expense.amount.toStringAsFixed(2)}${trip.currency.symbol}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                const SizedBox(height: 4),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    if (expense.isAmortization == true)
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                       Text(
-                        'Total: (${expense.amount.toStringAsFixed(2)}${trip.currency.symbol}) - ',
+                        expense.description ?? 'Sin descripción',
+                        style:
+                            const TextStyle(fontSize: 16, color: Colors.white),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        DateFormat('dd/MM/yyyy').format(expense.date),
+                        style: const TextStyle(
+                            fontSize: 14, color: Colors.white70),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 30),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    expense.isAmortization == true
+                        ? Text(
+                            '-${expense.amortization?.toStringAsFixed(2)}${trip.currency.symbol}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          )
+                        : Text(
+                            '-${expense.amount.toStringAsFixed(2)}${trip.currency.symbol}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                    const SizedBox(height: 4),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        if (expense.isAmortization == true)
+                          Text(
+                            'Total: (${expense.amount.toStringAsFixed(2)}${trip.currency.symbol}) - ',
+                            style: const TextStyle(
+                                color: Colors.white70, fontSize: 13),
+                          ),
+                        Text(
+                          "${expense.category.label}"
+                          "${expense.isAmortization == false ? ' - Gasto único' : ''}",
+                          style: const TextStyle(
+                              color: Colors.white70, fontSize: 14),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    if (expense.isAmortization == true &&
+                        expense.startDateAmortization != null &&
+                        expense.endDateAmortization != null)
+                      Text(
+                        '${DateFormat('dd/MM/yyyy').format(expense.startDateAmortization!)} - ${DateFormat('dd/MM/yyyy').format(expense.endDateAmortization!)}',
                         style: const TextStyle(
                             color: Colors.white70, fontSize: 13),
                       ),
-                    Text(
-                      "${expense.category.label}"
-                      "${expense.isAmortization == false ? ' - Gasto único' : ''}",
-                      style:
-                          const TextStyle(color: Colors.white70, fontSize: 14),
-                    ),
+                    if (expense.isAmortization == true &&
+                        expense.startDateAmortization == null &&
+                        expense.endDateAmortization == null)
+                      Text(
+                        '${DateFormat('dd/MM/yyyy').format(trip.dateStart)}'
+                        ' - ${DateFormat('dd/MM/yyyy').format(trip.dateEnd ?? trip.dateStart)}',
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 13),
+                      ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                if (expense.isAmortization == true &&
-                    expense.startDateAmortization != null &&
-                    expense.endDateAmortization != null)
-                  Text(
-                    '${DateFormat('dd/MM/yyyy').format(expense.startDateAmortization!)} - ${DateFormat('dd/MM/yyyy').format(expense.endDateAmortization!)}',
-                    style: const TextStyle(color: Colors.white70, fontSize: 13),
-                  ),
-                if (expense.isAmortization == true &&
-                    expense.startDateAmortization == null &&
-                    expense.endDateAmortization == null)
-                  Text(
-                    '${DateFormat('dd/MM/yyyy').format(trip.dateStart)}'
-                    ' - ${DateFormat('dd/MM/yyyy').format(trip.dateEnd ?? trip.dateStart)}',
-                    style: const TextStyle(color: Colors.white70, fontSize: 13),
-                  ),
               ],
             ),
-          ],
-        ),
-      );
-    },
-  );
-}
-
-Widget _buildIncomeList(Trip trip) {
-  final incomes = trip.transactions
-      .where((transaction) => transaction.type == TransactionType.income)
-      .whereType<Income>()
-      .toList();
-
-  if (incomes.isEmpty) {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.only(bottom: 80),
-        child: Text(
-          'Crea tu primer ingreso ✨',
-          style: TextStyle(color: Colors.white, fontSize: 19),
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
-  return ListView.builder(
-    padding: const EdgeInsets.all(16),
-    itemCount: incomes.length,
-    itemBuilder: (context, index) {
-      final income = incomes[index];
-      return Container(
-        margin: const EdgeInsets.only(bottom: 20),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Colors.white,
-            width: 1.2,
+  Widget _buildIncomeList(Trip trip) {
+    final incomes = trip.transactions
+        .where((transaction) => transaction.type == TransactionType.income)
+        .whereType<Income>()
+        .toList();
+
+    if (incomes.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.only(bottom: 80),
+          child: Text(
+            'Crea tu primer ingreso ✨',
+            style: TextStyle(color: Colors.white, fontSize: 19),
           ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    income.description ?? 'Sin descripción',
-                    style: const TextStyle(fontSize: 16, color: Colors.white),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    DateFormat('dd/MM/yyyy').format(income.date),
-                    style: const TextStyle(fontSize: 13, color: Colors.white70),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 30),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  '+${income.amount}${trip.currency.symbol}',
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  income.isRecurrent == true
-                      ? income.nextRecurrentDate != null
-                          ? 'Próximo ingreso: ${DateFormat('dd/MM/yyyy').format(income.nextRecurrentDate!)}'
-                          : 'Recurrente'
-                      : 'Ingreso único',
-                  style: const TextStyle(color: Colors.white70, fontSize: 13),
-                ),
-              ],
-            ),
-          ],
         ),
       );
-    },
-  );
-}
+    }
 
-Widget _buildChangeList(Trip trip) {
-  final changes = trip.transactions
-      .where((transaction) => transaction.type == TransactionType.change)
-      .whereType<Change>()
-      .toList();
-
-  if (changes.isEmpty) {
-    return const Center(
-      child: Padding(
-        padding: EdgeInsets.only(bottom: 80),
-        child: Text(
-          'Crea tu primer cambio ✨',
-          style: TextStyle(color: Colors.white, fontSize: 19),
-        ),
-      ),
-    );
-  }
-
-  return ListView.builder(
-    padding: const EdgeInsets.all(16),
-    itemCount: changes.length,
-    itemBuilder: (context, index) {
-      final change = changes[index];
-      return Container(
-        margin: const EdgeInsets.only(bottom: 20),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: Colors.white,
-            width: 1.2,
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    change.description ?? 'Sin descripción',
-                    style: const TextStyle(fontSize: 16, color: Colors.white),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    DateFormat('dd/MM/yyyy').format(change.date),
-                    style: const TextStyle(fontSize: 13, color: Colors.white70),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
-                  ),
-                ],
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: incomes.length,
+      itemBuilder: (context, index) {
+        final income = incomes[index];
+        return GestureDetector(
+          onTap: () =>
+              showTransactionDetailDialog(trip, context, income, () async {
+            _transactionService.deleteTransaction(income).then((_) {
+              setState(() {
+                _trip.transactions.remove(income);
+              });
+            });
+          }, (active) async {
+            income.active = active;
+            _transactionService.updateIncomeActive(income);
+          }), // income o change según el caso
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 20),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.white,
+                width: 1.2,
               ),
             ),
-            const SizedBox(width: 30),
-            Row(
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Row(
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        income.description ?? 'Sin descripción',
+                        style:
+                            const TextStyle(fontSize: 16, color: Colors.white),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        DateFormat('dd/MM/yyyy').format(income.date),
+                        style: const TextStyle(
+                            fontSize: 13, color: Colors.white70),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 30),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'Com.: ${(change.commission * 100).toStringAsFixed(1)}%',
-                      style: const TextStyle(color: Colors.white, fontSize: 13),
+                      '+${income.amount}${trip.currency.symbol}',
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      income.isRecurrent == true
+                          ? income.nextRecurrentDate != null
+                              ? 'Próximo ingreso: ${DateFormat('dd/MM/yyyy').format(income.nextRecurrentDate!)}'
+                              : 'Recurrente'
+                          : 'Ingreso único',
+                      style:
+                          const TextStyle(color: Colors.white70, fontSize: 13),
                     ),
                   ],
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildChangeList(Trip trip) {
+    final changes = trip.transactions
+        .where((transaction) => transaction.type == TransactionType.change)
+        .whereType<Change>()
+        .toList();
+
+    if (changes.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.only(bottom: 80),
+          child: Text(
+            'Crea tu primer cambio ✨',
+            style: TextStyle(color: Colors.white, fontSize: 19),
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: changes.length,
+      itemBuilder: (context, index) {
+        final change = changes[index];
+        return GestureDetector(
+          onTap: () =>
+              showTransactionDetailDialog(trip, context, change, () async {
+            _transactionService.deleteTransaction(change).then((_) {
+              setState(() {
+                _trip.transactions.remove(change);
+              });
+            });
+          }, (active) async {
+            {}
+          }),
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.white,
+                width: 1.2,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(
-                  '${change.amount}${change.currencySpent.symbol}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        change.description ?? 'Sin descripción',
+                        style:
+                            const TextStyle(fontSize: 16, color: Colors.white),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        DateFormat('dd/MM/yyyy').format(change.date),
+                        style: const TextStyle(
+                            fontSize: 13, color: Colors.white70),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 3),
-                const Icon(Icons.arrow_downward, color: Colors.white, size: 18),
-                const SizedBox(height: 3),
-                Text(
-                  '${change.amountRecived}${change.currencyRecived.symbol}',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                  ),
+                const SizedBox(width: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Com.: ${(change.commission * 100).toStringAsFixed(1)}%',
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      '${change.amount}${change.currencySpent.symbol}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    const Icon(Icons.arrow_downward,
+                        color: Colors.white, size: 18),
+                    const SizedBox(height: 3),
+                    Text(
+                      '${change.amountRecived}${change.currencyRecived.symbol}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
-        ),
-      );
-    },
-  );
+          ),
+        );
+      },
+    );
+  }
+
+  void showTransactionDetailDialog(
+    Trip trip,
+    BuildContext context,
+    Transaction transaction,
+    void Function()? onDelete,
+    void Function(bool active)? onToggleActive,
+  ) {
+    final dateFormatted = DateFormat('dd/MM/yyyy').format(transaction.date);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        bool isActive = transaction is Income && (transaction.active ?? false);
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              backgroundColor: Colors.black,
+              insetPadding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 60),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                width: double.infinity,
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(right: 16.0, top: 8),
+                              child: Text(
+                                transaction.description ?? 'Sin descripción',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete,
+                                color: Colors.redAccent),
+                            onPressed: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (_) => AlertDialog(
+                                  backgroundColor: Colors.black,
+                                  title: const Text("Eliminar transacción",
+                                      style: TextStyle(color: Colors.white)),
+                                  content: const Text(
+                                      "¿Estás seguro de eliminar esta transacción?",
+                                      style: TextStyle(color: Colors.white70)),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, false),
+                                      child: const Text("Cancelar",
+                                          style:
+                                              TextStyle(color: Colors.white70)),
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
+                                      child: const Text("Eliminar",
+                                          style: TextStyle(
+                                              color: Colors.redAccent)),
+                                    ),
+                                  ],
+                                ),
+                              );
+
+                              if (confirm == true) {
+                                Navigator.pop(context);
+                                onDelete?.call();
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      /// Fecha
+                      Text(
+                        '📅 Fecha: $dateFormatted',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 16,
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      if (transaction is Expense) ...[
+                        const Text('🧾 Tipo: Gasto',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 18)),
+                        const SizedBox(height: 8),
+                        Text('Categoría: ${transaction.category.label}',
+                            style: const TextStyle(color: Colors.white70)),
+                        const SizedBox(height: 8),
+                        if (transaction.isAmortization) ...[
+                          Text(
+                              'Amortización diaria: ${transaction.amortization?.toStringAsFixed(2)}${trip.currency.symbol}',
+                              style: const TextStyle(color: Colors.white70)),
+                          const SizedBox(height: 8),
+                          if (transaction.startDateAmortization != null &&
+                              transaction.endDateAmortization != null)
+                            Text(
+                                'Rango: ${DateFormat('dd/MM/yyyy').format(transaction.startDateAmortization!)} - '
+                                '${DateFormat('dd/MM/yyyy').format(transaction.endDateAmortization!)}',
+                                style: const TextStyle(color: Colors.white70)),
+                        ] else ...[
+                          Text(
+                              'Cantidad: ${transaction.amount.toStringAsFixed(2)}${trip.currency.symbol}',
+                              style: const TextStyle(color: Colors.white70)),
+                        ],
+                      ] else if (transaction is Income) ...[
+                        const Text('💰 Tipo: Ingreso',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 18)),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Cantidad: +${transaction.amount.toStringAsFixed(2)}${trip.currency.symbol}',
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                        const SizedBox(height: 5),
+                        if (transaction.isRecurrent == true) ...[
+                          Text(
+                            'Tipo de recurrencia: ${transaction.recurrentIncomeType?.label}',
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            'Próximo cobro: ${transaction.nextRecurrentDate != null ? DateFormat('dd/MM/yyyy').format(transaction.nextRecurrentDate!) : 'Fecha no disponible'}',
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                          const SizedBox(height: 20),
+                          Row(
+                            children: [
+                              const Text("Activo:",
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 16)),
+                              const SizedBox(width: 12),
+                              Switch(
+                                value: isActive,
+                                activeColor: Colors.greenAccent,
+                                onChanged: (value) {
+                                  setState(() => isActive = value);
+                                  onToggleActive?.call(value);
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ] else if (transaction is Change) ...[
+                        const Text('💱 Tipo: Cambio de divisa',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 18)),
+                        const SizedBox(height: 8),
+                        Text(
+                            'Gastado: ${transaction.amount.toStringAsFixed(2)} ${transaction.currencySpent.symbol}',
+                            style: const TextStyle(color: Colors.white70)),
+                        Text(
+                            'Recibido: ${transaction.amountRecived.toStringAsFixed(2)} ${transaction.currencyRecived.symbol}',
+                            style: const TextStyle(color: Colors.white70)),
+                        Text(
+                            'Comisión: ${(transaction.commission * 100).toStringAsFixed(1)}%',
+                            style: const TextStyle(color: Colors.white70)),
+                      ],
+
+                      const SizedBox(height: 30),
+
+                      /// Botón cerrar
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton.icon(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.close, color: Colors.white),
+                          label: const Text("Cerrar",
+                              style: TextStyle(color: Colors.white)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 }

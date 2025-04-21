@@ -210,7 +210,7 @@ class TransactionDao {
   }
 
   Future<void> updateExpenseNextAmortizationDate(Expense expense) async {
-    final db = await TransactionDao()._databaseHelper.database;
+    final db = await _databaseHelper.database;
 
     await db.update(
       'expenses',
@@ -224,7 +224,7 @@ class TransactionDao {
   }
 
   Future<void> updateIncomeNextRecurrentDate(Income income) async {
-    final db = await TransactionDao()._databaseHelper.database;
+    final db = await _databaseHelper.database;
 
     await db.update(
       'incomes',
@@ -233,6 +233,51 @@ class TransactionDao {
       },
       where: 'transaction_id = ?',
       whereArgs: [income.id],
+    );
+  }
+
+  Future<void> updateIncomeActive(Income income) async {
+    sdb.Database db = await _databaseHelper.database;
+
+    await db.update(
+      'incomes',
+      {'active': (income.active ?? false) ? 1 : 0},
+      where: 'transaction_id = ?',
+      whereArgs: [income.id],
+    );
+  }
+
+  Future<void> deleteTransaction(Transaction transaction) async {
+    final db = await _databaseHelper.database;
+
+    switch (transaction.type) {
+      case TransactionType.expense:
+        await db.delete(
+          'expenses',
+          where: 'transaction_id = ?',
+          whereArgs: [transaction.id],
+        );
+        break;
+      case TransactionType.income:
+        await db.delete(
+          'incomes',
+          where: 'transaction_id = ?',
+          whereArgs: [transaction.id],
+        );
+        break;
+      case TransactionType.change:
+        await db.delete(
+          'changes',
+          where: 'transaction_id = ?',
+          whereArgs: [transaction.id],
+        );
+        break;
+    }
+
+    await db.delete(
+      'transactions',
+      where: 'id = ?',
+      whereArgs: [transaction.id],
     );
   }
 }
