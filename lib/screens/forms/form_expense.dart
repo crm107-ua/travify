@@ -78,6 +78,28 @@ class _ExpenseFormState extends State<ExpenseForm> {
     ).show(context);
   }
 
+  DateTime? calcularNextAmortizationDate({
+    required DateTime? startDate,
+    required DateTime? endDate,
+  }) {
+    if (startDate == null || endDate == null) return null;
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    final start = DateTime(startDate.year, startDate.month, startDate.day)
+        .add(const Duration(days: 1));
+    final end = DateTime(endDate.year, endDate.month, endDate.day);
+
+    if (today.isBefore(start)) {
+      return start;
+    } else if (today.isAfter(end)) {
+      return null;
+    } else {
+      return today;
+    }
+  }
+
   void _calculateDailyAmortization() {
     if (_startDateAmortization != null && _endDateAmortization != null) {
       final startDate = DateTime(
@@ -276,6 +298,12 @@ class _ExpenseFormState extends State<ExpenseForm> {
                     amortization: _dailyAmortization,
                     startDateAmortization: _startDateAmortization,
                     endDateAmortization: _endDateAmortization,
+                    nextAmortizationDate: _isAmortization
+                        ? calcularNextAmortizationDate(
+                            startDate: _startDateAmortization,
+                            endDate: _endDateAmortization,
+                          )
+                        : null,
                   );
 
                   Trip trip =

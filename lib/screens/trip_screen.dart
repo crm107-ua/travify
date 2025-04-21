@@ -86,6 +86,8 @@ class _TripDetailPageState extends State<TripDetailPage>
   Widget _buildAppBarFlexibleContent() {
     final trip = _trip;
 
+    _transactionService.generarAmortizacionesDeHoy(trip);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,

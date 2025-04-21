@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:travify/enums/recurrent_income_type.dart';
 import 'package:travify/models/income.dart';
 import 'package:travify/models/trip.dart';
-import 'package:travify/services/trip_service.dart';
 
 class IncomeForm extends StatefulWidget {
   final Income? income;
@@ -25,7 +24,6 @@ class IncomeForm extends StatefulWidget {
 class _IncomeFormState extends State<IncomeForm> {
   final _formKey = GlobalKey<FormState>();
 
-  final TripService _tripService = TripService();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
 

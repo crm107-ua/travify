@@ -208,4 +208,18 @@ class TransactionDao {
 
     return changes;
   }
+
+  Future<void> updateExpenseNextAmortizationDate(Expense expense) async {
+    final db = await TransactionDao()._databaseHelper.database;
+
+    await db.update(
+      'expenses',
+      {
+        'next_amortization_date':
+            expense.nextAmortizationDate?.millisecondsSinceEpoch,
+      },
+      where: 'transaction_id = ?',
+      whereArgs: [expense.id],
+    );
+  }
 }
