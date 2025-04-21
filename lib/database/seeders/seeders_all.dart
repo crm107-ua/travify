@@ -294,7 +294,7 @@ Future<void> seedDatabaseAll(Database db) async {
     'currency_recived_id': 2,
     'currency_spent_id': 1,
     'commission': 0.02,
-    'amount_recived': 1325.8,
+    'amount_recived': 1033.90,
   });
 
   await db.insert('changes', {
@@ -309,8 +309,8 @@ Future<void> seedDatabaseAll(Database db) async {
     'transaction_id': transactionChange3Id,
     'currency_spent_id': 2,
     'currency_recived_id': 1,
-    'commission': 0.0015,
-    'amount_recived': 210.5,
+    'commission': 0.02,
+    'amount_recived': 223.40,
   });
 
   await db.insert('changes', {
@@ -342,7 +342,7 @@ Future<void> seedDatabaseAll(Database db) async {
     'currency_spent_id': 2,
     'currency_recived_id': 1,
     'commission': 0.01,
-    'amount_recived': 106.2,
+    'amount_recived': 112.58,
   });
 
   await db.insert('changes', {

@@ -14,6 +14,32 @@ class RateDao {
 
   final DatabaseHelper _databaseHelper = DatabaseHelper();
 
+  Future<List<Rate>> getRatesFromCurrency(String currencyCode) async {
+    final db = await _databaseHelper.database;
+
+    final currency = await currencyDao.getCurrencyByCode(currencyCode);
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      'official_rates',
+      where: 'currency_spent_id = ?',
+      whereArgs: [currency.id],
+    );
+
+    final List<Rate> rates = [];
+    for (final map in maps) {
+      final from = await currencyDao.getCurrencyById(map['currency_spent_id']);
+      final to = await currencyDao.getCurrencyById(map['currency_recived_id']);
+      rates.add(Rate(
+        id: map['id'],
+        currencyFrom: from,
+        currencyTo: to,
+        rate: map['rate'],
+      ));
+    }
+
+    return rates;
+  }
+
   Future<List<Rate>> getAllRates() async {
     sdb.Database db = await _databaseHelper.database;
 

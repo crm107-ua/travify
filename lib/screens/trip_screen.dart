@@ -833,7 +833,6 @@ Widget _buildChangeList(Trip trip) {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-              // <-- Añadir aquí Expanded
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,

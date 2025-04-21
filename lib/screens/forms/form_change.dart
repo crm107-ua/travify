@@ -139,7 +139,6 @@ class _ChangeFormState extends State<ChangeForm> {
                 }),
               ),
               const SizedBox(height: 30),
-              // Vista previa dinámica
               _buildDynamicPreview(),
 
               const SizedBox(height: 20),
@@ -361,7 +360,7 @@ class _ChangeFormState extends State<ChangeForm> {
         }).toList();
 
         final double chosenMonto = _selectedOption == RouteOption.direct
-            ? mejorMonto
+            ? (montoDirecto ?? mejorMonto)
             : top3[_selectedChipIndex].$1;
 
         final double displayMonto = _selectedOption == RouteOption.direct
@@ -382,8 +381,13 @@ class _ChangeFormState extends State<ChangeForm> {
             comparacion =
                 'La ruta directa supera a la #${_selectedOption == RouteOption.direct ? 1 : _selectedChipIndex + 1} en ${(-diff).toStringAsFixed(2)} $destino.';
           } else {
-            comparacion =
-                'La ruta directa y la seleccionada dan el mismo resultado.';
+            if (_selectedChipIndex == 0) {
+              comparacion =
+                  'La ruta directa y la seleccionada dan el mismo resultado.';
+            } else {
+              comparacion =
+                  'La ruta directa y la mejor ruta dan el mismo resultado.';
+            }
           }
         }
 

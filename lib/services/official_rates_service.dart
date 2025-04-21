@@ -4,7 +4,6 @@ import 'package:http/http.dart' as http;
 import 'package:travify/database/dao/currency_dao.dart';
 import 'package:travify/database/dao/rate_dao.dart';
 import 'package:travify/models/rate.dart';
-import 'package:travify/models/currency.dart';
 
 const String apiKey = '6fb6769c6b0e9cb6931256ee';
 const String baseCurrency = 'EUR';
@@ -14,41 +13,39 @@ class OfficialRatesService {
   final Map<List<String>, double> ratesMap = {};
 
   Future<void> updateOfficialRates() async {
-    const Map<String, Map<String, dynamic>> currencyMapWithIds = {
-      "USD": {"id": 1},
-      "EUR": {"id": 2},
-      "JPY": {"id": 3},
-      "GBP": {"id": 4},
-      "AUD": {"id": 5},
-      "CAD": {"id": 6},
-      "CHF": {"id": 7},
-      "CNY": {"id": 8},
-      "HKD": {"id": 9},
-      "SGD": {"id": 10},
-      "NZD": {"id": 11},
-      "KRW": {"id": 12},
-      "INR": {"id": 13},
-      "BRL": {"id": 14},
-      "MXN": {"id": 15},
-      "ZAR": {"id": 16},
-      "SEK": {"id": 17},
-      "NOK": {"id": 18},
-      "DKK": {"id": 19},
-      "THB": {"id": 20},
-      "AED": {"id": 21},
-      "TRY": {"id": 22},
-      "RUB": {"id": 23},
-      "PLN": {"id": 24},
-      "IDR": {"id": 25},
-      "TWD": {"id": 26},
-      "MYR": {"id": 27},
-      "PHP": {"id": 28},
-      "VND": {"id": 29},
-      "ILS": {"id": 30},
-      "SAR": {"id": 31},
+    const Map<String, int> currencyIds = {
+      "USD": 1,
+      "EUR": 2,
+      "JPY": 3,
+      "GBP": 4,
+      "AUD": 5,
+      "CAD": 6,
+      "CHF": 7,
+      "CNY": 8,
+      "HKD": 9,
+      "SGD": 10,
+      "NZD": 11,
+      "KRW": 12,
+      "INR": 13,
+      "BRL": 14,
+      "MXN": 15,
+      "ZAR": 16,
+      "SEK": 17,
+      "NOK": 18,
+      "DKK": 19,
+      "THB": 20,
+      "AED": 21,
+      "TRY": 22,
+      "RUB": 23,
+      "PLN": 24,
+      "IDR": 25,
+      "TWD": 26,
+      "MYR": 27,
+      "PHP": 28,
+      "VND": 29,
+      "ILS": 30,
+      "SAR": 31,
     };
-
-    final List<String> majorCurrencies = currencyMapWithIds.keys.toList();
 
     final url = Uri.parse(
         'https://v6.exchangerate-api.com/v6/$apiKey/latest/$baseCurrency');
@@ -58,53 +55,43 @@ class OfficialRatesService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final Map<String, dynamic> allRatesRaw = data['conversion_rates'];
+        final Map<String, dynamic> allRates = data['conversion_rates'];
 
-        final Map<String, double> majorRates = {};
-        for (var currency in majorCurrencies) {
-          final rawRate = allRatesRaw[currency];
-          if (rawRate != null) {
-            majorRates[currency] =
-                (rawRate is int) ? rawRate.toDouble() : rawRate;
-          }
-        }
-
-        final rateDao = RateDao();
         final currencyDao = CurrencyDao();
 
-        for (var from in majorCurrencies) {
-          for (var to in majorCurrencies) {
-            if (from == to) continue;
+        for (var entry in currencyIds.entries) {
+          final code = entry.key;
+          final id = entry.value;
 
-            if (majorRates.containsKey(from) && majorRates.containsKey(to)) {
-              double rateValue = majorRates[to]! / majorRates[from]!;
-              rateValue = double.parse(rateValue.toStringAsFixed(6));
+          if (code == baseCurrency) continue;
 
-              final idFrom = currencyMapWithIds[from]!['id'];
-              final idTo = currencyMapWithIds[to]!['id'];
+          final rawRate = allRates[code];
+          if (rawRate == null) continue;
 
-              Currency currencyFrom = await currencyDao.getCurrencyById(idFrom);
+          final rateValue = (rawRate is int)
+              ? rawRate.toDouble()
+              : double.parse(rawRate.toStringAsFixed(6));
 
-              Currency currencyTo = await currencyDao.getCurrencyById(idTo);
+          final fromCurrency =
+              await currencyDao.getCurrencyById(currencyIds[baseCurrency]!);
+          final toCurrency = await currencyDao.getCurrencyById(id);
 
-              final rate = Rate(
-                id: 0,
-                currencyFrom: currencyFrom,
-                currencyTo: currencyTo,
-                rate: rateValue,
-              );
+          final rate = Rate(
+            id: 0,
+            currencyFrom: fromCurrency,
+            currencyTo: toCurrency,
+            rate: rateValue,
+          );
 
-              await rateDao.upsertRate(rate);
-            }
-          }
+          await rateDao.upsertRate(rate);
         }
 
-        print('✅ Tasas actualizadas correctamente en la base de datos.');
+        print('✅ Tasas oficiales actualizadas (EUR → todas).');
       } else {
-        print('❌ Error al obtener tasas desde la API: ${response.statusCode}');
+        print('❌ Error al obtener tasas desde API: ${response.statusCode}');
       }
     } catch (e) {
-      print('❌ Excepción al actualizar tasas oficiales: $e');
+      print('❌ Excepción: $e');
     }
   }
 }

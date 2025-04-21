@@ -14,19 +14,42 @@ class ChangeService {
   List<Map<String, dynamic>> historicalMap = [];
   Map<String, double> ratesMap = {};
 
+  void testCalculoTasaDerivada(String from, String to, double amount,
+      [double commission = 0.0]) {
+    final rateFrom = ratesMap[from];
+    final rateTo = ratesMap[to];
+
+    if (rateFrom == null || rateTo == null) {
+      print('❌ Faltan tasas oficiales: $from o $to');
+      return;
+    }
+
+    final tasaDerivada = rateTo / rateFrom;
+    final tasaConComision = tasaDerivada * (1 - commission);
+    final resultado = amount * tasaConComision;
+
+    print('🧪 Test cambio de $amount $from a $to:');
+    print('   EUR → $from = ${rateFrom.toStringAsFixed(6)}');
+    print('   EUR → $to   = ${rateTo.toStringAsFixed(6)}');
+    print('   Tasa derivada $from → $to = ${tasaDerivada.toStringAsFixed(6)}');
+    print('   Comisión aplicada: ${commission * 100}%');
+    print('   Tasa neta: ${tasaConComision.toStringAsFixed(6)}');
+    print('   Resultado: ${resultado.toStringAsFixed(2)} $to');
+  }
+
   Future<List<Change>> getAllChanges() async {
     return await transactioDao.getAllChanges();
   }
 
   Future<void> getOfficialRatesAsMap() async {
-    final List<Rate> rates = await rateDao.getAllRates();
+    final List<Rate> rates = await rateDao.getRatesFromCurrency('EUR');
     final Map<String, double> fixedMap = {};
 
     for (final rate in rates) {
-      final from = rate.currencyFrom.code;
-      final to = rate.currencyTo.code;
-      fixedMap['$from-$to'] = rate.rate;
+      fixedMap[rate.currencyTo.code] = rate.rate;
     }
+
+    fixedMap['EUR'] = 1.0;
     ratesMap = fixedMap;
   }
 
@@ -110,66 +133,55 @@ class ChangeService {
     return comisionesMedias;
   }
 
+  double? getRateFromEUR(Map<String, double> rates, String currencyCode) {
+    return rates[currencyCode] ?? (currencyCode == 'EUR' ? 1.0 : null);
+  }
+
   Map<String, Map<String, double>> construirGrafoPriorizandoReal(
     Map<String, double> tasasEfectivasMedias,
-    Map<String, double> officialRates,
+    Map<String, double> officialRatesFromEUR,
     Map<String, double> comisionesMedias, {
     double? userCommission,
     String? origenUsuario,
     String? destinoUsuario,
     double comisionDefecto = 0.02,
   }) {
-    final Map<String, Map<String, double>> grafo = {};
+    final monedas = Set<String>.from(officialRatesFromEUR.keys);
+    monedas.add('EUR');
 
-    final Set<String> monedas = {
-      ...tasasEfectivasMedias.keys.expand((k) => k.split('-')),
-      ...officialRates.keys.expand((k) => k.split('-')),
-    };
+    final grafo = <String, Map<String, double>>{};
 
-    for (final org in monedas) {
-      for (final dst in monedas) {
-        if (org == dst) continue;
+    for (final from in monedas) {
+      for (final to in monedas) {
+        if (from == to) continue;
 
-        grafo.putIfAbsent(org, () => {});
+        final key = '$from-$to';
+        final invKey = '$to-$from';
 
-        // Construir claves
-        final directKey = '$org-$dst';
-        final invKey = '$dst-$org';
+        grafo.putIfAbsent(from, () => {});
 
-        // 1. Tasa real
-        final tasaReal = tasasEfectivasMedias[directKey];
-        if (tasaReal != null) {
-          grafo[org]![dst] = tasaReal;
+        double comision = (from == origenUsuario &&
+                to == destinoUsuario &&
+                userCommission != null)
+            ? userCommission
+            : comisionesMedias[key] ??
+                comisionesMedias[invKey] ??
+                comisionDefecto;
+
+        if (tasasEfectivasMedias.containsKey(key)) {
+          final tasaReal = tasasEfectivasMedias[key]!;
+          final netRate = tasaReal * (1 - comision);
+          grafo[from]![to] = netRate;
           continue;
         }
 
-        // 2. Tasa oficial (posiblemente invertida)
-        double? oficial = officialRates[directKey];
-        bool invertida = false;
+        final fromRate = getRateFromEUR(officialRatesFromEUR, from);
+        final toRate = getRateFromEUR(officialRatesFromEUR, to);
 
-        if (oficial == null && officialRates.containsKey(invKey)) {
-          oficial = 1.0 / officialRates[invKey]!;
-          invertida = true;
-        }
-
-        if (oficial != null) {
-          double comision;
-
-          // Si el usuario especificó su par exacto
-          if (userCommission != null &&
-              org == origenUsuario &&
-              dst == destinoUsuario) {
-            comision = userCommission;
-          } else {
-            final comKey = directKey;
-            final comInvKey = invKey;
-            comision = comisionesMedias[comKey] ??
-                comisionesMedias[comInvKey] ??
-                comisionDefecto;
-          }
-
-          final factorNeto = oficial * (1 - comision);
-          grafo[org]![dst] = factorNeto;
+        if (fromRate != null && toRate != null) {
+          final baseRate = toRate / fromRate;
+          final netRate = baseRate * (1 - comision);
+          grafo[from]![to] = netRate;
         }
       }
     }
