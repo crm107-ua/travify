@@ -253,7 +253,6 @@ class _ChangeFormState extends State<ChangeForm> {
             searchHint: 'Buscar divisa...',
             onChanged: (val) {
               onCurrencyChanged(val);
-              // Esto también refresca la vista previa si cambias la divisa
               setState(() {});
             },
             isExpanded: true,

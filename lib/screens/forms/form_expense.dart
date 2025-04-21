@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -78,18 +80,40 @@ class _ExpenseFormState extends State<ExpenseForm> {
 
   void _calculateDailyAmortization() {
     if (_startDateAmortization != null && _endDateAmortization != null) {
-      final days =
-          _endDateAmortization!.difference(_startDateAmortization!).inDays + 1;
+      final startDate = DateTime(
+        _startDateAmortization!.year,
+        _startDateAmortization!.month,
+        _startDateAmortization!.day,
+      );
+
+      final endDate = DateTime(
+        _endDateAmortization!.year,
+        _endDateAmortization!.month,
+        _endDateAmortization!.day,
+      );
+
+      final days = endDate.difference(startDate).inDays + 1;
       final amount = double.tryParse(_amountController.text) ?? 0.0;
+
       if (days > 0) {
         setState(() => _dailyAmortization = amount / days);
       }
     } else {
-      _startDateAmortization = widget.trip.dateStart;
-      _endDateAmortization = widget.trip.dateEnd;
-      final days =
-          _endDateAmortization!.difference(_startDateAmortization!).inDays + 1;
+      final startDate = DateTime(
+        widget.trip.dateStart.year,
+        widget.trip.dateStart.month,
+        widget.trip.dateStart.day,
+      );
+
+      final endDate = DateTime(
+        widget.trip.dateEnd!.year,
+        widget.trip.dateEnd!.month,
+        widget.trip.dateEnd!.day,
+      );
+
+      final days = endDate.difference(startDate).inDays + 1;
       final amount = double.tryParse(_amountController.text) ?? 0.0;
+
       if (days > 0) {
         setState(() => _dailyAmortization = amount / days);
       }
@@ -97,12 +121,22 @@ class _ExpenseFormState extends State<ExpenseForm> {
   }
 
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+    final DateTime today = DateTime.now();
+    final DateTime initial = isStartDate
+        ? (_startDateAmortization ?? today)
+        : (_endDateAmortization ?? today);
+
+    final DateTime firstDate =
+        DateTime(today.year, today.month, today.day); // hoy (sin horas)
+    final DateTime lastDate = DateTime(2100, 12, 31); // tope
+
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: isStartDate ? widget.trip.dateStart : widget.trip.dateEnd,
-      firstDate: widget.trip.dateStart,
-      lastDate: widget.trip.dateEnd ?? DateTime.now(),
+      initialDate: initial.isBefore(firstDate) ? firstDate : initial,
+      firstDate: firstDate,
+      lastDate: lastDate,
     );
+
     if (picked != null) {
       setState(() {
         if (isStartDate) {
@@ -271,6 +305,20 @@ class _ExpenseFormState extends State<ExpenseForm> {
                     if (totalWithNew > trip.budget.maxLimit) {
                       _showSnackBar(
                           'Vas a exceder el límite del presupuesto: ${trip.budget.maxLimit} ${trip.currency.symbol}');
+                      return;
+                    }
+                  }
+                  if (_isAmortization && _endDateAmortization != null) {
+                    if (_endDateAmortization!
+                        .isBefore(_startDateAmortization!)) {
+                      _showSnackBar(
+                          'La fecha de fin no puede ser anterior a la fecha de inicio');
+                      return;
+                    }
+                    if (_endDateAmortization!
+                        .isAtSameMomentAs(_startDateAmortization!)) {
+                      _showSnackBar(
+                          'La fecha de fin no puede ser igual a la fecha de inicio');
                       return;
                     }
                   }

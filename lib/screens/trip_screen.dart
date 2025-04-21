@@ -317,7 +317,7 @@ class _TripDetailPageState extends State<TripDetailPage>
                           await _transactionService
                               .createTransaction(newExpense);
                           setState(() {
-                            _trip.transactions.add(newExpense);
+                            _trip.transactions.insert(0, newExpense);
                             _tabController.animateTo(0);
                             _calcRealBalance();
                           });
@@ -341,7 +341,7 @@ class _TripDetailPageState extends State<TripDetailPage>
                           await _transactionService
                               .createTransaction(newIncome);
                           setState(() {
-                            _trip.transactions.add(newIncome);
+                            _trip.transactions.insert(0, newIncome);
                             _tabController.animateTo(1);
                             _calcRealBalance();
                           });
@@ -363,7 +363,7 @@ class _TripDetailPageState extends State<TripDetailPage>
                           for (final change in newChanges) {
                             await _transactionService.createTransaction(change);
                             setState(() {
-                              _trip.transactions.add(change);
+                              _trip.transactions.insert(0, change);
                             });
                           }
                           _tabController.animateTo(2);
@@ -591,8 +591,7 @@ Widget _buildExpenseList(Trip trip) {
   final expenses = trip.transactions
       .where((transaction) => transaction.type == TransactionType.expense)
       .whereType<Expense>()
-      .toList()
-    ..sort((a, b) => a.date.compareTo(b.date));
+      .toList();
 
   if (expenses.isEmpty) {
     return const Center(
@@ -694,6 +693,14 @@ Widget _buildExpenseList(Trip trip) {
                     '${DateFormat('dd/MM/yyyy').format(expense.startDateAmortization!)} - ${DateFormat('dd/MM/yyyy').format(expense.endDateAmortization!)}',
                     style: const TextStyle(color: Colors.white70, fontSize: 13),
                   ),
+                if (expense.isAmortization == true &&
+                    expense.startDateAmortization == null &&
+                    expense.endDateAmortization == null)
+                  Text(
+                    '${DateFormat('dd/MM/yyyy').format(trip.dateStart)}'
+                    ' - ${DateFormat('dd/MM/yyyy').format(trip.dateEnd ?? trip.dateStart)}',
+                    style: const TextStyle(color: Colors.white70, fontSize: 13),
+                  ),
               ],
             ),
           ],
@@ -707,8 +714,7 @@ Widget _buildIncomeList(Trip trip) {
   final incomes = trip.transactions
       .where((transaction) => transaction.type == TransactionType.income)
       .whereType<Income>()
-      .toList()
-    ..sort((a, b) => b.date.compareTo(a.date)); // más reciente primero
+      .toList();
 
   if (incomes.isEmpty) {
     return const Center(
@@ -796,8 +802,6 @@ Widget _buildChangeList(Trip trip) {
   final changes = trip.transactions
       .where((transaction) => transaction.type == TransactionType.change)
       .whereType<Change>()
-      .toList()
-      .reversed
       .toList();
 
   if (changes.isEmpty) {
