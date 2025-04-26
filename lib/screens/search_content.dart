@@ -145,7 +145,7 @@ class _SearchContentState extends State<SearchContent> {
                     _filterTrips();
                   },
                 ),
-                const SizedBox(height: 25),
+                const SizedBox(height: 28),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
