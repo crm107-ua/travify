@@ -30,6 +30,16 @@ class _SearchContentState extends State<SearchContent> {
     _loadTrips();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    if (ModalRoute.of(context)?.isCurrent ?? false) {
+      _loadTrips();
+      setState(() {});
+    }
+  }
+
   Future<void> _loadTrips() async {
     final trips = await _tripService.getAllTrips();
 
@@ -111,15 +121,11 @@ class _SearchContentState extends State<SearchContent> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 76.0, left: 16.0),
+          Padding(
+            padding: const EdgeInsets.only(top: 76.0, left: 16.0),
             child: Text(
-              'Historial',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+              "Historial",
+              style: Theme.of(context).textTheme.titleLarge,
             ),
           ),
           Padding(
@@ -378,6 +384,7 @@ class _SearchContentState extends State<SearchContent> {
                                       TripDetailPage(trip: trip),
                                 ),
                               );
+                              _loadTrips();
                             },
                           ),
                         ),

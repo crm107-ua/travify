@@ -247,6 +247,26 @@ class _TripDetailPageState extends State<TripDetailPage>
               pinned: true,
               backgroundColor: Colors.black,
               actions: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Center(
+                    child: Text(
+                      trip.open ? 'Abierto' : 'Cerrado',
+                      style: const TextStyle(color: Colors.white, fontSize: 13),
+                    ),
+                  ),
+                ),
+                Switch(
+                  value: trip.open,
+                  activeColor: Colors.greenAccent,
+                  inactiveThumbColor: Colors.redAccent,
+                  onChanged: (bool mode) async {
+                    setState(() {
+                      trip.open = mode;
+                    });
+                    await TripService().updateTrip(trip);
+                  },
+                ),
                 IconButton(
                   icon: const Icon(Icons.account_balance_wallet,
                       color: Colors.white, size: 23),
