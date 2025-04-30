@@ -352,6 +352,8 @@ class _TripDetailPageState extends State<TripDetailPage>
                               .createTransaction(newExpense);
                           setState(() {
                             _trip.transactions.insert(0, newExpense);
+                            _trip.transactions
+                                .sort((a, b) => b.date.compareTo(a.date));
                             _tabController.animateTo(0);
                             _calcRealBalance();
                           });
@@ -375,11 +377,14 @@ class _TripDetailPageState extends State<TripDetailPage>
                           await _transactionService
                               .createTransaction(newIncome);
                           setState(() {
-                            _trip.transactions.insert(0, newIncome);
+                            _trip.transactions.add(newIncome);
+                            _trip.transactions
+                                .sort((a, b) => b.date.compareTo(a.date));
                             _tabController.animateTo(1);
                             _calcRealBalance();
                           });
                         }
+
                         break;
                       case 'change':
                         final newChanges = await Navigator.push(
@@ -531,68 +536,6 @@ class _TripDetailPageState extends State<TripDetailPage>
     );
   }
 
-  void _showTripSummaryDialog(BuildContext context, Trip trip) {
-    final budget = trip.budget;
-
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: Colors.black,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-        content: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.95,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('Resumen del Viaje',
-                    style: TextStyle(color: Colors.white, fontSize: 22)),
-                const SizedBox(height: 10),
-                Text(trip.title,
-                    style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500)),
-                const SizedBox(height: 24),
-                _buildSectionTitle('Destino'),
-                _buildInfoText(trip.destination),
-                const SizedBox(height: 16),
-                _buildSectionTitle('Países'),
-                _buildInfoText(trip.countries.map((c) => c.name).join(', ')),
-                const SizedBox(height: 16),
-                _buildSectionTitle('Fechas'),
-                _buildInfoText(_formatTripDates(trip)),
-                const SizedBox(height: 16),
-                _buildSectionTitle('Divisa'),
-                _buildInfoText(
-                    '${trip.currency.symbol} - ${trip.currency.name}'),
-                const SizedBox(height: 16),
-                _buildSectionTitle('Presupuesto'),
-                _buildInfoText(
-                    'Límite Máximo: ${budget.maxLimit}${trip.currency.symbol}'),
-                _buildInfoText(
-                    'Límite Deseado: ${budget.desiredLimit}${trip.currency.symbol}'),
-                _buildInfoText(
-                    'Acumulado: ${budget.accumulated}${trip.currency.symbol}'),
-                _buildInfoText(
-                    '¿Aumentar límite?: ${budget.limitIncrease ? "Sí" : "No"}'),
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child:
-                const Text('Cerrar', style: TextStyle(color: Colors.white70)),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildInfoText(String text) {
     return Padding(
       padding: const EdgeInsets.only(top: 4.0),
@@ -641,6 +584,7 @@ class _TripDetailPageState extends State<TripDetailPage>
             _transactionService.deleteTransaction(expense).then((_) {
               setState(() {
                 _trip.transactions.remove(expense);
+                _calcRealBalance();
               });
             });
           }, (active) async {
@@ -780,6 +724,7 @@ class _TripDetailPageState extends State<TripDetailPage>
             _transactionService.deleteTransaction(income).then((_) {
               setState(() {
                 _trip.transactions.remove(income);
+                _calcRealBalance();
               });
             });
           }, (active) async {
@@ -837,7 +782,7 @@ class _TripDetailPageState extends State<TripDetailPage>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      income.isRecurrent == true
+                      income.isRecurrent == true && income.active == true
                           ? income.nextRecurrentDate != null
                               ? 'Próximo ingreso: ${DateFormat('dd/MM/yyyy').format(income.nextRecurrentDate!)}'
                               : 'Recurrente'
@@ -1058,6 +1003,7 @@ class _TripDetailPageState extends State<TripDetailPage>
 
                               if (confirm == true) {
                                 Navigator.pop(context);
+
                                 onDelete?.call();
                               }
                             },
@@ -1123,10 +1069,12 @@ class _TripDetailPageState extends State<TripDetailPage>
                           ),
                           const SizedBox(height: 5),
                           if (transaction.nextRecurrentDate != null) ...[
-                            Text(
-                              'Próximo cobro: ${transaction.nextRecurrentDate != null ? DateFormat('dd/MM/yyyy').format(transaction.nextRecurrentDate!) : 'Fecha no disponible'}',
-                              style: const TextStyle(color: Colors.white70),
-                            ),
+                            if (transaction.active == false) ...[
+                              const Text(
+                                'Ingreso recurrente inactivo',
+                                style: TextStyle(color: Colors.white70),
+                              ),
+                            ],
                             const SizedBox(height: 20),
                             Row(
                               children: [
@@ -1189,6 +1137,68 @@ class _TripDetailPageState extends State<TripDetailPage>
           },
         );
       },
+    );
+  }
+
+  void _showTripSummaryDialog(BuildContext context, Trip trip) {
+    final budget = trip.budget;
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: Colors.black,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        content: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.95,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Resumen del Viaje',
+                    style: TextStyle(color: Colors.white, fontSize: 22)),
+                const SizedBox(height: 10),
+                Text(trip.title,
+                    style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500)),
+                const SizedBox(height: 24),
+                _buildSectionTitle('Destino'),
+                _buildInfoText(trip.destination),
+                const SizedBox(height: 16),
+                _buildSectionTitle('Países'),
+                _buildInfoText(trip.countries.map((c) => c.name).join(', ')),
+                const SizedBox(height: 16),
+                _buildSectionTitle('Fechas'),
+                _buildInfoText(_formatTripDates(trip)),
+                const SizedBox(height: 16),
+                _buildSectionTitle('Divisa'),
+                _buildInfoText(
+                    '${trip.currency.symbol} - ${trip.currency.name}'),
+                const SizedBox(height: 16),
+                _buildSectionTitle('Presupuesto'),
+                _buildInfoText(
+                    'Límite Máximo: ${budget.maxLimit}${trip.currency.symbol}'),
+                _buildInfoText(
+                    'Límite Deseado: ${budget.desiredLimit}${trip.currency.symbol}'),
+                _buildInfoText(
+                    'Acumulado: ${budget.accumulated}${trip.currency.symbol}'),
+                _buildInfoText(
+                    '¿Aumentar límite?: ${budget.limitIncrease ? "Sí" : "No"}'),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child:
+                const Text('Cerrar', style: TextStyle(color: Colors.white70)),
+          ),
+        ],
+      ),
     );
   }
 }

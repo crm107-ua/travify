@@ -327,12 +327,17 @@ class _ExpenseFormState extends State<ExpenseForm> {
                       .whereType<Income>()
                       .fold(0.0, (sum, income) => sum + income.amount);
 
-                  final double totalWithNew = totalIncomes - totalExpenses;
+                  final maxAvailableToSpend =
+                      totalIncomes < trip.budget.maxLimit
+                          ? trip.budget.maxLimit
+                          : totalIncomes;
 
-                  if (trip.budget.limitIncrease) {
-                    if (totalWithNew > trip.budget.maxLimit) {
+                  final totalExpensesWithNew = totalExpenses + expense.amount;
+
+                  if (!trip.budget.limitIncrease) {
+                    if (totalExpensesWithNew > maxAvailableToSpend) {
                       _showSnackBar(
-                          'Vas a exceder el límite del presupuesto: ${trip.budget.maxLimit} ${trip.currency.symbol}');
+                          'Límite de gasto superado: ${trip.budget.maxLimit} ${trip.currency.symbol}');
                       return;
                     }
                   }

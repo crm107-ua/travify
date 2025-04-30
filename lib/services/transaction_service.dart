@@ -67,20 +67,11 @@ class TransactionService {
         expense.nextAmortizationDate!.day,
       );
 
+      int dayNumber = 1;
+
       while (!nextDate.isAfter(todayDate)) {
-        final siguiente = nextDate.add(const Duration(days: 1));
-        var description = expense.description ?? '';
-        if (expense.endDateAmortization != null &&
-            siguiente.isAfter(expense.endDateAmortization!)) {
-          expense.nextAmortizationDate = null;
-          description = 'Última amortización';
-          break;
-        } else {
-          nextDate = siguiente;
-          expense.nextAmortizationDate = siguiente;
-          description =
-              '${expense.description} Recurr. Próxima fecha: (${DateFormat('dd/MM').format(nextDate.add(Duration(days: 1)))})';
-        }
+        final description =
+            '${expense.description ?? 'Amortización'} (Día $dayNumber)';
 
         final nuevaAmortizacion = Expense(
           id: 0,
@@ -93,6 +84,18 @@ class TransactionService {
         );
 
         await _transactionDao.createTransaction(nuevaAmortizacion);
+
+        final siguiente = nextDate.add(const Duration(days: 1));
+
+        if (expense.endDateAmortization != null &&
+            siguiente.isAfter(expense.endDateAmortization!)) {
+          expense.nextAmortizationDate = null;
+          break;
+        } else {
+          expense.nextAmortizationDate = siguiente;
+          nextDate = siguiente;
+          dayNumber++;
+        }
       }
 
       await _transactionDao.updateExpenseNextAmortizationDate(expense);
