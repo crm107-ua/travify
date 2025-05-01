@@ -8,6 +8,11 @@ import 'package:travify/models/country.dart';
 import 'package:travify/services/country_service.dart';
 import 'package:travify/services/currency_service.dart';
 import 'package:travify/services/trip_service.dart';
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 
 class CreateOrEditTravelWizard extends StatefulWidget {
   final Trip? trip;
@@ -32,7 +37,8 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _destinationController = TextEditingController();
-  final TextEditingController _imageController = TextEditingController();
+  final ImagePicker _picker = ImagePicker();
+  File? _pickedImageFile;
 
   // Paso 1: Selección de países
   List<Country> _allCountries = [];
@@ -67,7 +73,6 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
       _titleController.text = trip.title;
       _descriptionController.text = trip.description ?? '';
       _destinationController.text = trip.destination;
-      _imageController.text = trip.image ?? '';
       _dateStart = trip.dateStart;
       _dateEnd = trip.dateEnd;
       _selectedCountries = trip.countries;
@@ -136,6 +141,28 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
     Navigator.pop(context, true);
   }
 
+  Future<void> _pickImage(ImageSource source) async {
+    final XFile? pickedImage = await _picker.pickImage(
+      source: source,
+      imageQuality: 85,
+    );
+
+    if (pickedImage != null) {
+      final savedImage = await _saveImageLocally(File(pickedImage.path));
+      setState(() {
+        _pickedImageFile = savedImage;
+      });
+    }
+  }
+
+  Future<File> _saveImageLocally(File image) async {
+    final appDir = await getApplicationDocumentsDirectory();
+    final fileName =
+        'trip_${DateTime.now().millisecondsSinceEpoch}${path.extension(image.path)}';
+    final savedImage = await image.copy('${appDir.path}/$fileName');
+    return savedImage;
+  }
+
   void _selectDate(BuildContext context, bool isStartDate) async {
     DateTime initialDate = DateTime.now();
     DateTime firstDate = DateTime(2000);
@@ -178,7 +205,7 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
               title: Text("Seleccione países",
                   style: TextStyle(color: Colors.white)),
               backgroundColor: Colors.black,
-              content: Container(
+              content: SizedBox(
                 width: double.maxFinite,
                 child: ListView.builder(
                   shrinkWrap: true,
@@ -309,9 +336,8 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
         dateStart: _dateStart ?? DateTime.now(),
         dateEnd: _dateEnd,
         destination: _destinationController.text,
-        image: _imageController.text == ''
-            ? "https://www.stokedtotravel.com/wp-content/uploads/2020/12/Railay-Bay.jpg"
-            : _imageController.text,
+        image: _pickedImageFile?.path ??
+            "https://www.stokedtotravel.com/wp-content/uploads/2020/12/Railay-Bay.jpg",
         open: true,
         budget: budget,
         currency: _selectedCurrency!,
@@ -402,13 +428,38 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
     );
   }
 
-  Widget _buildInfoStep() => Column(children: [
-        _buildTextField(_titleController, 'Título', isRequired: true),
-        _buildTextField(_descriptionController, 'Descripción',
-            isRequired: true),
-        _buildTextField(_destinationController, 'Destino', isRequired: true),
-        _buildTextField(_imageController, 'URL de la imagen', isRequired: false)
-      ]);
+  Widget _buildInfoStep() => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTextField(_titleController, 'Título', isRequired: true),
+          _buildTextField(_descriptionController, 'Descripción',
+              isRequired: true),
+          _buildTextField(_destinationController, 'Destino', isRequired: true),
+          const SizedBox(height: 20),
+          const Text('Foto del viaje', style: TextStyle(color: Colors.white)),
+          const SizedBox(height: 20),
+          Center(
+            child: GestureDetector(
+              onTap: () => _pickImage(ImageSource.gallery),
+              child: Container(
+                width: 200,
+                height: 200,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.grey[800],
+                ),
+                child: _pickedImageFile != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.file(_pickedImageFile!, fit: BoxFit.cover),
+                      )
+                    : const Icon(Icons.add_photo_alternate,
+                        color: Colors.white70, size: 50),
+              ),
+            ),
+          ),
+        ],
+      );
 
   Widget _buildCountryStep() => ListTile(
       title: Text(

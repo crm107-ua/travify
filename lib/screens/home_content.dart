@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:travify/constants/images.dart';
 import 'package:travify/models/trip.dart';
 import 'package:travify/screens/trip_screen.dart';
 import 'package:travify/screens/utils/horizontal_grid.dart';
@@ -172,8 +175,11 @@ class _HomeContentState extends State<HomeContent>
                               },
                               child: _buildAppBarContent(currentTrip),
                             ),
-                      background: _buildAppBarBackground(currentTrip?.image ??
-                          'https://images.pexels.com/photos/1519088/pexels-photo-1519088.jpeg'),
+                      background: _buildAppBarBackground(
+                        currentTrip?.image ??
+                            AppImages
+                                .defaultImage, // Cambia la imagen por defecto
+                      ),
                     );
                   },
                 ),
@@ -353,19 +359,14 @@ class _HomeContentState extends State<HomeContent>
     );
   }
 
-  Widget _buildAppBarBackground(String image) {
+  Widget _buildAppBarBackground(String imagePathOrUrl) {
     return Stack(
       fit: StackFit.expand,
       children: [
-        Image.network(
-          image,
-          fit: BoxFit.cover,
-        ),
-        Container(
-          decoration: const BoxDecoration(
-            color: Colors.black45,
-          ),
-        )
+        imagePathOrUrl.startsWith('http')
+            ? Image.network(imagePathOrUrl, fit: BoxFit.cover)
+            : Image.file(File(imagePathOrUrl), fit: BoxFit.cover),
+        Container(decoration: const BoxDecoration(color: Colors.black45)),
       ],
     );
   }

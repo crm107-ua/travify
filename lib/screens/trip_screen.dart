@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:travify/constants/images.dart';
 import 'package:travify/enums/expense_category.dart';
 import 'package:travify/enums/recurrent_income_type.dart';
 import 'package:travify/models/transaction.dart';
@@ -473,7 +476,7 @@ class _TripDetailPageState extends State<TripDetailPage>
                           ),
                         ],
                       )
-                    : const SizedBox.shrink(), 
+                    : const SizedBox.shrink(),
                 const SizedBox(width: 8),
               ],
               flexibleSpace: ClipRRect(
@@ -501,10 +504,13 @@ class _TripDetailPageState extends State<TripDetailPage>
                               ClipRRect(
                                 child:
                                     trip.image != null && trip.image!.isNotEmpty
-                                        ? Image.network(trip.image!,
-                                            fit: BoxFit.cover)
+                                        ? (trip.image!.startsWith('http')
+                                            ? Image.network(trip.image!,
+                                                fit: BoxFit.cover)
+                                            : Image.file(File(trip.image!),
+                                                fit: BoxFit.cover))
                                         : Image.network(
-                                            'https://images.pexels.com/photos/1519088/pexels-photo-1519088.jpeg',
+                                            AppImages.defaultImage,
                                             fit: BoxFit.cover,
                                           ),
                               ),
