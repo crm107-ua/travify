@@ -349,124 +349,131 @@ class _TripDetailPageState extends State<TripDetailPage>
                     ),
                   ],
                 ),
-                PopupMenuButton<String>(
-                  icon: const Icon(Icons.add, color: Colors.white, size: 30),
-                  color: Colors.grey[900],
-                  onSelected: (value) async {
-                    switch (value) {
-                      case 'expense':
-                        final newExpense = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ExpenseForm(
-                              trip: _trip,
-                              onSave: (expense) {
-                                Navigator.pop(context, expense);
-                              },
-                            ),
-                          ),
-                        );
+                trip.open
+                    ? PopupMenuButton<String>(
+                        icon: const Icon(Icons.add,
+                            color: Colors.white, size: 30),
+                        color: Colors.grey[900],
+                        onSelected: (value) async {
+                          switch (value) {
+                            case 'expense':
+                              final newExpense = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ExpenseForm(
+                                    trip: _trip,
+                                    onSave: (expense) {
+                                      Navigator.pop(context, expense);
+                                    },
+                                  ),
+                                ),
+                              );
 
-                        if (newExpense != null && newExpense is Expense) {
-                          await _transactionService
-                              .createTransaction(newExpense);
-                          setState(() {
-                            _trip.transactions.insert(0, newExpense);
-                            _trip.transactions
-                                .sort((a, b) => b.date.compareTo(a.date));
-                            _tabController.animateTo(0);
-                            _calcRealBalance();
-                          });
-                        }
-                        break;
+                              if (newExpense != null && newExpense is Expense) {
+                                await _transactionService
+                                    .createTransaction(newExpense);
+                                setState(() {
+                                  _trip.transactions.insert(0, newExpense);
+                                  _trip.transactions
+                                      .sort((a, b) => b.date.compareTo(a.date));
+                                  _tabController.animateTo(0);
+                                  _calcRealBalance();
+                                });
+                              }
+                              break;
 
-                      case 'income':
-                        final newIncome = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => IncomeForm(
-                              trip: _trip,
-                              onSave: (income) {
-                                Navigator.pop(context, income);
-                              },
-                            ),
-                          ),
-                        );
+                            case 'income':
+                              final newIncome = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => IncomeForm(
+                                    trip: _trip,
+                                    onSave: (income) {
+                                      Navigator.pop(context, income);
+                                    },
+                                  ),
+                                ),
+                              );
 
-                        if (newIncome != null && newIncome is Income) {
-                          await _transactionService
-                              .createTransaction(newIncome);
-                          setState(() {
-                            _trip.transactions.add(newIncome);
-                            _trip.transactions
-                                .sort((a, b) => b.date.compareTo(a.date));
-                            _tabController.animateTo(1);
-                            _calcRealBalance();
-                          });
-                        }
+                              if (newIncome != null && newIncome is Income) {
+                                await _transactionService
+                                    .createTransaction(newIncome);
+                                setState(() {
+                                  _trip.transactions.add(newIncome);
+                                  _trip.transactions
+                                      .sort((a, b) => b.date.compareTo(a.date));
+                                  _tabController.animateTo(1);
+                                  _calcRealBalance();
+                                });
+                              }
 
-                        break;
-                      case 'change':
-                        final newChanges = await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ChangeForm(
-                              trip: _trip,
-                              onSave: (List<Change> changes) {
-                                Navigator.pop(context, changes);
-                              },
-                            ),
-                          ),
-                        );
-                        if (newChanges != null && newChanges is List<Change>) {
-                          for (final change in newChanges) {
-                            await _transactionService.createTransaction(change);
-                            setState(() {
-                              _trip.transactions.insert(0, change);
-                            });
+                              break;
+                            case 'change':
+                              final newChanges = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ChangeForm(
+                                    trip: _trip,
+                                    onSave: (List<Change> changes) {
+                                      Navigator.pop(context, changes);
+                                    },
+                                  ),
+                                ),
+                              );
+                              if (newChanges != null &&
+                                  newChanges is List<Change>) {
+                                for (final change in newChanges) {
+                                  await _transactionService
+                                      .createTransaction(change);
+                                  setState(() {
+                                    _trip.transactions.insert(0, change);
+                                  });
+                                }
+                                _tabController.animateTo(2);
+                              }
+                              break;
                           }
-                          _tabController.animateTo(2);
-                        }
-                        break;
-                    }
-                  },
-                  itemBuilder: (BuildContext context) => [
-                    PopupMenuItem(
-                      value: 'expense',
-                      child: Row(
-                        children: const [
-                          Icon(Icons.money_off, color: Colors.white, size: 18),
-                          SizedBox(width: 10),
-                          Text('Nuevo gasto',
-                              style: TextStyle(color: Colors.white)),
+                        },
+                        itemBuilder: (BuildContext context) => [
+                          PopupMenuItem(
+                            value: 'expense',
+                            child: Row(
+                              children: const [
+                                Icon(Icons.money_off,
+                                    color: Colors.white, size: 18),
+                                SizedBox(width: 10),
+                                Text('Nuevo gasto',
+                                    style: TextStyle(color: Colors.white)),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: 'income',
+                            child: Row(
+                              children: const [
+                                Icon(Icons.attach_money,
+                                    color: Colors.white, size: 18),
+                                SizedBox(width: 10),
+                                Text('Nuevo ingreso',
+                                    style: TextStyle(color: Colors.white)),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: 'change',
+                            child: Row(
+                              children: const [
+                                Icon(Icons.swap_horiz,
+                                    color: Colors.white, size: 18),
+                                SizedBox(width: 10),
+                                Text('Nuevo cambio',
+                                    style: TextStyle(color: Colors.white)),
+                              ],
+                            ),
+                          ),
                         ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'income',
-                      child: Row(
-                        children: const [
-                          Icon(Icons.attach_money,
-                              color: Colors.white, size: 18),
-                          SizedBox(width: 10),
-                          Text('Nuevo ingreso',
-                              style: TextStyle(color: Colors.white)),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 'change',
-                      child: Row(
-                        children: const [
-                          Icon(Icons.swap_horiz, color: Colors.white, size: 18),
-                          SizedBox(width: 10),
-                          Text('Nuevo cambio',
-                              style: TextStyle(color: Colors.white)),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                      )
+                    : const SizedBox.shrink(), 
                 const SizedBox(width: 8),
               ],
               flexibleSpace: ClipRRect(

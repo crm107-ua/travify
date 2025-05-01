@@ -47,7 +47,6 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
   // Paso 3: Presupuesto
   final TextEditingController _maxLimitController = TextEditingController();
   final TextEditingController _desiredLimitController = TextEditingController();
-  final TextEditingController _accumulatedController = TextEditingController();
   bool _maxLimitTouched = false;
   bool _desiredLimitTouched = false;
   bool _accumulatedTouched = false;
@@ -74,7 +73,6 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
       _selectedCountries = trip.countries;
       _maxLimitController.text = trip.budget.maxLimit.toString();
       _desiredLimitController.text = trip.budget.desiredLimit.toString();
-      _accumulatedController.text = trip.budget.accumulated.toString();
       _limitIncrease = trip.budget.limitIncrease;
       _loadCurrencies(trip.countries.map((c) => c.id).toList()).then((_) {
         setState(() {
@@ -300,7 +298,7 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
         id: widget.trip?.budget.id ?? 0,
         maxLimit: double.tryParse(_maxLimitController.text) ?? 0.0,
         desiredLimit: double.tryParse(_desiredLimitController.text) ?? 0.0,
-        accumulated: double.tryParse(_accumulatedController.text) ?? 0.0,
+        accumulated: 0.0,
         limitIncrease: _limitIncrease,
       );
 
@@ -486,12 +484,6 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
             () {
           setState(() {
             _desiredLimitTouched = true;
-          });
-        }),
-        _buildCurrencyTextField(
-            _accumulatedController, 'Acumulado', _accumulatedTouched, () {
-          setState(() {
-            _accumulatedTouched = true;
           });
         }),
         CheckboxListTile(

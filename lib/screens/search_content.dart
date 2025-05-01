@@ -11,7 +11,8 @@ class SearchContent extends StatefulWidget {
   State<SearchContent> createState() => _SearchContentState();
 }
 
-class _SearchContentState extends State<SearchContent> {
+class _SearchContentState extends State<SearchContent>
+    with AutomaticKeepAliveClientMixin {
   final TripService _tripService = TripService();
   List<Trip> _allTrips = [];
   List<Trip> _filteredTrips = [];
@@ -21,6 +22,9 @@ class _SearchContentState extends State<SearchContent> {
   DateTime? _endDate;
   bool? _onlyOpen;
   final List<String> _selectedCountries = [];
+
+  @override
+  bool get wantKeepAlive => true;
 
   Set<String> _allCountries = {};
 
@@ -34,10 +38,12 @@ class _SearchContentState extends State<SearchContent> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    if (ModalRoute.of(context)?.isCurrent ?? false) {
-      _loadTrips();
-      setState(() {});
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final isCurrent = ModalRoute.of(context)?.isCurrent ?? false;
+      if (isCurrent) {
+        _loadTrips().then((_) => _filterTrips());
+      }
+    });
   }
 
   Future<void> _loadTrips() async {
@@ -116,6 +122,7 @@ class _SearchContentState extends State<SearchContent> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       backgroundColor: Colors.black,
       body: Column(
