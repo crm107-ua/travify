@@ -9,7 +9,6 @@ import 'package:travify/services/country_service.dart';
 import 'package:travify/services/currency_service.dart';
 import 'package:travify/services/trip_service.dart';
 import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
@@ -79,15 +78,26 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
       _maxLimitController.text = trip.budget.maxLimit.toString();
       _desiredLimitController.text = trip.budget.desiredLimit.toString();
       _limitIncrease = trip.budget.limitIncrease;
-      _loadCurrencies(trip.countries.map((c) => c.id).toList()).then((_) {
-        setState(() {
-          if (_allCurrencies.isNotEmpty) {
-            _selectedCurrency =
-                _allCurrencies.firstWhere((c) => c.id == trip.currency.id);
-          }
-        });
-      });
     });
+
+    if (trip.image != null &&
+        trip.image!.isNotEmpty &&
+        !trip.image!.startsWith('http')) {
+      File localFile = File(trip.image!);
+      if (await localFile.exists()) {
+        setState(() {
+          _pickedImageFile = localFile;
+        });
+      }
+    }
+
+    await _loadCurrencies(trip.countries.map((c) => c.id).toList());
+    if (_allCurrencies.isNotEmpty) {
+      setState(() {
+        _selectedCurrency =
+            _allCurrencies.firstWhere((c) => c.id == trip.currency.id);
+      });
+    }
   }
 
   Future<void> _loadCountries() async {
