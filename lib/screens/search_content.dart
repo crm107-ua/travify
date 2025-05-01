@@ -363,10 +363,15 @@ class _SearchContentState extends State<SearchContent>
                                   ],
                                 ),
                                 const SizedBox(height: 4),
-                                if (trip.countries.isNotEmpty)
-                                  Text('País: ${trip.countries.first.name}',
-                                      style: const TextStyle(
-                                          color: Colors.white70, fontSize: 14)),
+                                Text(
+                                  'Países: ${trip.countries.map((c) => c.name).join(', ')}',
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 14,
+                                  ),
+                                ),
                                 const SizedBox(height: 4),
                                 Text(
                                   trip.open
