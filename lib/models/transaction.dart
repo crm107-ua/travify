@@ -4,7 +4,7 @@ import 'package:travify/models/expense.dart';
 import 'package:travify/models/income.dart';
 
 abstract class Transaction {
-  final int id;
+  int id;
   final int tripId;
   DateTime date;
   String? description;

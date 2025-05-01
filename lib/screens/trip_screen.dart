@@ -1122,27 +1122,34 @@ class _TripDetailPageState extends State<TripDetailPage>
                             style: const TextStyle(color: Colors.white70),
                           ),
                           const SizedBox(height: 5),
-                          Text(
-                            'Próximo cobro: ${transaction.nextRecurrentDate != null ? DateFormat('dd/MM/yyyy').format(transaction.nextRecurrentDate!) : 'Fecha no disponible'}',
-                            style: const TextStyle(color: Colors.white70),
-                          ),
-                          const SizedBox(height: 20),
-                          Row(
-                            children: [
-                              const Text("Activo:",
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 16)),
-                              const SizedBox(width: 12),
-                              Switch(
-                                value: isActive,
-                                activeColor: Colors.greenAccent,
-                                onChanged: (value) {
-                                  setState(() => isActive = value);
-                                  onToggleActive?.call(value);
-                                },
-                              ),
-                            ],
-                          ),
+                          if (transaction.nextRecurrentDate != null) ...[
+                            Text(
+                              'Próximo cobro: ${transaction.nextRecurrentDate != null ? DateFormat('dd/MM/yyyy').format(transaction.nextRecurrentDate!) : 'Fecha no disponible'}',
+                              style: const TextStyle(color: Colors.white70),
+                            ),
+                            const SizedBox(height: 20),
+                            Row(
+                              children: [
+                                const Text("Activo:",
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 16)),
+                                const SizedBox(width: 12),
+                                Switch(
+                                  value: isActive,
+                                  activeColor: Colors.greenAccent,
+                                  onChanged: (value) {
+                                    setState(() => isActive = value);
+                                    onToggleActive?.call(value);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ] else ...[
+                            const Text(
+                              'Ingreso recurrente pasado',
+                              style: TextStyle(color: Colors.white70),
+                            ),
+                          ],
                         ],
                       ] else if (transaction is Change) ...[
                         const Text('💱 Tipo: Cambio de divisa',
