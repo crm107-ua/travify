@@ -396,7 +396,6 @@ class _SearchContentState extends State<SearchContent>
                                       TripDetailPage(trip: trip),
                                 ),
                               );
-                              _loadTrips();
                             },
                           ),
                         ),
