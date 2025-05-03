@@ -38,66 +38,69 @@ class _DataContentState extends State<DataContent> {
           trip.title.toLowerCase().contains(_search.toLowerCase());
     }).toList();
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
         backgroundColor: Colors.black,
-        elevation: 0,
-        title: const Padding(
-          padding: EdgeInsets.only(top: 20),
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              "Estadísticas",
-              style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 30),
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          elevation: 0,
+          title: const Padding(
+            padding: EdgeInsets.only(top: 20),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Estadísticas",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30),
+              ),
             ),
           ),
         ),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              style: const TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                hintText: 'Buscar viaje...',
-                hintStyle: const TextStyle(color: Colors.white54),
-                prefixIcon: const Icon(Icons.search, color: Colors.white),
-                filled: true,
-                fillColor: Colors.grey[850],
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              onChanged: (value) => setState(() => _search = value),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: filteredTrips.isEmpty
-                ? const Center(
-                    child: Text('No hay viajes con datos',
-                        style: TextStyle(color: Colors.white70)),
-                  )
-                : PageView.builder(
-                    itemCount: filteredTrips.length,
-                    controller: PageController(viewportFraction: 0.9),
-                    itemBuilder: (context, index) {
-                      final trip = filteredTrips[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 10),
-                        child: _TripStatsCard(trip: trip),
-                      );
-                    },
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: 'Buscar viaje...',
+                  hintStyle: const TextStyle(color: Colors.white54),
+                  prefixIcon: const Icon(Icons.search, color: Colors.white),
+                  filled: true,
+                  fillColor: Colors.grey[850],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
                   ),
-          ),
-        ],
+                ),
+                onChanged: (value) => setState(() => _search = value),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Expanded(
+              child: filteredTrips.isEmpty
+                  ? const Center(
+                      child: Text('No hay viajes con datos',
+                          style: TextStyle(color: Colors.white70)),
+                    )
+                  : PageView.builder(
+                      itemCount: filteredTrips.length,
+                      controller: PageController(viewportFraction: 0.9),
+                      itemBuilder: (context, index) {
+                        final trip = filteredTrips[index];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 10),
+                          child: _TripStatsCard(trip: trip),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }
