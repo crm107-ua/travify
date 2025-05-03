@@ -105,44 +105,47 @@ class _ChangeFormState extends State<ChangeForm> {
       );
     }
 
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: const Text(
-          'Cambio de divisas',
-          style: TextStyle(color: Colors.white, fontSize: 19),
-        ),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
         backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              // Campo: Cantidad Origen
-              _buildCurrencyRow(
-                controller: _fromAmountController,
-                currency: _fromCurrency,
-                onCurrencyChanged: (val) => setState(() {
-                  _fromCurrency = val;
-                }),
-                label: 'Cantidad origen',
-              ),
-              const SizedBox(height: 20),
-              // Campo: Cantidad Destino
-              _buildCurrencyEndRow(
-                currency: _toCurrency,
-                onCurrencyChanged: (val) => setState(() {
-                  _toCurrency = val;
-                }),
-              ),
-              const SizedBox(height: 30),
-              _buildDynamicPreview(),
+        appBar: AppBar(
+          title: const Text(
+            'Cambio de divisas',
+            style: TextStyle(color: Colors.white, fontSize: 19),
+          ),
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              children: [
+                // Campo: Cantidad Origen
+                _buildCurrencyRow(
+                  controller: _fromAmountController,
+                  currency: _fromCurrency,
+                  onCurrencyChanged: (val) => setState(() {
+                    _fromCurrency = val;
+                  }),
+                  label: 'Cantidad origen',
+                ),
+                const SizedBox(height: 20),
+                // Campo: Cantidad Destino
+                _buildCurrencyEndRow(
+                  currency: _toCurrency,
+                  onCurrencyChanged: (val) => setState(() {
+                    _toCurrency = val;
+                  }),
+                ),
+                const SizedBox(height: 30),
+                _buildDynamicPreview(),
 
-              const SizedBox(height: 20),
-            ],
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),

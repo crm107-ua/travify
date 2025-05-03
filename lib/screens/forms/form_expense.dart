@@ -172,199 +172,205 @@ class _ExpenseFormState extends State<ExpenseForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: Text(
-          widget.expense != null ? 'Editar gasto' : 'Nuevo gasto',
-          style: const TextStyle(fontSize: 19),
-        ),
+    return GestureDetector(
+      onTap: () =>
+          FocusScope.of(context).unfocus(), // Oculta el teclado al tocar fuera
+      child: Scaffold(
         backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(30.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                controller: _descriptionController,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  labelText: 'Descripción',
-                  labelStyle: TextStyle(color: Colors.white70),
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _amountController,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Cantidad (${widget.trip.currency.symbol})',
-                  labelStyle: const TextStyle(color: Colors.white70),
-                ),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
-                ],
-                onChanged: (_) => _calculateDailyAmortization(),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Este campo es obligatorio';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Ingrese un número válido';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 10),
-              DropdownButtonFormField<ExpenseCategory>(
-                value: _category,
-                decoration: const InputDecoration(
-                  labelText: 'Categoría',
-                  labelStyle: TextStyle(color: Colors.white),
-                ),
-                dropdownColor: Colors.grey[900],
-                style: const TextStyle(color: Colors.white),
-                items: ExpenseCategory.values.map((category) {
-                  return DropdownMenuItem(
-                    value: category,
-                    child: Text(category.label),
-                  );
-                }).toList(),
-                onChanged: (cat) => setState(() => _category = cat),
-                validator: (value) =>
-                    value == null ? 'Seleccione una categoría' : null,
-              ),
-              const SizedBox(height: 15),
-              SwitchListTile(
-                title: const Text('¿Amortizable?',
-                    style: TextStyle(color: Colors.white)),
-                value: _isAmortization,
-                onChanged: (val) => setState(() => _isAmortization = val),
-                activeColor: Colors.white,
-              ),
-              if (_isAmortization) ...[
-                ListTile(
-                  title: Text(
-                      _startDateAmortization != null
-                          ? 'Inicio: ${DateFormat('dd/MM/yyyy').format(_startDateAmortization!)}'
-                          : 'Fecha de inicio',
-                      style: const TextStyle(color: Colors.white)),
-                  trailing:
-                      const Icon(Icons.calendar_today, color: Colors.white),
-                  onTap: () async {
-                    _selectDate(context, true);
-                    _calculateDailyAmortization();
-                  },
-                ),
-                ListTile(
-                  title: Text(
-                      _endDateAmortization != null
-                          ? 'Fin: ${DateFormat('dd/MM/yyyy').format(_endDateAmortization!)}'
-                          : 'Fecha de fin',
-                      style: const TextStyle(color: Colors.white)),
-                  trailing:
-                      const Icon(Icons.calendar_today, color: Colors.white),
-                  onTap: () async {
-                    await _selectDate(context, false);
-                    _calculateDailyAmortization();
-                  },
-                ),
-                if (_dailyAmortization != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: Text(
-                        'Amortización diaria: ${_dailyAmortization!.toStringAsFixed(2)} ${widget.trip.currency.symbol}',
-                        style: const TextStyle(color: Colors.white70)),
+        appBar: AppBar(
+          title: Text(
+            widget.expense != null ? 'Editar gasto' : 'Nuevo gasto',
+            style: const TextStyle(fontSize: 19),
+          ),
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(30.0),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              children: [
+                TextFormField(
+                  controller: _descriptionController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    labelText: 'Descripción',
+                    labelStyle: TextStyle(color: Colors.white70),
                   ),
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _amountController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Cantidad (${widget.trip.currency.symbol})',
+                    labelStyle: const TextStyle(color: Colors.white70),
+                  ),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d*\.?\d{0,2}')),
+                  ],
+                  onChanged: (_) => _calculateDailyAmortization(),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Este campo es obligatorio';
+                    }
+                    if (double.tryParse(value) == null) {
+                      return 'Ingrese un número válido';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 10),
+                DropdownButtonFormField<ExpenseCategory>(
+                  value: _category,
+                  decoration: const InputDecoration(
+                    labelText: 'Categoría',
+                    labelStyle: TextStyle(color: Colors.white),
+                  ),
+                  dropdownColor: Colors.grey[900],
+                  style: const TextStyle(color: Colors.white),
+                  items: ExpenseCategory.values.map((category) {
+                    return DropdownMenuItem(
+                      value: category,
+                      child: Text(category.label),
+                    );
+                  }).toList(),
+                  onChanged: (cat) => setState(() => _category = cat),
+                  validator: (value) =>
+                      value == null ? 'Seleccione una categoría' : null,
+                ),
+                const SizedBox(height: 15),
+                SwitchListTile(
+                  title: const Text('¿Amortizable?',
+                      style: TextStyle(color: Colors.white)),
+                  value: _isAmortization,
+                  onChanged: (val) => setState(() => _isAmortization = val),
+                  activeColor: Colors.white,
+                ),
+                if (_isAmortization) ...[
+                  ListTile(
+                    title: Text(
+                        _startDateAmortization != null
+                            ? 'Inicio: ${DateFormat('dd/MM/yyyy').format(_startDateAmortization!)}'
+                            : 'Fecha de inicio',
+                        style: const TextStyle(color: Colors.white)),
+                    trailing:
+                        const Icon(Icons.calendar_today, color: Colors.white),
+                    onTap: () async {
+                      _selectDate(context, true);
+                      _calculateDailyAmortization();
+                    },
+                  ),
+                  ListTile(
+                    title: Text(
+                        _endDateAmortization != null
+                            ? 'Fin: ${DateFormat('dd/MM/yyyy').format(_endDateAmortization!)}'
+                            : 'Fecha de fin',
+                        style: const TextStyle(color: Colors.white)),
+                    trailing:
+                        const Icon(Icons.calendar_today, color: Colors.white),
+                    onTap: () async {
+                      await _selectDate(context, false);
+                      _calculateDailyAmortization();
+                    },
+                  ),
+                  if (_dailyAmortization != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10),
+                      child: Text(
+                          'Amortización diaria: ${_dailyAmortization!.toStringAsFixed(2)} ${widget.trip.currency.symbol}',
+                          style: const TextStyle(color: Colors.white70)),
+                    ),
+                ],
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (!_formKey.currentState!.validate()) return;
+
+                    final expense = Expense(
+                      id: widget.expense?.id ?? 0,
+                      tripId: widget.trip.id,
+                      date: _selectedDate,
+                      description: _descriptionController.text,
+                      amount: double.parse(_amountController.text),
+                      category: _category!,
+                      isAmortization: _isAmortization,
+                      amortization: _dailyAmortization,
+                      startDateAmortization: _startDateAmortization,
+                      endDateAmortization: _endDateAmortization,
+                      nextAmortizationDate: _isAmortization
+                          ? calcularNextAmortizationDate(
+                              startDate: _startDateAmortization,
+                              endDate: _endDateAmortization,
+                            )
+                          : null,
+                    );
+
+                    Trip trip =
+                        await _tripService.getTripById(widget.trip.id) as Trip;
+
+                    final totalExpenses = trip.transactions
+                        .where((transaction) =>
+                            transaction.type == TransactionType.expense)
+                        .whereType<Expense>()
+                        .fold(0.0, (sum, expense) {
+                      if (expense.isAmortization == true) {
+                        return sum + expense.amortization!;
+                      } else {
+                        return sum + expense.amount;
+                      }
+                    });
+
+                    final totalIncomes = trip.transactions
+                        .where((transaction) =>
+                            transaction.type == TransactionType.income)
+                        .whereType<Income>()
+                        .fold(0.0, (sum, income) => sum + income.amount);
+
+                    final maxAvailableToSpend =
+                        totalIncomes < trip.budget.maxLimit
+                            ? trip.budget.maxLimit
+                            : totalIncomes;
+
+                    final totalExpensesWithNew = totalExpenses + expense.amount;
+
+                    if (!trip.budget.limitIncrease) {
+                      if (totalExpensesWithNew > maxAvailableToSpend) {
+                        _showSnackBar(
+                            'Límite de gasto superado: ${trip.budget.maxLimit} ${trip.currency.symbol}');
+                        return;
+                      }
+                    }
+                    if (_isAmortization && _endDateAmortization != null) {
+                      if (_endDateAmortization!
+                          .isBefore(_startDateAmortization!)) {
+                        _showSnackBar(
+                            'La fecha de fin no puede ser anterior a la fecha de inicio');
+                        return;
+                      }
+                      if (_endDateAmortization!
+                          .isAtSameMomentAs(_startDateAmortization!)) {
+                        _showSnackBar(
+                            'La fecha de fin no puede ser igual a la fecha de inicio');
+                        return;
+                      }
+                    }
+
+                    widget.onSave(expense);
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black),
+                  child: Text(widget.expense != null
+                      ? 'Guardar cambios'
+                      : 'Crear gasto'),
+                ),
               ],
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () async {
-                  if (!_formKey.currentState!.validate()) return;
-
-                  final expense = Expense(
-                    id: widget.expense?.id ?? 0,
-                    tripId: widget.trip.id,
-                    date: _selectedDate,
-                    description: _descriptionController.text,
-                    amount: double.parse(_amountController.text),
-                    category: _category!,
-                    isAmortization: _isAmortization,
-                    amortization: _dailyAmortization,
-                    startDateAmortization: _startDateAmortization,
-                    endDateAmortization: _endDateAmortization,
-                    nextAmortizationDate: _isAmortization
-                        ? calcularNextAmortizationDate(
-                            startDate: _startDateAmortization,
-                            endDate: _endDateAmortization,
-                          )
-                        : null,
-                  );
-
-                  Trip trip =
-                      await _tripService.getTripById(widget.trip.id) as Trip;
-
-                  final totalExpenses = trip.transactions
-                      .where((transaction) =>
-                          transaction.type == TransactionType.expense)
-                      .whereType<Expense>()
-                      .fold(0.0, (sum, expense) {
-                    if (expense.isAmortization == true) {
-                      return sum + expense.amortization!;
-                    } else {
-                      return sum + expense.amount;
-                    }
-                  });
-
-                  final totalIncomes = trip.transactions
-                      .where((transaction) =>
-                          transaction.type == TransactionType.income)
-                      .whereType<Income>()
-                      .fold(0.0, (sum, income) => sum + income.amount);
-
-                  final maxAvailableToSpend =
-                      totalIncomes < trip.budget.maxLimit
-                          ? trip.budget.maxLimit
-                          : totalIncomes;
-
-                  final totalExpensesWithNew = totalExpenses + expense.amount;
-
-                  if (!trip.budget.limitIncrease) {
-                    if (totalExpensesWithNew > maxAvailableToSpend) {
-                      _showSnackBar(
-                          'Límite de gasto superado: ${trip.budget.maxLimit} ${trip.currency.symbol}');
-                      return;
-                    }
-                  }
-                  if (_isAmortization && _endDateAmortization != null) {
-                    if (_endDateAmortization!
-                        .isBefore(_startDateAmortization!)) {
-                      _showSnackBar(
-                          'La fecha de fin no puede ser anterior a la fecha de inicio');
-                      return;
-                    }
-                    if (_endDateAmortization!
-                        .isAtSameMomentAs(_startDateAmortization!)) {
-                      _showSnackBar(
-                          'La fecha de fin no puede ser igual a la fecha de inicio');
-                      return;
-                    }
-                  }
-
-                  widget.onSave(expense);
-                },
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black),
-                child: Text(
-                    widget.expense != null ? 'Guardar cambios' : 'Crear gasto'),
-              ),
-            ],
+            ),
           ),
         ),
       ),

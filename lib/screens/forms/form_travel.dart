@@ -393,49 +393,55 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: Text(
-          widget.trip != null ? 'Editar viaje' : 'Crea tu nuevo viaje',
-          style: TextStyle(fontSize: 19),
-        ),
+    return GestureDetector(
+      onTap: () =>
+          FocusScope.of(context).unfocus(), // Oculta el teclado al tocar fuera
+      child: Scaffold(
         backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-      ),
-      body: Form(
-        key: _formKey,
-        child: Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(context).colorScheme.copyWith(
-                  primary: Colors.white,
-                  secondary: Colors.white,
-                ),
+        appBar: AppBar(
+          title: Text(
+            widget.trip != null ? 'Editar viaje' : 'Crea tu nuevo viaje',
+            style: TextStyle(fontSize: 19),
           ),
-          child: Stepper(
-            currentStep: _currentStep,
-            onStepContinue: _onStepContinue,
-            onStepCancel: _onStepCancel,
-            steps: [
-              Step(
-                  title: Text('Información',
-                      style: TextStyle(color: Colors.white)),
-                  isActive: _currentStep >= 0,
-                  content: _buildInfoStep()),
-              Step(
-                  title: Text('Países', style: TextStyle(color: Colors.white)),
-                  isActive: _currentStep >= 1,
-                  content: _buildCountryStep()),
-              Step(
-                  title: Text('Fechas', style: TextStyle(color: Colors.white)),
-                  isActive: _currentStep >= 2,
-                  content: _buildDateStep()),
-              Step(
-                  title: Text('Presupuesto',
-                      style: TextStyle(color: Colors.white)),
-                  isActive: _currentStep >= 3,
-                  content: _buildBudgetStep()),
-            ],
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+        ),
+        body: Form(
+          key: _formKey,
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: Theme.of(context).colorScheme.copyWith(
+                    primary: Colors.white,
+                    secondary: Colors.white,
+                  ),
+            ),
+            child: Stepper(
+              currentStep: _currentStep,
+              onStepContinue: _onStepContinue,
+              onStepCancel: _onStepCancel,
+              steps: [
+                Step(
+                    title: Text('Información',
+                        style: TextStyle(color: Colors.white)),
+                    isActive: _currentStep >= 0,
+                    content: _buildInfoStep()),
+                Step(
+                    title:
+                        Text('Países', style: TextStyle(color: Colors.white)),
+                    isActive: _currentStep >= 1,
+                    content: _buildCountryStep()),
+                Step(
+                    title:
+                        Text('Fechas', style: TextStyle(color: Colors.white)),
+                    isActive: _currentStep >= 2,
+                    content: _buildDateStep()),
+                Step(
+                    title: Text('Presupuesto',
+                        style: TextStyle(color: Colors.white)),
+                    isActive: _currentStep >= 3,
+                    content: _buildBudgetStep()),
+              ],
+            ),
           ),
         ),
       ),

@@ -98,109 +98,57 @@ class _IncomeFormState extends State<IncomeForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        title: Text(
-          widget.income != null ? 'Editar ingreso' : 'Nuevo ingreso',
-          style: TextStyle(fontSize: 19),
-        ),
+    return GestureDetector(
+      onTap: () =>
+          FocusScope.of(context).unfocus(), // Oculta el teclado al tocar fuera
+      child: Scaffold(
         backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(30.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                controller: _descriptionController,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  labelText: 'Descripción',
-                  labelStyle: TextStyle(color: Colors.white70),
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _amountController,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  labelText: 'Cantidad (${widget.trip.currency.symbol})',
-                  labelStyle: const TextStyle(color: Colors.white70),
-                ),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
-                ],
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Este campo es obligatorio';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Ingrese un número válido';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 10),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: const Text('¿Ingreso recurrente?',
-                          style: TextStyle(color: Colors.white)),
-                    ),
-                  ),
-                  Switch(
-                    value: _isRecurrent,
-                    onChanged: (val) {
-                      setState(() {
-                        _isRecurrent = val;
-                        if (val) _calculateNextDate();
-                      });
-                    },
-                    activeColor: Colors.white,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 5),
-              if (_isRecurrent) ...[
-                DropdownButtonFormField<RecurrentIncomeType>(
-                  value: _recurrentType,
-                  decoration: const InputDecoration(
-                    labelText: 'Tipo de recurrencia',
-                    labelStyle: TextStyle(color: Colors.white),
-                  ),
-                  dropdownColor: Colors.grey[900],
+        appBar: AppBar(
+          title: Text(
+            widget.income != null ? 'Editar ingreso' : 'Nuevo ingreso',
+            style: TextStyle(fontSize: 19),
+          ),
+          backgroundColor: Colors.black,
+          foregroundColor: Colors.white,
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(30.0),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              children: [
+                TextFormField(
+                  controller: _descriptionController,
                   style: const TextStyle(color: Colors.white),
-                  items: RecurrentIncomeType.values.map((type) {
-                    return DropdownMenuItem(
-                      value: type,
-                      child: Text(type.label),
-                    );
-                  }).toList(),
-                  onChanged: (type) => setState(() {
-                    _recurrentType = type;
-                    _calculateNextDate();
-                  }),
+                  decoration: const InputDecoration(
+                    labelText: 'Descripción',
+                    labelStyle: TextStyle(color: Colors.white70),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                TextFormField(
+                  controller: _amountController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Cantidad (${widget.trip.currency.symbol})',
+                    labelStyle: const TextStyle(color: Colors.white70),
+                  ),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d*\.?\d{0,2}')),
+                  ],
                   validator: (value) {
-                    if (_isRecurrent && value == null) {
-                      return 'Seleccione un tipo';
+                    if (value == null || value.isEmpty) {
+                      return 'Este campo es obligatorio';
+                    }
+                    if (double.tryParse(value) == null) {
+                      return 'Ingrese un número válido';
                     }
                     return null;
                   },
                 ),
-                const SizedBox(height: 10),
-                if (_nextDate != null)
-                  Text(
-                    'Próxima fecha: ${DateFormat('dd/MM/yyyy').format(_nextDate!)}',
-                    style: const TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
                 const SizedBox(height: 10),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -208,29 +156,87 @@ class _IncomeFormState extends State<IncomeForm> {
                     Expanded(
                       child: ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('¿Activo?',
+                        title: const Text('¿Ingreso recurrente?',
                             style: TextStyle(color: Colors.white)),
                       ),
                     ),
                     Switch(
-                      value: _active,
-                      onChanged: (val) => setState(() => _active = val),
+                      value: _isRecurrent,
+                      onChanged: (val) {
+                        setState(() {
+                          _isRecurrent = val;
+                          if (val) _calculateNextDate();
+                        });
+                      },
                       activeColor: Colors.white,
                     ),
                   ],
                 ),
+                const SizedBox(height: 5),
+                if (_isRecurrent) ...[
+                  DropdownButtonFormField<RecurrentIncomeType>(
+                    value: _recurrentType,
+                    decoration: const InputDecoration(
+                      labelText: 'Tipo de recurrencia',
+                      labelStyle: TextStyle(color: Colors.white),
+                    ),
+                    dropdownColor: Colors.grey[900],
+                    style: const TextStyle(color: Colors.white),
+                    items: RecurrentIncomeType.values.map((type) {
+                      return DropdownMenuItem(
+                        value: type,
+                        child: Text(type.label),
+                      );
+                    }).toList(),
+                    onChanged: (type) => setState(() {
+                      _recurrentType = type;
+                      _calculateNextDate();
+                    }),
+                    validator: (value) {
+                      if (_isRecurrent && value == null) {
+                        return 'Seleccione un tipo';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  if (_nextDate != null)
+                    Text(
+                      'Próxima fecha: ${DateFormat('dd/MM/yyyy').format(_nextDate!)}',
+                      style:
+                          const TextStyle(color: Colors.white70, fontSize: 14),
+                    ),
+                  const SizedBox(height: 10),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: const Text('¿Activo?',
+                              style: TextStyle(color: Colors.white)),
+                        ),
+                      ),
+                      Switch(
+                        value: _active,
+                        onChanged: (val) => setState(() => _active = val),
+                        activeColor: Colors.white,
+                      ),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _submit,
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.black),
+                  child: Text(widget.income != null
+                      ? 'Guardar cambios'
+                      : 'Crear ingreso'),
+                ),
               ],
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _submit,
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.black),
-                child: Text(widget.income != null
-                    ? 'Guardar cambios'
-                    : 'Crear ingreso'),
-              ),
-            ],
+            ),
           ),
         ),
       ),
