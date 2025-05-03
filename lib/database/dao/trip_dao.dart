@@ -154,8 +154,8 @@ class TripDao {
 
     List<Map<String, dynamic>> tripMaps = await db.query(
       'trips',
-      where: 'date_start > ?',
-      whereArgs: [currentTime],
+      where: 'date_start > ? AND open = ?',
+      whereArgs: [currentTime, 1],
       orderBy: 'date_start ASC',
       limit: 1,
     );
@@ -164,26 +164,17 @@ class TripDao {
 
     Map<String, dynamic> tripMap = tripMaps.first;
 
-    // 🔹 Obtener el presupuesto asociado (Budget)
     int budgetId = tripMap['budget_id'];
     Budget? budget = await _budgetDao.getBudgetById(budgetId);
     Currency currency =
         await _currencyDao.getCurrencyById(tripMap['currency_id']);
 
-    // Obtener los países asociados
     List<Country> countryMaps =
         await _countryDao.getTripCountries(tripMap['id']);
 
-    // Obtener las transacciones asociadas
     List<Transaction> transactions =
         await _transactionDao.getTransactions(tripMap['id']);
 
-    Trip test = Trip.fromMap(tripMap,
-        budget: budget,
-        currency: currency,
-        countries: countryMaps,
-        transactions: transactions);
-    // 🔹 Construir el objeto Trip con el Budget recuperado
     return Trip.fromMap(tripMap,
         budget: budget,
         currency: currency,
@@ -199,8 +190,8 @@ class TripDao {
 
     List<Map<String, dynamic>> tripMaps = await db.query(
       'trips',
-      where: 'date_start <= ? AND date_end >= ?',
-      whereArgs: [currentTime, currentTime],
+      where: 'date_start <= ? AND date_end >= ? AND open = ?',
+      whereArgs: [currentTime, currentTime, 1],
     );
 
     if (tripMaps.isEmpty) return null;
@@ -221,12 +212,6 @@ class TripDao {
     List<Transaction> transactions =
         await _transactionDao.getTransactions(tripMap['id']);
 
-    Trip test = Trip.fromMap(tripMap,
-        budget: budget,
-        currency: currency,
-        countries: countryMaps,
-        transactions: transactions);
-    // 🔹 Construir el objeto Trip con el Budget recuperado
     return Trip.fromMap(tripMap,
         budget: budget,
         currency: currency,
@@ -317,8 +302,8 @@ class TripDao {
 
     // Consulta para obtener los 6 viajes más próximos
     List<Map<String, dynamic>> tripMaps = await db.query('trips',
-        where: 'date_start >= ?',
-        whereArgs: [currentTime],
+        where: 'date_start >= ? AND open = ?',
+        whereArgs: [currentTime, 1],
         orderBy: 'date_start ASC');
 
     if (tripMaps.isEmpty) return [];

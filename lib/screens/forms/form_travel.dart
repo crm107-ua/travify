@@ -1,13 +1,14 @@
 import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:travify/models/currency.dart';
 import 'package:travify/models/trip.dart';
 import 'package:travify/models/budget.dart';
 import 'package:travify/models/country.dart';
+import 'package:travify/notifiers/trip_notifier.dart';
 import 'package:travify/services/country_service.dart';
 import 'package:travify/services/currency_service.dart';
-import 'package:travify/services/trip_service.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -30,7 +31,7 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
   final _formKey = GlobalKey<FormState>();
   final CountryService _countryService = CountryService();
   final CurrencyService _currencyService = CurrencyService();
-  final TripService _tripService = TripService();
+  late TripNotifier _tripNotifier;
 
   // Paso 0: Información general
   final TextEditingController _titleController = TextEditingController();
@@ -54,7 +55,6 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
   final TextEditingController _desiredLimitController = TextEditingController();
   bool _maxLimitTouched = false;
   bool _desiredLimitTouched = false;
-  bool _accumulatedTouched = false;
   bool _limitIncrease = false;
 
   @override
@@ -65,6 +65,12 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
         _loadTripData(widget.trip!);
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _tripNotifier = Provider.of<TripNotifier>(context, listen: false);
   }
 
   void _loadTripData(Trip trip) async {
@@ -117,38 +123,35 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
   }
 
   Future<void> _saveTrip(Trip trip) async {
-    bool tripExistsWithDate = await _tripService.checkTripExistWithDate(
+    bool tripExistsWithDate = await _tripNotifier.tripExistsWithDate(
       trip.dateStart,
       excludeTripId: trip.id != 0 ? trip.id : null,
     );
 
     if (tripExistsWithDate) {
-      _showSnackBar(
-          "No puedes crear un viaje con fecha de inicio anterior o sin fecha fin en conflicto con otro viaje");
+      _showSnackBar("Ya existe un viaje con esa fecha de inicio.");
       return;
     }
 
     if (trip.dateEnd != null) {
-      bool tripExists = await _tripService.checkTripExists(
+      bool conflict = await _tripNotifier.tripExists(
         trip.dateStart,
         trip.dateEnd!,
         excludeTripId: trip.id != 0 ? trip.id : null,
       );
-
-      if (tripExists) {
-        _showSnackBar("Ya existe otro viaje en esas mismas fechas");
+      if (conflict) {
+        _showSnackBar("Ya existe un viaje en esas fechas.");
         return;
       }
     }
 
-    // Guardar o actualizar
     if (trip.id == 0) {
-      await _tripService.createTrip(trip);
+      await _tripNotifier.addTrip(trip);
     } else {
-      await _tripService.updateTrip(trip);
+      await _tripNotifier.updateTrip(trip);
     }
 
-    Navigator.pop(context, true);
+    if (mounted) Navigator.pop(context, trip);
   }
 
   Future<void> _pickImage(ImageSource source) async {

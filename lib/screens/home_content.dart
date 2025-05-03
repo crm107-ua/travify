@@ -2,14 +2,15 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:travify/constants/images.dart';
 import 'package:travify/models/trip.dart';
+import 'package:travify/notifiers/trip_notifier.dart';
 import 'package:travify/screens/trip_screen.dart';
 import 'package:travify/screens/utils/horizontal_grid.dart';
-import 'package:travify/services/trip_service.dart';
 
 class HomeContent extends StatefulWidget {
-  const HomeContent({Key? key}) : super(key: key);
+  const HomeContent({super.key});
 
   @override
   State<HomeContent> createState() => _HomeContentState();
@@ -17,15 +18,18 @@ class HomeContent extends StatefulWidget {
 
 class _HomeContentState extends State<HomeContent>
     with SingleTickerProviderStateMixin {
-  final TripService _tripService = TripService();
-  late Future<List<dynamic>> _combinedFuture;
   late AnimationController _blinkingController;
   bool _sortByRecent = true;
 
   @override
+  @override
   void initState() {
     super.initState();
-    _loadTrips();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<TripNotifier>(context, listen: false)
+          .loadCurrentTripAndUpcoming();
+    });
 
     _blinkingController = AnimationController(
       vsync: this,
@@ -36,32 +40,6 @@ class _HomeContentState extends State<HomeContent>
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    if (ModalRoute.of(context)?.isCurrent ?? false) {
-      _loadTrips();
-      setState(() {});
-    }
-  }
-
-  void _loadTrips() {
-    _combinedFuture = Future.wait([
-      _tripService.getUpcomingTrips(),
-      _tripService.getCurrentTripOrNextTrip(),
-    ]).then((results) {
-      final List<Trip> trips = results[0] as List<Trip>;
-      final Trip? currentTrip = results[1] as Trip?;
-
-      trips.sort((a, b) => _sortByRecent
-          ? a.dateStart.compareTo(b.dateStart)
-          : b.dateStart.compareTo(a.dateStart));
-
-      return [trips, currentTrip];
-    });
-  }
-
-  @override
   void dispose() {
     _blinkingController.dispose();
     super.dispose();
@@ -69,35 +47,31 @@ class _HomeContentState extends State<HomeContent>
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<dynamic>>(
-      future: _combinedFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        } else if (snapshot.hasError) {
-          return Center(child: Text('Error: ${snapshot.error}'));
-        } else if (!snapshot.hasData) {
-          return const Center(child: Text('No se pudieron cargar los datos'));
-        }
+    return Consumer<TripNotifier>(
+      builder: (context, notifier, _) {
+        final currentTrip = notifier.currentTrip;
+        final trips = notifier.upcomingTrips;
 
-        final List<Trip> trips = snapshot.data![0];
-        final Trip? currentOrNextTrip = snapshot.data![1];
-
-        final List<Trip> filteredTrips = currentOrNextTrip == null
-            ? trips
-            : trips.where((trip) => trip.id != currentOrNextTrip.id).toList();
-
-        if (filteredTrips.isEmpty && currentOrNextTrip == null) {
+        if (currentTrip == null && trips.isEmpty) {
           return _buildEmptyTripsUI();
         }
 
-        return _buildTripsUI(filteredTrips, currentOrNextTrip);
+        final filteredTrips = trips
+            .where((t) => t.id != currentTrip?.id)
+            .where((t) => t.open)
+            .toList();
+
+        filteredTrips.sort((a, b) => _sortByRecent
+            ? b.dateStart.compareTo(a.dateStart)
+            : a.dateStart.compareTo(b.dateStart));
+
+        return _buildTripsUI(filteredTrips, currentTrip);
       },
     );
   }
 
   Widget _buildEmptyTripsUI() {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: double.infinity,
       child: Align(
@@ -162,7 +136,8 @@ class _HomeContentState extends State<HomeContent>
                           EdgeInsets.only(left: 16, bottom: percentage * 50),
                       title: currentTrip == null
                           ? const Text("Sin viaje actual",
-                              style: TextStyle(color: Colors.white))
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 20))
                           : GestureDetector(
                               onTap: () {
                                 Navigator.push(
@@ -230,7 +205,6 @@ class _HomeContentState extends State<HomeContent>
                                     setState(() {
                                       _sortByRecent =
                                           !_sortByRecent; // Cambia el orden
-                                      _loadTrips(); // Recarga
                                     });
                                   },
                                   child: Row(

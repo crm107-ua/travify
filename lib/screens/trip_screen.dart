@@ -2,10 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:travify/constants/images.dart';
 import 'package:travify/enums/expense_category.dart';
 import 'package:travify/enums/recurrent_income_type.dart';
 import 'package:travify/models/transaction.dart';
+import 'package:travify/notifiers/trip_notifier.dart';
 import 'package:travify/screens/forms/form_change.dart';
 import 'package:travify/services/transaction_service.dart';
 import 'package:travify/enums/transaction_type.dart';
@@ -16,7 +18,6 @@ import 'package:travify/models/trip.dart';
 import 'package:travify/screens/forms/form_expense.dart';
 import 'package:travify/screens/forms/form_income.dart';
 import 'package:travify/screens/forms/form_travel.dart';
-import 'package:travify/services/trip_service.dart';
 
 class TripDetailPage extends StatefulWidget {
   final Trip trip;
@@ -30,6 +31,7 @@ class _TripDetailPageState extends State<TripDetailPage>
     with TickerProviderStateMixin {
   late TabController _tabController;
   late Trip _trip;
+  late TripNotifier _tripNotifier;
   final TransactionService _transactionService = TransactionService();
   double _realBalance = 0.0;
   bool _loading = true;
@@ -39,32 +41,20 @@ class _TripDetailPageState extends State<TripDetailPage>
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _trip = widget.trip;
-
+    _tripNotifier = Provider.of<TripNotifier>(context, listen: false);
     _initTripData();
   }
 
   Future<void> _initTripData() async {
     await _transactionService.generateAmortizations(_trip);
     await _transactionService.generateRecurrentIncomes(_trip);
-    final updated = await TripService().getTripById(_trip.id);
-
-    if (updated != null) {
-      setState(() {
-        _trip = updated;
-        _calcRealBalance();
-        _loading = false;
-      });
-    }
-  }
-
-  Future<void> _reloadTrip() async {
-    final updated = await TripService().getTripById(_trip.id);
-    if (updated != null) {
-      setState(() {
-        _trip = updated;
-        _calcRealBalance();
-      });
-    }
+    await _tripNotifier.loadCurrentTripAndUpcoming();
+    final updated = _tripNotifier.getRefreshedTrip(_trip);
+    setState(() {
+      _trip = updated;
+      _calcRealBalance();
+      _loading = false;
+    });
   }
 
   void _calcRealBalance() {
@@ -267,7 +257,7 @@ class _TripDetailPageState extends State<TripDetailPage>
                     setState(() {
                       trip.open = mode;
                     });
-                    await TripService().updateTrip(trip);
+                    await _tripNotifier.updateTrip(trip);
                   },
                 ),
                 IconButton(
@@ -290,9 +280,16 @@ class _TripDetailPageState extends State<TripDetailPage>
                           ),
                         );
 
-                        if (updated == true) {
-                          await _reloadTrip();
+                        if (updated is Trip) {
+                          await _tripNotifier.updateTrip(updated);
+                          final refreshed =
+                              _tripNotifier.getRefreshedTrip(updated);
+                          setState(() {
+                            _trip = refreshed;
+                            _calcRealBalance();
+                          });
                         }
+
                         break;
 
                       case 'delete':
@@ -321,8 +318,10 @@ class _TripDetailPageState extends State<TripDetailPage>
                         );
 
                         if (result == true) {
-                          await TripService().deleteTrip(trip.id);
-                          Navigator.pop(context, true);
+                          await _tripNotifier.deleteTrip(_trip.id);
+                          if (context.mounted) {
+                            Navigator.pop(context, true);
+                          }
                         }
                         break;
                     }
@@ -607,7 +606,7 @@ class _TripDetailPageState extends State<TripDetailPage>
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(top: 17, left: 9, right: 9),
       itemCount: expenses.length,
       itemBuilder: (context, index) {
         final expense = expenses[index];
@@ -624,7 +623,7 @@ class _TripDetailPageState extends State<TripDetailPage>
             {}
           }),
           child: Container(
-            margin: const EdgeInsets.only(bottom: 20),
+            margin: const EdgeInsets.only(bottom: 15),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.transparent,
@@ -747,7 +746,7 @@ class _TripDetailPageState extends State<TripDetailPage>
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(top: 17, left: 9, right: 9),
       itemCount: incomes.length,
       itemBuilder: (context, index) {
         final income = incomes[index];
@@ -765,7 +764,7 @@ class _TripDetailPageState extends State<TripDetailPage>
             _transactionService.updateIncomeActive(income);
           }), // income o change según el caso
           child: Container(
-            margin: const EdgeInsets.only(bottom: 20),
+            margin: const EdgeInsets.only(bottom: 15),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.transparent,
@@ -852,7 +851,7 @@ class _TripDetailPageState extends State<TripDetailPage>
     }
 
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(top: 17, left: 9, right: 9),
       itemCount: changes.length,
       itemBuilder: (context, index) {
         final change = changes[index];
@@ -868,8 +867,8 @@ class _TripDetailPageState extends State<TripDetailPage>
             {}
           }),
           child: Container(
-            margin: const EdgeInsets.only(bottom: 20),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            margin: const EdgeInsets.only(bottom: 15),
+            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
             decoration: BoxDecoration(
               color: Colors.transparent,
               borderRadius: BorderRadius.circular(12),
@@ -1216,8 +1215,6 @@ class _TripDetailPageState extends State<TripDetailPage>
                     'Límite Máximo: ${budget.maxLimit}${trip.currency.symbol}'),
                 _buildInfoText(
                     'Límite Deseado: ${budget.desiredLimit}${trip.currency.symbol}'),
-                _buildInfoText(
-                    'Acumulado: ${budget.accumulated}${trip.currency.symbol}'),
                 _buildInfoText(
                     '¿Aumentar límite?: ${budget.limitIncrease ? "Sí" : "No"}'),
               ],
