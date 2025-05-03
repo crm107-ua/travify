@@ -1035,7 +1035,6 @@ class _TripDetailPageState extends State<TripDetailPage>
 
                               if (confirm == true) {
                                 Navigator.pop(context);
-
                                 onDelete?.call();
                               }
                             },

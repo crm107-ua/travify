@@ -111,7 +111,7 @@ class _HomeContentState extends State<HomeContent>
           SliverOverlapAbsorber(
             handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
             sliver: SliverAppBar(
-              expandedHeight: 340,
+              expandedHeight: 310,
               collapsedHeight: 160,
               pinned: true,
               backgroundColor: Colors.black,
