@@ -1,12 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/intl.dart';
 import 'package:travify/models/change.dart';
 import 'package:travify/models/expense.dart';
 import 'package:travify/models/trip.dart';
 import 'package:travify/enums/transaction_type.dart';
+import 'package:travify/notifiers/trip_notifier.dart';
 import 'package:travify/screens/trip_screen.dart';
-import 'package:travify/services/trip_service.dart';
 
 class DataContent extends StatefulWidget {
   const DataContent({super.key});
@@ -16,46 +19,46 @@ class DataContent extends StatefulWidget {
 }
 
 class _DataContentState extends State<DataContent> {
-  final TripService _tripService = TripService();
-  List<Trip> _trips = [];
   String _search = '';
 
   @override
   void initState() {
     super.initState();
-    _loadTrips();
-  }
-
-  Future<void> _loadTrips() async {
-    final trips = await _tripService.getAllTrips();
-    setState(() => _trips = trips);
   }
 
   @override
   Widget build(BuildContext context) {
-    final filteredTrips = _trips
-        .where(
-            (trip) => trip.title.toLowerCase().contains(_search.toLowerCase()))
-        .toList();
+    final tripNotifier = Provider.of<TripNotifier>(context);
+    final filteredTrips = tripNotifier.allTrips.where((trip) {
+      final hasData = trip.transactions.any((t) =>
+          t.type == TransactionType.income ||
+          t.type == TransactionType.expense ||
+          t.type == TransactionType.change);
+      return hasData &&
+          trip.title.toLowerCase().contains(_search.toLowerCase());
+    }).toList();
 
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        title: Padding(
-          padding: const EdgeInsets.only(top: 26),
+        elevation: 0,
+        title: const Padding(
+          padding: EdgeInsets.only(top: 20),
           child: Align(
             alignment: Alignment.centerLeft,
             child: Text(
               "Estadísticas",
-              style: Theme.of(context).textTheme.titleLarge,
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 30),
             ),
           ),
         ),
       ),
       body: Column(
         children: [
-          const SizedBox(height: 14),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
@@ -65,253 +68,315 @@ class _DataContentState extends State<DataContent> {
                 hintStyle: const TextStyle(color: Colors.white54),
                 prefixIcon: const Icon(Icons.search, color: Colors.white),
                 filled: true,
-                fillColor: Colors.grey[800],
+                fillColor: Colors.grey[850],
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
               ),
               onChanged: (value) => setState(() => _search = value),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Expanded(
             child: filteredTrips.isEmpty
                 ? const Center(
-                    child: Text('No hay viajes',
+                    child: Text('No hay viajes con datos',
                         style: TextStyle(color: Colors.white70)),
                   )
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                : PageView.builder(
                     itemCount: filteredTrips.length,
+                    controller: PageController(viewportFraction: 0.9),
                     itemBuilder: (context, index) {
                       final trip = filteredTrips[index];
-                      return InkWell(
-                        onTap: () async {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TripDetailPage(trip: trip),
-                            ),
-                          );
-                          // Recargar viajes al volver
-                          setState(() {
-                            _loadTrips();
-                          });
-                        },
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 10),
                         child: _TripStatsCard(trip: trip),
                       );
-                    }),
-          )
+                    },
+                  ),
+          ),
         ],
       ),
     );
   }
 }
 
-class _TripStatsCard extends StatelessWidget {
+class _TripStatsCard extends StatefulWidget {
   final Trip trip;
   const _TripStatsCard({required this.trip});
 
   @override
+  State<_TripStatsCard> createState() => _TripStatsCardState();
+}
+
+class _TripStatsCardState extends State<_TripStatsCard>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final dailyData = _generateDailyData(trip);
+    final trip = widget.trip;
     final expensesByCategory = _generateExpensesByCategory(trip);
-    final currencyUsage = _generateCurrencyChangeStats(trip);
+    final changesByCurrency = _generateDailyDataGroupedByCurrency(trip);
 
-    final darkColors = [
-      const Color(0xFF2C5282),
-      const Color(0xFF553C9A),
-      const Color(0xFF22543D),
-      const Color(0xFF742A2A),
-      const Color(0xFF1A202C),
-      const Color(0xFF6B46C1),
-      const Color(0xFF2A4365),
-      const Color(0xFF276749),
-      const Color(0xFF5F370E),
-    ];
+    final legendStyle = const TextStyle(
+      color: Colors.white,
+      fontWeight: FontWeight.bold,
+      shadows: [Shadow(color: Colors.black, blurRadius: 2)],
+    );
 
-    return Card(
-      color: Colors.grey[900],
-      margin: const EdgeInsets.only(bottom: 24),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              trip.title,
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold),
+    return SizedBox(
+      height: 500,
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: trip.image?.startsWith('http') == true
+                  ? Image.network(trip.image ?? '', fit: BoxFit.cover)
+                  : Image.file(File(trip.image ?? ''), fit: BoxFit.cover),
             ),
-            const SizedBox(height: 6),
-            Text(
-              '${DateFormat('dd/MM/yyyy').format(trip.dateStart)}${trip.dateEnd != null ? ' - ' + DateFormat('dd/MM/yyyy').format(trip.dateEnd!) : ''}',
-              style: const TextStyle(color: Colors.white70),
+          ),
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: Colors.black.withOpacity(0.8),
+              ),
             ),
-            const SizedBox(height: 16),
-            SfCartesianChart(
-              primaryXAxis: DateTimeAxis(
-                dateFormat: DateFormat('dd/MM'),
-                majorGridLines: const MajorGridLines(width: 0),
-                labelStyle: const TextStyle(color: Colors.white70),
-              ),
-              primaryYAxis: NumericAxis(
-                labelStyle: const TextStyle(color: Colors.white70),
-                majorGridLines: const MajorGridLines(width: 0.5),
-              ),
-              legend: Legend(
-                isVisible: true,
-                position: LegendPosition.bottom,
-                textStyle: const TextStyle(color: Colors.white),
-              ),
-              tooltipBehavior: TooltipBehavior(
-                enable: true,
-                textStyle: const TextStyle(color: Colors.black),
-              ),
-              series: <CartesianSeries<_DailyStat, DateTime>>[
-                ColumnSeries<_DailyStat, DateTime>(
-                  dataSource: dailyData,
-                  xValueMapper: (_DailyStat data, _) => data.date,
-                  yValueMapper: (_DailyStat data, _) => data.incomes,
-                  name: 'Ingresos',
-                  color: const Color(0xFF4FD1C5),
-                ),
-                ColumnSeries<_DailyStat, DateTime>(
-                  dataSource: dailyData,
-                  xValueMapper: (_DailyStat data, _) => data.date,
-                  yValueMapper: (_DailyStat data, _) => data.expenses,
-                  name: 'Gastos',
-                  color: const Color(0xFF805AD5),
-                ),
-                ColumnSeries<_DailyStat, DateTime>(
-                  dataSource: dailyData,
-                  xValueMapper: (_DailyStat data, _) => data.date,
-                  yValueMapper: (_DailyStat data, _) => data.changes,
-                  name: 'Cambios',
-                  color: const Color(0xFF63B3ED),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            SfCircularChart(
-              title: ChartTitle(
-                text: 'Gastos por Categoría',
-                textStyle: const TextStyle(
-                    color: Colors.white, fontWeight: FontWeight.bold),
-              ),
-              legend: Legend(
-                isVisible: true,
-                position: LegendPosition.bottom,
-                textStyle: const TextStyle(color: Colors.white70),
-              ),
-              series: <CircularSeries<_CategoryExpense, String>>[
-                PieSeries<_CategoryExpense, String>(
-                  dataSource: expensesByCategory,
-                  xValueMapper: (_CategoryExpense data, _) => data.category,
-                  yValueMapper: (_CategoryExpense data, _) => data.amount,
-                  dataLabelMapper: (_CategoryExpense data, _) =>
-                      '${data.category}: ${data.amount.toStringAsFixed(2)}',
-                  pointColorMapper: (_, index) =>
-                      darkColors[index % darkColors.length],
-                  dataLabelSettings: const DataLabelSettings(
-                    isVisible: true,
-                    textStyle: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          Positioned.fill(
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(trip.title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white)),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${DateFormat('dd/MM/yyyy').format(trip.dateStart)}${trip.dateEnd != null ? ' - ${DateFormat('dd/MM/yyyy').format(trip.dateEnd!)}' : ''}',
+                              style: const TextStyle(color: Colors.white54),
+                            ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.open_in_new,
+                            color: Colors.white70),
+                        onPressed: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => TripDetailPage(trip: trip)),
+                          );
+                          final tripNotifier =
+                              Provider.of<TripNotifier>(context, listen: false);
+                          await tripNotifier.loadCurrentTripAndUpcoming();
+                        },
+                      )
+                    ],
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            if (currencyUsage.isNotEmpty)
-              SfCircularChart(
-                title: ChartTitle(
-                  text: 'Divisas más utilizadas (cambios)',
-                  textStyle: const TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold),
-                ),
-                legend: Legend(
-                  isVisible: true,
-                  position: LegendPosition.bottom,
-                  textStyle: const TextStyle(color: Colors.white70),
-                ),
-                series: <CircularSeries<_CurrencyChange, String>>[
-                  DoughnutSeries<_CurrencyChange, String>(
-                    dataSource: currencyUsage,
-                    xValueMapper: (_CurrencyChange data, _) => data.currency,
-                    yValueMapper: (_CurrencyChange data, _) => data.amount,
-                    dataLabelMapper: (_CurrencyChange data, _) =>
-                        '${data.currency}: ${data.amount.toStringAsFixed(2)}',
-                    pointColorMapper: (_, index) =>
-                        darkColors[index % darkColors.length],
-                    dataLabelSettings: const DataLabelSettings(
-                      isVisible: true,
-                      textStyle: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
+                  const SizedBox(height: 12),
+                  TabBar(
+                    controller: _tabController,
+                    indicatorColor: Colors.amber,
+                    labelColor: Colors.white,
+                    unselectedLabelColor: Colors.white54,
+                    tabs: const [
+                      Tab(text: 'Diario'),
+                      Tab(text: 'Categorías'),
+                      Tab(text: 'Divisas'),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        SfCartesianChart(
+                          primaryXAxis: DateTimeAxis(
+                            dateFormat: DateFormat('dd/MM'),
+                            labelStyle: const TextStyle(color: Colors.white70),
+                          ),
+                          primaryYAxis: NumericAxis(
+                            labelStyle: const TextStyle(color: Colors.white70),
+                            majorGridLines: const MajorGridLines(width: 0.3),
+                          ),
+                          legend:
+                              Legend(isVisible: true, textStyle: legendStyle),
+                          tooltipBehavior: TooltipBehavior(enable: true),
+                          series: _generateIncomeExpenseSeriesByCurrency(trip),
+                        ),
+                        SfCircularChart(
+                          title: ChartTitle(
+                              text: 'Gastos por Categoría',
+                              textStyle: legendStyle),
+                          legend: Legend(
+                            isVisible: true,
+                            overflowMode: LegendItemOverflowMode.wrap,
+                            position: LegendPosition.bottom,
+                            textStyle: legendStyle,
+                          ),
+                          series: [
+                            PieSeries<_CategoryExpense, String>(
+                              dataSource: expensesByCategory,
+                              xValueMapper: (data, _) => data.category,
+                              yValueMapper: (data, _) => data.amount,
+                              dataLabelMapper: (data, _) =>
+                                  '${data.category}: \${data.amount.toStringAsFixed(2)}',
+                              dataLabelSettings: const DataLabelSettings(
+                                isVisible: true,
+                                labelPosition: ChartDataLabelPosition.outside,
+                                textStyle: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                        SfCartesianChart(
+                          primaryXAxis: DateTimeAxis(
+                            dateFormat: DateFormat('dd/MM'),
+                            labelStyle: const TextStyle(color: Colors.white70),
+                          ),
+                          primaryYAxis: NumericAxis(
+                            labelStyle: const TextStyle(color: Colors.white70),
+                            majorGridLines: const MajorGridLines(width: 0.3),
+                          ),
+                          legend: Legend(
+                            isVisible: true,
+                            overflowMode: LegendItemOverflowMode.wrap,
+                            position: LegendPosition.bottom,
+                            textStyle: legendStyle,
+                          ),
+                          tooltipBehavior: TooltipBehavior(enable: true),
+                          series: changesByCurrency.entries.map((entry) {
+                            return ColumnSeries<_CurrencyDailyStat, DateTime>(
+                              name: entry.key,
+                              dataSource: entry.value,
+                              xValueMapper: (data, _) => data.date,
+                              yValueMapper: (data, _) => data.amount,
+                            );
+                          }).toList(),
+                        ),
+                      ],
                     ),
-                  ),
+                  )
                 ],
               ),
-          ],
-        ),
+            ),
+          )
+        ],
       ),
     );
   }
 
-  List<_DailyStat> _generateDailyData(Trip trip) {
-    final Map<DateTime, _DailyStat> dailyStats = {};
+  List<CartesianSeries<_DailyStat, DateTime>>
+      _generateIncomeExpenseSeriesByCurrency(Trip trip) {
+    final Map<String, Map<DateTime, _DailyStat>> byCurrency = {};
 
-    for (var transaction in trip.transactions) {
-      final date = DateTime(
-          transaction.date.year, transaction.date.month, transaction.date.day);
-      dailyStats.putIfAbsent(date, () => _DailyStat(date));
+    for (var t in trip.transactions) {
+      if (t.type == TransactionType.income ||
+          t.type == TransactionType.expense) {
+        final currency = trip.currency.symbol;
+        final date = DateTime(t.date.year, t.date.month, t.date.day);
 
-      switch (transaction.type) {
-        case TransactionType.income:
-          dailyStats[date]!.incomes += transaction.amount;
-          break;
-        case TransactionType.expense:
-          dailyStats[date]!.expenses += transaction.amount;
-          break;
-        case TransactionType.change:
-          dailyStats[date]!.changes += transaction.amount;
-          break;
+        byCurrency.putIfAbsent(currency, () => {});
+        byCurrency[currency]!.putIfAbsent(date, () => _DailyStat(date));
+
+        if (t.type == TransactionType.income) {
+          byCurrency[currency]![date]!.incomes += t.amount;
+        } else {
+          byCurrency[currency]![date]!.expenses += t.amount;
+        }
       }
     }
 
-    return dailyStats.values.toList()..sort((a, b) => a.date.compareTo(b.date));
+    return byCurrency.entries.expand((entry) {
+      final currency = entry.key;
+      final stats = entry.value.values.toList()
+        ..sort((a, b) => a.date.compareTo(b.date));
+      return [
+        ColumnSeries<_DailyStat, DateTime>(
+          name: 'Ingresos ($currency)',
+          dataSource: stats,
+          xValueMapper: (d, _) => d.date,
+          yValueMapper: (d, _) => d.incomes,
+          color: Colors.greenAccent,
+        ),
+        ColumnSeries<_DailyStat, DateTime>(
+          name: 'Gastos ($currency)',
+          dataSource: stats,
+          xValueMapper: (d, _) => d.date,
+          yValueMapper: (d, _) => d.expenses,
+          color: Colors.redAccent,
+        )
+      ];
+    }).toList();
   }
 
   List<_CategoryExpense> _generateExpensesByCategory(Trip trip) {
-    final Map<String, double> categoryExpenses = {};
-
-    for (var transaction
+    final Map<String, double> map = {};
+    for (var t
         in trip.transactions.where((t) => t.type == TransactionType.expense)) {
-      final category = (transaction as Expense).category.name;
-      categoryExpenses[category] =
-          (categoryExpenses[category] ?? 0) + transaction.amount;
+      final cat = (t as Expense).category.name;
+      map[cat] = (map[cat] ?? 0) + t.amount;
     }
-
-    return categoryExpenses.entries
-        .map((e) => _CategoryExpense(e.key, e.value))
-        .toList();
+    return map.entries.map((e) => _CategoryExpense(e.key, e.value)).toList();
   }
 
-  List<_CurrencyChange> _generateCurrencyChangeStats(Trip trip) {
-    final Map<String, double> currencyMap = {};
+  Map<String, List<_CurrencyDailyStat>> _generateDailyDataGroupedByCurrency(
+      Trip trip) {
+    final Map<String, Map<DateTime, double>> grouped = {};
 
-    for (var transaction
-        in trip.transactions.where((t) => t.type == TransactionType.change)) {
-      final currency = (transaction as Change).currencyRecived.name;
-      currencyMap[currency] = (currencyMap[currency] ?? 0) + transaction.amount;
+    for (var t in trip.transactions) {
+      if (t.type == TransactionType.change) {
+        final change = t as Change;
+        final currency = change.currencyRecived.name;
+        final date = DateTime(t.date.year, t.date.month, t.date.day);
+
+        grouped.putIfAbsent(currency, () => {});
+        grouped[currency]![date] = (grouped[currency]![date] ?? 0) + t.amount;
+      }
     }
 
-    return currencyMap.entries
-        .map((e) => _CurrencyChange(e.key, e.value))
-        .toList();
+    final result = <String, List<_CurrencyDailyStat>>{};
+    for (final currency in grouped.keys) {
+      final data = grouped[currency]!
+          .entries
+          .map((e) => _CurrencyDailyStat(e.key, e.value))
+          .toList()
+        ..sort((a, b) => a.date.compareTo(b.date));
+      result[currency] = data;
+    }
+
+    return result;
   }
 }
 
@@ -319,7 +384,6 @@ class _DailyStat {
   final DateTime date;
   double incomes = 0;
   double expenses = 0;
-  double changes = 0;
 
   _DailyStat(this.date);
 }
@@ -331,9 +395,9 @@ class _CategoryExpense {
   _CategoryExpense(this.category, this.amount);
 }
 
-class _CurrencyChange {
-  final String currency;
+class _CurrencyDailyStat {
+  final DateTime date;
   final double amount;
 
-  _CurrencyChange(this.currency, this.amount);
+  _CurrencyDailyStat(this.date, this.amount);
 }

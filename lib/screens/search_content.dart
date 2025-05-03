@@ -95,7 +95,10 @@ class _SearchContentState extends State<SearchContent>
               padding: const EdgeInsets.only(top: 76.0, left: 16.0),
               child: Text(
                 "Historial",
-                style: Theme.of(context).textTheme.titleLarge,
+                style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 30),
               ),
             ),
             Padding(
