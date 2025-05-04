@@ -1,0 +1,362 @@
+[
+  {
+    "id": 1,
+    "currency_recived_id": 1,
+    "currency_spent_id": 2,
+    "rate": 1.1305
+  },
+  {
+    "id": 2,
+    "currency_recived_id": 3,
+    "currency_spent_id": 2,
+    "rate": 163.5707
+  },
+  {
+    "id": 3,
+    "currency_recived_id": 4,
+    "currency_spent_id": 2,
+    "rate": 0.8504
+  },
+  {
+    "id": 4,
+    "currency_recived_id": 5,
+    "currency_spent_id": 2,
+    "rate": 1.7707
+  },
+  {
+    "id": 5,
+    "currency_recived_id": 6,
+    "currency_spent_id": 2,
+    "rate": 1.5648
+  },
+  {
+    "id": 6,
+    "currency_recived_id": 7,
+    "currency_spent_id": 2,
+    "rate": 0.9369
+  },
+  {
+    "id": 7,
+    "currency_recived_id": 8,
+    "currency_spent_id": 2,
+    "rate": 8.2261
+  },
+  {
+    "id": 8,
+    "currency_recived_id": 9,
+    "currency_spent_id": 2,
+    "rate": 8.7689
+  },
+  {
+    "id": 9,
+    "currency_recived_id": 10,
+    "currency_spent_id": 2,
+    "rate": 1.4815
+  },
+  {
+    "id": 10,
+    "currency_recived_id": 11,
+    "currency_spent_id": 2,
+    "rate": 1.9111
+  },
+  {
+    "id": 11,
+    "currency_recived_id": 12,
+    "currency_spent_id": 2,
+    "rate": 1618.6056
+  },
+  {
+    "id": 12,
+    "currency_recived_id": 13,
+    "currency_spent_id": 2,
+    "rate": 95.7268
+  },
+  {
+    "id": 13,
+    "currency_recived_id": 14,
+    "currency_spent_id": 2,
+    "rate": 6.4092
+  },
+  {
+    "id": 14,
+    "currency_recived_id": 15,
+    "currency_spent_id": 2,
+    "rate": 22.161
+  },
+  {
+    "id": 15,
+    "currency_recived_id": 16,
+    "currency_spent_id": 2,
+    "rate": 21.0014
+  },
+  {
+    "id": 16,
+    "currency_recived_id": 17,
+    "currency_spent_id": 2,
+    "rate": 11.004
+  },
+  {
+    "id": 17,
+    "currency_recived_id": 18,
+    "currency_spent_id": 2,
+    "rate": 11.7868
+  },
+  {
+    "id": 18,
+    "currency_recived_id": 19,
+    "currency_spent_id": 2,
+    "rate": 7.4615
+  },
+  {
+    "id": 19,
+    "currency_recived_id": 20,
+    "currency_spent_id": 2,
+    "rate": 37.8965
+  },
+  {
+    "id": 20,
+    "currency_recived_id": 21,
+    "currency_spent_id": 2,
+    "rate": 4.1514
+  },
+  {
+    "id": 21,
+    "currency_recived_id": 22,
+    "currency_spent_id": 2,
+    "rate": 43.5455
+  },
+  {
+    "id": 22,
+    "currency_recived_id": 23,
+    "currency_spent_id": 2,
+    "rate": 92.6255
+  },
+  {
+    "id": 23,
+    "currency_recived_id": 24,
+    "currency_spent_id": 2,
+    "rate": 4.2821
+  },
+  {
+    "id": 24,
+    "currency_recived_id": 25,
+    "currency_spent_id": 2,
+    "rate": 18801.4038
+  },
+  {
+    "id": 25,
+    "currency_recived_id": 26,
+    "currency_spent_id": 2,
+    "rate": 36.2675
+  },
+  {
+    "id": 26,
+    "currency_recived_id": 27,
+    "currency_spent_id": 2,
+    "rate": 4.8848
+  },
+  {
+    "id": 27,
+    "currency_recived_id": 28,
+    "currency_spent_id": 2,
+    "rate": 63.1729
+  },
+  {
+    "id": 28,
+    "currency_recived_id": 29,
+    "currency_spent_id": 2,
+    "rate": 29375.881
+  },
+  {
+    "id": 29,
+    "currency_recived_id": 30,
+    "currency_spent_id": 2,
+    "rate": 4.1024
+  },
+  {
+    "id": 30,
+    "currency_recived_id": 31,
+    "currency_spent_id": 2,
+    "rate": 4.239
+  },
+  {
+    "id": 31,
+    "currency_recived_id": 1,
+    "currency_spent_id": 2,
+    "rate": 1.1316
+  },
+  {
+    "id": 32,
+    "currency_recived_id": 3,
+    "currency_spent_id": 2,
+    "rate": 163.8469
+  },
+  {
+    "id": 33,
+    "currency_recived_id": 4,
+    "currency_spent_id": 2,
+    "rate": 0.8521
+  },
+  {
+    "id": 34,
+    "currency_recived_id": 5,
+    "currency_spent_id": 2,
+    "rate": 1.7582
+  },
+  {
+    "id": 35,
+    "currency_recived_id": 6,
+    "currency_spent_id": 2,
+    "rate": 1.563
+  },
+  {
+    "id": 36,
+    "currency_recived_id": 7,
+    "currency_spent_id": 2,
+    "rate": 0.9353
+  },
+  {
+    "id": 37,
+    "currency_recived_id": 8,
+    "currency_spent_id": 2,
+    "rate": 8.2017
+  },
+  {
+    "id": 38,
+    "currency_recived_id": 9,
+    "currency_spent_id": 2,
+    "rate": 8.7742
+  },
+  {
+    "id": 39,
+    "currency_recived_id": 10,
+    "currency_spent_id": 2,
+    "rate": 1.4703
+  },
+  {
+    "id": 40,
+    "currency_recived_id": 11,
+    "currency_spent_id": 2,
+    "rate": 1.907
+  },
+  {
+    "id": 41,
+    "currency_recived_id": 12,
+    "currency_spent_id": 2,
+    "rate": 1590.0242
+  },
+  {
+    "id": 42,
+    "currency_recived_id": 13,
+    "currency_spent_id": 2,
+    "rate": 95.664
+  },
+  {
+    "id": 43,
+    "currency_recived_id": 14,
+    "currency_spent_id": 2,
+    "rate": 6.4242
+  },
+  {
+    "id": 44,
+    "currency_recived_id": 15,
+    "currency_spent_id": 2,
+    "rate": 22.1889
+  },
+  {
+    "id": 45,
+    "currency_recived_id": 16,
+    "currency_spent_id": 2,
+    "rate": 20.8362
+  },
+  {
+    "id": 46,
+    "currency_recived_id": 17,
+    "currency_spent_id": 2,
+    "rate": 10.9233
+  },
+  {
+    "id": 47,
+    "currency_recived_id": 18,
+    "currency_spent_id": 2,
+    "rate": 11.7637
+  },
+  {
+    "id": 48,
+    "currency_recived_id": 19,
+    "currency_spent_id": 2,
+    "rate": 7.4565
+  },
+  {
+    "id": 49,
+    "currency_recived_id": 20,
+    "currency_spent_id": 2,
+    "rate": 37.4792
+  },
+  {
+    "id": 50,
+    "currency_recived_id": 21,
+    "currency_spent_id": 2,
+    "rate": 4.1558
+  },
+  {
+    "id": 51,
+    "currency_recived_id": 22,
+    "currency_spent_id": 2,
+    "rate": 43.667
+  },
+  {
+    "id": 52,
+    "currency_recived_id": 23,
+    "currency_spent_id": 2,
+    "rate": 93.4369
+  },
+  {
+    "id": 53,
+    "currency_recived_id": 24,
+    "currency_spent_id": 2,
+    "rate": 4.2745
+  },
+  {
+    "id": 54,
+    "currency_recived_id": 25,
+    "currency_spent_id": 2,
+    "rate": 18619.7852
+  },
+  {
+    "id": 55,
+    "currency_recived_id": 26,
+    "currency_spent_id": 2,
+    "rate": 35.1329
+  },
+  {
+    "id": 56,
+    "currency_recived_id": 27,
+    "currency_spent_id": 2,
+    "rate": 4.8406
+  },
+  {
+    "id": 57,
+    "currency_recived_id": 28,
+    "currency_spent_id": 2,
+    "rate": 63.0413
+  },
+  {
+    "id": 58,
+    "currency_recived_id": 29,
+    "currency_spent_id": 2,
+    "rate": 29410.6837
+  },
+  {
+    "id": 59,
+    "currency_recived_id": 30,
+    "currency_spent_id": 2,
+    "rate": 4.0825
+  },
+  {
+    "id": 60,
+    "currency_recived_id": 31,
+    "currency_spent_id": 2,
+    "rate": 4.2435
+  }
+]

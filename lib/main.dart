@@ -24,36 +24,13 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
-  ConnectivityResult _connectionStatus = ConnectivityResult.none;
-  final Connectivity _connectivity = Connectivity();
-  final OfficialRatesService _officialRatesService = OfficialRatesService();
-
   @override
   void initState() {
     super.initState();
-    _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
-      (List<ConnectivityResult> connectivityResults) {
-        final result = connectivityResults.isNotEmpty
-            ? connectivityResults.first
-            : ConnectivityResult.none;
-        _updateConnectionStatus(result);
-      },
-    );
-  }
-
-  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
-    setState(() {
-      _connectionStatus = result;
-    });
-    if (_connectionStatus != ConnectivityResult.none) {
-      // await _officialRatesService.updateOfficialRates();
-    }
   }
 
   @override
   void dispose() {
-    _connectivitySubscription.cancel();
     super.dispose();
   }
 

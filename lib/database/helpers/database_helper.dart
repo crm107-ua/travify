@@ -3,6 +3,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:travify/database/seeders/seeders_currencies.dart';
+import 'package:travify/database/seeders/seeders_rates.dart';
 import '../migrations/migrations_init.dart';
 import '../seeders/seeders_countries.dart';
 import '../seeders/seeders_all.dart';
@@ -50,6 +51,10 @@ class DatabaseHelper {
       await seedDatabaseCurrencies(db);
       print('Seed de currencies completado');
 
+      print('Iniciando seed de rates');
+      await seedDatabaseRates(db);
+      print('Seed de rates completado');
+
       print('Iniciando seed general');
       await seedDatabaseAll(db);
       print('Seed general completado');
@@ -64,6 +69,7 @@ class DatabaseHelper {
       await createAllTables(db);
       await seedDatabaseCountries(db);
       await seedDatabaseCurrencies(db);
+      await seedDatabaseRates(db);
       await seedDatabaseAll(db);
       print('Seeders ejecutados durante la actualización');
     } catch (e) {

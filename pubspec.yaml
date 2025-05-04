@@ -74,6 +74,7 @@ flutter:
     - assets/images/fondo.png
     - assets/data/countries.json
     - assets/data/currencies.json
+    - assets/data/official_rates.json
 
   # To add assets to your application, add an assets section, like this:
   # assets:
