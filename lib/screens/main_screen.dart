@@ -7,11 +7,12 @@ import 'search_content.dart';
 
 class MainScreen extends StatefulWidget {
   @override
+  // ignore: library_private_types_in_public_api
   _MainScreenState createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _currentIndex = 0;
+  int _currentIndex = 3;
 
   final List<Widget> _screens = [
     HomeContent(),

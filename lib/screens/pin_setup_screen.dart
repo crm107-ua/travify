@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:travify/constants/colors.dart';
 import '../services/settings_service.dart';
 import 'package:another_flushbar/flushbar.dart';
 
 class PinSetupScreen extends StatefulWidget {
+  const PinSetupScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _PinSetupScreenState createState() => _PinSetupScreenState();
 }
 
 class _PinSetupScreenState extends State<PinSetupScreen> {
   final TextEditingController _pinController = TextEditingController();
+  final TextEditingController _confirmPinController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    // Definimos el color de fondo según el tema
     final Color colorFondo = Theme.of(context).brightness == Brightness.dark
         ? Colors.black
         : Colors.white;
@@ -21,15 +23,12 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
     return Scaffold(
       backgroundColor: colorFondo,
       appBar: AppBar(
-        // Asignamos el mismo color
         backgroundColor: colorFondo,
-        elevation: 0, // Opcional, para que el AppBar no tenga sombra
+        elevation: 0,
         title: Text(
           "Configurar PIN",
           style: Theme.of(context).textTheme.headlineMedium,
         ),
-        // Si deseas que los íconos (flecha atrás, menú) también
-        // cambien de color, puedes controlar `iconTheme`:
         iconTheme: IconThemeData(
           color: Theme.of(context).brightness == Brightness.dark
               ? Colors.white
@@ -44,48 +43,26 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
               controller: _pinController,
               obscureText: true,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: "Introduce un PIN"),
+              decoration: const InputDecoration(labelText: "Introduce un PIN"),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _confirmPinController,
+              obscureText: true,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: "Confirma el PIN"),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                // Fondo semitransparente según el tema (oscuro / claro)
-                backgroundColor: AppColors.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
               onPressed: () async {
                 final pin = _pinController.text.trim();
-                if (pin.isNotEmpty) {
-                  await SettingsService.savePin(pin);
-                  final flush = Flushbar(
-                    duration: Duration(seconds: 1),
-                    borderRadius: BorderRadius.circular(8),
-                    margin: EdgeInsets.all(16),
-                    flushbarPosition: FlushbarPosition.BOTTOM,
-                    dismissDirection: FlushbarDismissDirection.VERTICAL,
-                    backgroundColor:
-                        Theme.of(context).brightness == Brightness.dark
-                            ? Colors.grey[850]!
-                            : Colors.grey[200]!,
-                    messageText: Text(
-                      "PIN guardado",
-                      style: TextStyle(
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? Colors.white
-                            : Colors.black,
-                      ),
-                    ),
-                  );
+                final confirmPin = _confirmPinController.text.trim();
 
-                  await flush.show(context);
-                  Navigator.pop(context);
-                } else {
-                  final flush = Flushbar(
-                    duration: Duration(seconds: 2),
+                if (pin.isEmpty || confirmPin.isEmpty) {
+                  Flushbar(
+                    duration: const Duration(seconds: 2),
                     borderRadius: BorderRadius.circular(8),
-                    margin: EdgeInsets.all(16),
+                    margin: const EdgeInsets.all(16),
                     flushbarPosition: FlushbarPosition.BOTTOM,
                     dismissDirection: FlushbarDismissDirection.VERTICAL,
                     backgroundColor:
@@ -93,21 +70,69 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
                             ? Colors.grey[850]!
                             : Colors.grey[200]!,
                     messageText: Text(
-                      "El PIN no puede estar vacío",
+                      "Ambos campos son obligatorios",
                       style: TextStyle(
                         color: Theme.of(context).brightness == Brightness.dark
                             ? Colors.white
                             : Colors.black,
                       ),
                     ),
-                  );
-                  flush.show(context);
+                  ).show(context);
+                  return;
                 }
+
+                if (pin != confirmPin) {
+                  Flushbar(
+                    duration: const Duration(seconds: 2),
+                    borderRadius: BorderRadius.circular(8),
+                    margin: const EdgeInsets.all(16),
+                    flushbarPosition: FlushbarPosition.BOTTOM,
+                    dismissDirection: FlushbarDismissDirection.VERTICAL,
+                    backgroundColor:
+                        Theme.of(context).brightness == Brightness.dark
+                            ? Colors.grey[850]!
+                            : Colors.grey[200]!,
+                    messageText: Text(
+                      "Los PINs no coinciden",
+                      style: TextStyle(
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? Colors.white
+                            : Colors.black,
+                      ),
+                    ),
+                  ).show(context);
+                  return;
+                }
+
+                await SettingsService.savePin(pin);
+
+                await Flushbar(
+                  duration: const Duration(seconds: 1),
+                  borderRadius: BorderRadius.circular(8),
+                  margin: const EdgeInsets.all(16),
+                  flushbarPosition: FlushbarPosition.BOTTOM,
+                  dismissDirection: FlushbarDismissDirection.VERTICAL,
+                  backgroundColor:
+                      Theme.of(context).brightness == Brightness.dark
+                          ? Colors.grey[850]!
+                          : Colors.grey[200]!,
+                  messageText: Text(
+                    "PIN guardado",
+                    style: TextStyle(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
+                    ),
+                  ),
+                ).show(context);
+
+                if (mounted) Navigator.pop(context);
               },
-              child: Text(
-                "Guardar PIN",
-                style: TextStyle(fontSize: 15, color: Colors.white),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
               ),
+              child: const Text("Guardar PIN"),
             ),
           ],
         ),

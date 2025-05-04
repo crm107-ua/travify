@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/intl.dart';
+import 'package:travify/enums/expense_category.dart';
 import 'package:travify/models/change.dart';
 import 'package:travify/models/expense.dart';
 import 'package:travify/models/trip.dart';
@@ -348,7 +349,7 @@ class _TripStatsCardState extends State<_TripStatsCard>
     final Map<String, double> map = {};
     for (var t
         in trip.transactions.where((t) => t.type == TransactionType.expense)) {
-      final cat = (t as Expense).category.name;
+      final cat = (t as Expense).category.label;
       map[cat] = (map[cat] ?? 0) + t.amount;
     }
     return map.entries.map((e) => _CategoryExpense(e.key, e.value)).toList();
