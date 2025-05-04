@@ -215,14 +215,35 @@ class _SettingsContentState extends State<SettingsContent> {
               ),
               trailing: Padding(
                 padding: const EdgeInsets.only(right: 10),
-                child: Icon(Icons.attach_money),
+                child: FutureBuilder<String?>(
+                  future: SettingsService.getDefaultCurrency(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      );
+                    }
+                    if (snapshot.hasData &&
+                        snapshot.data != null &&
+                        snapshot.data!.isNotEmpty) {
+                      return Text(snapshot.data!,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 15));
+                    } else {
+                      return const Icon(Icons.attach_money);
+                    }
+                  },
+                ),
               ),
-              onTap: () {
-                Navigator.push(
+              onTap: () async {
+                await Navigator.push(
                   context,
                   MaterialPageRoute(
                       builder: (_) => const CurrencySetupScreen()),
                 );
+                setState(() {});
               },
             ),
           ),
@@ -292,7 +313,7 @@ class _SettingsContentState extends State<SettingsContent> {
               ),
               trailing: Padding(
                 padding: const EdgeInsets.only(right: 10),
-                child: Icon(Icons.monetization_on),
+                child: Icon(Icons.update),
               ),
               onTap: () async {
                 final canUpdate = await SettingsService.canUpdateRatesToday();

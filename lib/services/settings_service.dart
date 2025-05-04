@@ -1,9 +1,9 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsService {
-  static const String _pinKey = '';
+  static const String _pinKey = 'user_pin';
   static const String _darkModeKey = 'dark_mode';
-  static const String _defaultCurrencyKey = '';
+  static const String _defaultCurrencyKey = 'default_currency';
   static const _lastRatesUpdateKey = 'last_rates_update';
 
   /// Guarda el PIN en el dispositivo
