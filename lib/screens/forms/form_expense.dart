@@ -121,6 +121,8 @@ class _ExpenseFormState extends State<ExpenseForm> {
         setState(() => _dailyAmortization = amount / days);
       }
     } else {
+      if (widget.trip.dateEnd == null) return;
+
       final startDate = DateTime(
         widget.trip.dateStart.year,
         widget.trip.dateStart.month,

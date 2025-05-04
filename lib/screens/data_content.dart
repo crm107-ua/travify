@@ -186,9 +186,25 @@ class _TripStatsCardState extends State<_TripStatsCard>
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white)),
                             const SizedBox(height: 4),
-                            Text(
-                              '${DateFormat('dd/MM/yyyy').format(trip.dateStart)}${trip.dateEnd != null ? ' - ${DateFormat('dd/MM/yyyy').format(trip.dateEnd!)}' : ''}',
-                              style: const TextStyle(color: Colors.white54),
+                            Row(
+                              children: [
+                                Text(
+                                  DateFormat('dd/MM/yyyy')
+                                      .format(trip.dateStart),
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                                if (trip.dateEnd != null) ...[
+                                  const SizedBox(width: 4),
+                                  const Icon(Icons.arrow_forward,
+                                      color: Colors.white, size: 18),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    DateFormat('dd/MM/yyyy')
+                                        .format(trip.dateEnd!),
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ],
+                              ],
                             ),
                           ],
                         ),

@@ -115,7 +115,7 @@
       "edit_income": "Editar ingreso",
       "select_type": "Selecciona un tipo",
       "next_date": "Próxima fecha",
-      "travel_exists_to_this_init_date": "Ya existe un viaje con esa fecha de inicio.",
+      "travel_exists_to_this_init_date": "Ya existe un viaje a partir de esa fecha y sin fecha de fin.",
       "travel_exixts_with_dates": "Ya existe un viaje con esas fechas.",
       "select_countries": "Selecciona países",
       "complete_info_fields": "Por favor, complete todos los campos obligatorios en Información",

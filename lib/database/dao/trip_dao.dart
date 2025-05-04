@@ -130,8 +130,8 @@ class TripDao {
     final db = await _databaseHelper.database;
 
     final query = excludeTripId != null
-        ? 'id != ? AND date_end IS NULL AND date_start <= ?'
-        : 'date_end IS NULL AND date_start <= ?';
+        ? 'id != ? AND date_end IS NULL AND date_start <= ? AND open = 1'
+        : 'date_end IS NULL AND date_start <= ? AND open = 1';
 
     final args = excludeTripId != null
         ? [excludeTripId, dateStart.millisecondsSinceEpoch]

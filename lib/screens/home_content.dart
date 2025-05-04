@@ -62,8 +62,8 @@ class _HomeContentState extends State<HomeContent>
             .toList();
 
         filteredTrips.sort((a, b) => _sortByRecent
-            ? b.dateStart.compareTo(a.dateStart)
-            : a.dateStart.compareTo(b.dateStart));
+            ? a.dateStart.compareTo(b.dateStart)
+            : b.dateStart.compareTo(a.dateStart));
 
         return _buildTripsUI(filteredTrips, currentTrip);
       },
