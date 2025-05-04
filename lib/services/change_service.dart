@@ -4,6 +4,7 @@ import 'package:travify/database/dao/transaction_dao.dart';
 import 'package:travify/models/change.dart';
 import 'package:travify/models/currency.dart';
 import 'package:travify/models/rate.dart';
+import 'package:travify/models/trip.dart';
 import 'package:travify/screens/forms/form_change.dart';
 
 class ChangeService {
@@ -246,7 +247,8 @@ class ChangeService {
       double initialAmount,
       double commissionInput,
       List<Change> changes,
-      RouteOption? selectedOption) async {
+      RouteOption? selectedOption,
+      Trip trip) async {
     List<Change> changesToSave = [];
 
     double currentAmount = initialAmount;
@@ -275,7 +277,7 @@ class ChangeService {
 
         Change newChange = Change(
           id: 0,
-          tripId: changes.first.tripId,
+          tripId: trip.id,
           date: DateTime.now(),
           description: 'Cambio de $origen a $destino',
           amount: double.parse(montoInicial.toStringAsFixed(2)),
@@ -312,7 +314,7 @@ class ChangeService {
 
           Change newChange = Change(
             id: 0,
-            tripId: changes.first.tripId,
+            tripId: trip.id,
             date: DateTime.now(),
             description: 'Cambio de $origen a $destino',
             amount: double.parse(montoInicial.toStringAsFixed(2)),
@@ -325,8 +327,6 @@ class ChangeService {
           changesToSave.add(newChange);
         }
       }
-    } else {
-      print("No se encontró ruta óptima.");
     }
     return changesToSave;
   }

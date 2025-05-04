@@ -432,6 +432,7 @@ class _ChangeFormState extends State<ChangeForm> {
                                     double.tryParse(commissionValue)! / 100,
                                     changes,
                                     _selectedOption,
+                                    widget.trip,
                                   )
                                       .then((changesToSave) {
                                     if (changesToSave.isNotEmpty) {

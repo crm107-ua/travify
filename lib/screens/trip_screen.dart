@@ -428,10 +428,13 @@ class _TripDetailPageState extends State<TripDetailPage>
                                   await _transactionService
                                       .createTransaction(change);
                                   setState(() {
-                                    _trip.transactions.insert(0, change);
+                                    _trip.transactions.add(change);
+                                    _trip.transactions.sort(
+                                        (a, b) => b.date.compareTo(a.date));
+                                    _tabController.animateTo(2);
+                                    _calcRealBalance();
                                   });
                                 }
-                                _tabController.animateTo(2);
                               }
                               break;
                           }

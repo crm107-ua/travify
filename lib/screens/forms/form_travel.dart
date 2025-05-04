@@ -296,9 +296,10 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
           _showSnackBar("La fecha de fin no puede ser anterior a la de inicio");
           hasStepError = true;
         } else if (DateTime(
-                _dateStart!.year, _dateStart!.month, _dateStart!.day)
-            .isBefore(DateTime(DateTime.now().year, DateTime.now().month,
-                DateTime.now().day))) {
+                    _dateStart!.year, _dateStart!.month, _dateStart!.day)
+                .isBefore(DateTime(DateTime.now().year, DateTime.now().month,
+                    DateTime.now().day)) &&
+            widget.trip == null) {
           _showSnackBar("La fecha de inicio no puede ser anterior a hoy");
           hasStepError = true;
         }
