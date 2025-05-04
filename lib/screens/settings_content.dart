@@ -1,10 +1,15 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:travify/screens/language_setup_screen.dart';
 import '../services/settings_service.dart';
 import 'pin_setup_screen.dart';
 import 'package:another_flushbar/flushbar.dart';
 
 class SettingsContent extends StatefulWidget {
+  const SettingsContent({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _SettingsContentState createState() => _SettingsContentState();
 }
 
@@ -30,7 +35,7 @@ class _SettingsContentState extends State<SettingsContent> {
       padding: const EdgeInsets.only(top: 85, left: 26),
       children: [
         Text(
-          "Ajustes",
+          "settings".tr(),
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 26),
@@ -57,7 +62,7 @@ class _SettingsContentState extends State<SettingsContent> {
             child: ListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(
-                _hasPin ? "Eliminar PIN" : "Configurar PIN",
+                _hasPin ? "delete_pin".tr() : "configure_pin".tr(),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               trailing: Padding(
@@ -80,7 +85,7 @@ class _SettingsContentState extends State<SettingsContent> {
                             ? Colors.grey[850]!
                             : Colors.grey[200]!,
                     messageText: Text(
-                      "PIN eliminado",
+                      "deleted_pin".tr(),
                       style: TextStyle(
                         color: Theme.of(context).brightness == Brightness.dark
                             ? Colors.white
@@ -121,18 +126,22 @@ class _SettingsContentState extends State<SettingsContent> {
               ),
             ),
             child: ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(
-                  "Configurar Pais",
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                trailing: Padding(
-                  padding: const EdgeInsets.only(right: 10),
-                  child: Icon(Icons.language),
-                ),
-                onTap: () async {
-                  // Configurar Idioma
-                }),
+              contentPadding: EdgeInsets.zero,
+              title: Text(
+                "configure_language".tr(),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              trailing: const Padding(
+                padding: EdgeInsets.only(right: 10),
+                child: Icon(Icons.translate),
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => LanguageSetupScreen()),
+                );
+              },
+            ),
           ),
         ),
         const SizedBox(height: 15),
@@ -159,7 +168,7 @@ class _SettingsContentState extends State<SettingsContent> {
             child: ListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(
-                  "Configurar divisa",
+                  "configure_currency".tr(),
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 trailing: Padding(
@@ -195,7 +204,7 @@ class _SettingsContentState extends State<SettingsContent> {
             child: ListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(
-                  "Configurar tema",
+                  "configure_theme".tr(),
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 trailing: Padding(

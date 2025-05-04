@@ -1,7 +1,7 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:travify/constants/images.dart';
 import 'package:travify/enums/expense_category.dart';
@@ -154,7 +154,7 @@ class _TripDetailPageState extends State<TripDetailPage>
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'Gasto Deseado: ${trip.budget.desiredLimit.toStringAsFixed(2)} ${trip.currency.symbol}',
+                        '${'desired_expense'.tr()}: ${trip.budget.desiredLimit.toStringAsFixed(2)} ${trip.currency.symbol}',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.white70,
@@ -244,7 +244,7 @@ class _TripDetailPageState extends State<TripDetailPage>
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Center(
                     child: Text(
-                      trip.open ? 'Abierto' : 'Cerrado',
+                      trip.open ? 'open'.tr() : 'closed'.tr(),
                       style: const TextStyle(color: Colors.white, fontSize: 13),
                     ),
                   ),
@@ -297,20 +297,19 @@ class _TripDetailPageState extends State<TripDetailPage>
                           context: context,
                           builder: (context) => AlertDialog(
                             backgroundColor: Colors.black87,
-                            title: const Text('Eliminar viaje',
+                            title: Text('delete_travel'.tr(),
                                 style: TextStyle(color: Colors.white)),
-                            content: const Text(
-                                '¿Estás seguro de que deseas eliminar este viaje?',
+                            content: Text('sure_delete_travel'.tr(),
                                 style: TextStyle(color: Colors.white70)),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context, false),
-                                child: const Text('Cancelar',
+                                child: Text('cancel'.tr(),
                                     style: TextStyle(color: Colors.white)),
                               ),
                               TextButton(
                                 onPressed: () => Navigator.pop(context, true),
-                                child: const Text('Eliminar',
+                                child: Text('delete'.tr(),
                                     style: TextStyle(color: Colors.red)),
                               ),
                             ],
@@ -327,24 +326,24 @@ class _TripDetailPageState extends State<TripDetailPage>
                     }
                   },
                   itemBuilder: (context) => [
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'edit',
                       child: Row(
                         children: [
                           Icon(Icons.edit, color: Colors.white70, size: 18),
                           SizedBox(width: 10),
-                          Text('Editar viaje',
+                          Text('edit_travel'.tr(),
                               style: TextStyle(color: Colors.white)),
                         ],
                       ),
                     ),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                       value: 'delete',
                       child: Row(
                         children: [
                           Icon(Icons.delete, color: Colors.red, size: 18),
                           SizedBox(width: 10),
-                          Text('Eliminar viaje',
+                          Text('delete_travel'.tr(),
                               style: TextStyle(color: Colors.white)),
                         ],
                       ),
@@ -443,11 +442,11 @@ class _TripDetailPageState extends State<TripDetailPage>
                           PopupMenuItem(
                             value: 'expense',
                             child: Row(
-                              children: const [
+                              children: [
                                 Icon(Icons.money_off,
                                     color: Colors.white, size: 18),
                                 SizedBox(width: 10),
-                                Text('Nuevo gasto',
+                                Text('new_expense'.tr(),
                                     style: TextStyle(color: Colors.white)),
                               ],
                             ),
@@ -455,11 +454,11 @@ class _TripDetailPageState extends State<TripDetailPage>
                           PopupMenuItem(
                             value: 'income',
                             child: Row(
-                              children: const [
+                              children: [
                                 Icon(Icons.attach_money,
                                     color: Colors.white, size: 18),
                                 SizedBox(width: 10),
-                                Text('Nuevo ingreso',
+                                Text('new_income'.tr(),
                                     style: TextStyle(color: Colors.white)),
                               ],
                             ),
@@ -467,11 +466,11 @@ class _TripDetailPageState extends State<TripDetailPage>
                           PopupMenuItem(
                             value: 'change',
                             child: Row(
-                              children: const [
+                              children: [
                                 Icon(Icons.swap_horiz,
                                     color: Colors.white, size: 18),
                                 SizedBox(width: 10),
-                                Text('Nuevo cambio',
+                                Text('new_change'.tr(),
                                     style: TextStyle(color: Colors.white)),
                               ],
                             ),
@@ -550,10 +549,10 @@ class _TripDetailPageState extends State<TripDetailPage>
                 labelStyle:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                 unselectedLabelStyle: const TextStyle(fontSize: 18),
-                tabs: const [
-                  Tab(text: "Gastos"),
-                  Tab(text: "Ingresos"),
-                  Tab(text: "Cambios"),
+                tabs: [
+                  Tab(text: 'expenses'.tr()),
+                  Tab(text: 'incomes'.tr()),
+                  Tab(text: 'changes'.tr())
                 ],
               ),
             ),
@@ -597,11 +596,11 @@ class _TripDetailPageState extends State<TripDetailPage>
         .toList();
 
     if (expenses.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
           padding: EdgeInsets.only(bottom: 80),
           child: Text(
-            'Crea tu primer gasto ✨',
+            'create_your_first_expense'.tr(),
             style: TextStyle(color: Colors.white, fontSize: 19),
           ),
         ),
@@ -646,7 +645,7 @@ class _TripDetailPageState extends State<TripDetailPage>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        expense.description ?? 'Sin descripción',
+                        expense.description ?? 'no_description'.tr(),
                         style:
                             const TextStyle(fontSize: 16, color: Colors.white),
                         overflow: TextOverflow.ellipsis,
@@ -690,13 +689,12 @@ class _TripDetailPageState extends State<TripDetailPage>
                       children: [
                         if (expense.isAmortization == true)
                           Text(
-                            'Total: (${expense.amount.toStringAsFixed(2)}${trip.currency.symbol}) - ',
+                            '${'total'.tr()}: (${expense.amount.toStringAsFixed(2)}${trip.currency.symbol}) - ',
                             style: const TextStyle(
                                 color: Colors.white70, fontSize: 13),
                           ),
                         Text(
-                          "${expense.category.label}"
-                          "${expense.isAmortization == false ? ' - Gasto único' : ''}",
+                          "${expense.category.key.tr()}${expense.isAmortization == false ? ' - ${'unique_expense'.tr()}' : ''}",
                           style: const TextStyle(
                               color: Colors.white70, fontSize: 14),
                         ),
@@ -737,11 +735,11 @@ class _TripDetailPageState extends State<TripDetailPage>
         .toList();
 
     if (incomes.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
           padding: EdgeInsets.only(bottom: 80),
           child: Text(
-            'Crea tu primer ingreso ✨',
+            'create_your_first_income'.tr(),
             style: TextStyle(color: Colors.white, fontSize: 19),
           ),
         ),
@@ -787,7 +785,7 @@ class _TripDetailPageState extends State<TripDetailPage>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        income.description ?? 'Sin descripción',
+                        income.description ?? 'no_description'.tr(),
                         style:
                             const TextStyle(fontSize: 16, color: Colors.white),
                         overflow: TextOverflow.ellipsis,
@@ -819,9 +817,9 @@ class _TripDetailPageState extends State<TripDetailPage>
                     Text(
                       income.isRecurrent == true && income.active == true
                           ? income.nextRecurrentDate != null
-                              ? 'Próximo ingreso: ${DateFormat('dd/MM/yyyy').format(income.nextRecurrentDate!)}'
-                              : 'Recurrente'
-                          : 'Ingreso único',
+                              ? '${'next_income'.tr()}: ${DateFormat('dd/MM/yyyy').format(income.nextRecurrentDate!)}'
+                              : 'recurrent'.tr()
+                          : 'unique_income'.tr(),
                       style:
                           const TextStyle(color: Colors.white70, fontSize: 13),
                     ),
@@ -842,11 +840,11 @@ class _TripDetailPageState extends State<TripDetailPage>
         .toList();
 
     if (changes.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
           padding: EdgeInsets.only(bottom: 80),
           child: Text(
-            'Crea tu primer cambio ✨',
+            'create_your_first_change'.tr(),
             style: TextStyle(color: Colors.white, fontSize: 19),
           ),
         ),
@@ -890,7 +888,7 @@ class _TripDetailPageState extends State<TripDetailPage>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        change.description ?? 'Sin descripción',
+                        change.description ?? 'no_description'.tr(),
                         style:
                             const TextStyle(fontSize: 16, color: Colors.white),
                         overflow: TextOverflow.ellipsis,
@@ -914,7 +912,7 @@ class _TripDetailPageState extends State<TripDetailPage>
                     Row(
                       children: [
                         Text(
-                          'Com.: ${(change.commission * 100).toStringAsFixed(1)}%',
+                          '${'comision_abreviated'.tr()}: ${(change.commission * 100).toStringAsFixed(1)}%',
                           style: const TextStyle(
                               color: Colors.white, fontSize: 13),
                         ),
@@ -993,7 +991,8 @@ class _TripDetailPageState extends State<TripDetailPage>
                               padding:
                                   const EdgeInsets.only(right: 16.0, top: 8),
                               child: Text(
-                                transaction.description ?? 'Sin descripción',
+                                transaction.description ??
+                                    'no_description'.tr(),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 22,
@@ -1012,23 +1011,22 @@ class _TripDetailPageState extends State<TripDetailPage>
                                 context: context,
                                 builder: (_) => AlertDialog(
                                   backgroundColor: Colors.black,
-                                  title: const Text("Eliminar transacción",
+                                  title: Text('delete_trasaction'.tr(),
                                       style: TextStyle(color: Colors.white)),
-                                  content: const Text(
-                                      "¿Estás seguro de eliminar esta transacción?",
+                                  content: Text('sure_delete_trasaction'.tr(),
                                       style: TextStyle(color: Colors.white70)),
                                   actions: [
                                     TextButton(
                                       onPressed: () =>
                                           Navigator.pop(context, false),
-                                      child: const Text("Cancelar",
+                                      child: Text('cancel'.tr(),
                                           style:
                                               TextStyle(color: Colors.white70)),
                                     ),
                                     TextButton(
                                       onPressed: () =>
                                           Navigator.pop(context, true),
-                                      child: const Text("Eliminar",
+                                      child: Text('delete'.tr(),
                                           style: TextStyle(
                                               color: Colors.redAccent)),
                                     ),
@@ -1037,6 +1035,7 @@ class _TripDetailPageState extends State<TripDetailPage>
                               );
 
                               if (confirm == true) {
+                                // ignore: use_build_context_synchronously
                                 Navigator.pop(context);
                                 onDelete?.call();
                               }
@@ -1049,7 +1048,7 @@ class _TripDetailPageState extends State<TripDetailPage>
 
                       /// Fecha
                       Text(
-                        '📅 Fecha: $dateFormatted',
+                        '📅 ${'date'.tr()}: $dateFormatted',
                         style: const TextStyle(
                           color: Colors.white70,
                           fontSize: 16,
@@ -1057,62 +1056,57 @@ class _TripDetailPageState extends State<TripDetailPage>
                       ),
 
                       const SizedBox(height: 20),
+                      Text('🧾 ${'type'.tr()}: ${transaction.type.label.tr()}',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 18)),
 
                       if (transaction is Expense) ...[
-                        const Text('🧾 Tipo: Gasto',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 18)),
                         const SizedBox(height: 8),
-                        Text('Categoría: ${transaction.category.label}',
+                        Text(
+                            '${'category'.tr()}: ${transaction.category.key.tr()}',
                             style: const TextStyle(color: Colors.white70)),
                         const SizedBox(height: 8),
                         if (transaction.isAmortization) ...[
                           Text(
-                              'Amortización diaria: ${transaction.amortization?.toStringAsFixed(2)}${trip.currency.symbol}',
+                              '${'daily_amortization'.tr()}: ${transaction.amortization?.toStringAsFixed(2)}${trip.currency.symbol}',
                               style: const TextStyle(color: Colors.white70)),
                           const SizedBox(height: 8),
                           if (transaction.startDateAmortization != null &&
                               transaction.endDateAmortization != null)
                             Text(
-                                'Rango: ${DateFormat('dd/MM/yyyy').format(transaction.startDateAmortization!)} - '
-                                '${DateFormat('dd/MM/yyyy').format(transaction.endDateAmortization!)}',
+                                '${'range'.tr()}: ${DateFormat('dd/MM/yyyy').format(transaction.startDateAmortization!)} - ${DateFormat('dd/MM/yyyy').format(transaction.endDateAmortization!)}',
                                 style: const TextStyle(color: Colors.white70)),
                         ] else ...[
                           Text(
-                              'Cantidad: ${transaction.amount.toStringAsFixed(2)}${trip.currency.symbol}',
+                              '${'quantity'.tr()}: ${transaction.amount.toStringAsFixed(2)}${trip.currency.symbol}',
                               style: const TextStyle(color: Colors.white70)),
                         ],
                       ] else if (transaction is Income) ...[
-                        const Text('💰 Tipo: Ingreso',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 18)),
                         const SizedBox(height: 10),
                         Text(
-                          'Cantidad: +${transaction.amount.toStringAsFixed(2)}${trip.currency.symbol}',
+                          '${'quantity'.tr()}: +${transaction.amount.toStringAsFixed(2)}${trip.currency.symbol}',
                           style: const TextStyle(color: Colors.white70),
                         ),
                         const SizedBox(height: 5),
                         if (transaction.isRecurrent == true) ...[
                           Text(
-                            'Tipo de recurrencia: ${transaction.recurrentIncomeType?.label}',
+                            '${'recurrency_type'.tr()}: ${transaction.recurrentIncomeType?.key.tr()}',
                             style: const TextStyle(color: Colors.white70),
                           ),
                           const SizedBox(height: 5),
                           if (transaction.nextRecurrentDate != null) ...[
                             if (transaction.active == false) ...[
-                              const Text(
-                                'Ingreso recurrente inactivo',
+                              Text(
+                                'inactive_recurrent_income'.tr(),
                                 style: TextStyle(color: Colors.white70),
                               ),
                             ],
                             const SizedBox(height: 20),
                             Row(
                               children: [
-                                const Text("Activo:",
+                                Text('${'active'.tr()}:',
                                     style: TextStyle(
                                         color: Colors.white, fontSize: 16)),
                                 const SizedBox(width: 12),
@@ -1127,39 +1121,31 @@ class _TripDetailPageState extends State<TripDetailPage>
                               ],
                             ),
                           ] else ...[
-                            const Text(
-                              'Ingreso recurrente pasado',
+                            Text(
+                              'passed_recurrent_income'.tr(),
                               style: TextStyle(color: Colors.white70),
                             ),
                           ],
                         ],
                       ] else if (transaction is Change) ...[
-                        const Text('💱 Tipo: Cambio de divisa',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w500,
-                                fontSize: 18)),
                         const SizedBox(height: 8),
                         Text(
-                            'Gastado: ${transaction.amount.toStringAsFixed(2)} ${transaction.currencySpent.symbol}',
+                            '${'expended'.tr()}: ${transaction.amount.toStringAsFixed(2)} ${transaction.currencySpent.symbol}',
                             style: const TextStyle(color: Colors.white70)),
                         Text(
-                            'Recibido: ${transaction.amountRecived.toStringAsFixed(2)} ${transaction.currencyRecived.symbol}',
+                            '${'reciebed'.tr()}: ${transaction.amountRecived.toStringAsFixed(2)} ${transaction.currencyRecived.symbol}',
                             style: const TextStyle(color: Colors.white70)),
                         Text(
-                            'Comisión: ${(transaction.commission * 100).toStringAsFixed(1)}%',
+                            '${'comission'.tr()}: ${(transaction.commission * 100).toStringAsFixed(1)}%',
                             style: const TextStyle(color: Colors.white70)),
                       ],
-
                       const SizedBox(height: 30),
-
-                      /// Botón cerrar
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton.icon(
                           onPressed: () => Navigator.pop(context),
                           icon: const Icon(Icons.close, color: Colors.white),
-                          label: const Text("Cerrar",
+                          label: Text('to_close'.tr(),
                               style: TextStyle(color: Colors.white)),
                         ),
                       ),
@@ -1190,7 +1176,7 @@ class _TripDetailPageState extends State<TripDetailPage>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Resumen del Viaje',
+                Text('trip_resume'.tr(),
                     style: TextStyle(color: Colors.white, fontSize: 22)),
                 const SizedBox(height: 10),
                 Text(trip.title,
@@ -1199,26 +1185,26 @@ class _TripDetailPageState extends State<TripDetailPage>
                         fontSize: 16,
                         fontWeight: FontWeight.w500)),
                 const SizedBox(height: 24),
-                _buildSectionTitle('Destino'),
+                _buildSectionTitle('destiny'.tr()),
                 _buildInfoText(trip.destination),
                 const SizedBox(height: 16),
-                _buildSectionTitle('Países'),
+                _buildSectionTitle('countries'.tr()),
                 _buildInfoText(trip.countries.map((c) => c.name).join(', ')),
                 const SizedBox(height: 16),
-                _buildSectionTitle('Fechas'),
+                _buildSectionTitle('dates'.tr()),
                 _buildInfoText(_formatTripDates(trip)),
                 const SizedBox(height: 16),
-                _buildSectionTitle('Divisa'),
+                _buildSectionTitle('currency'.tr()),
                 _buildInfoText(
                     '${trip.currency.symbol} - ${trip.currency.name}'),
                 const SizedBox(height: 16),
-                _buildSectionTitle('Presupuesto'),
+                _buildSectionTitle('budget'.tr()),
                 _buildInfoText(
-                    'Límite Máximo: ${budget.maxLimit}${trip.currency.symbol}'),
+                    '${'max_limit'.tr()}: ${budget.maxLimit}${trip.currency.symbol}'),
                 _buildInfoText(
-                    'Límite Deseado: ${budget.desiredLimit}${trip.currency.symbol}'),
+                    '${'desired_limit'.tr()}: ${budget.desiredLimit}${trip.currency.symbol}'),
                 _buildInfoText(
-                    '¿Aumentar límite?: ${budget.limitIncrease ? "Sí" : "No"}'),
+                    '${'lock_limit'.tr()}: ${budget.limitIncrease ? "Sí" : "No"}'),
               ],
             ),
           ),
@@ -1227,7 +1213,7 @@ class _TripDetailPageState extends State<TripDetailPage>
           TextButton(
             onPressed: () => Navigator.pop(context),
             child:
-                const Text('Cerrar', style: TextStyle(color: Colors.white70)),
+                Text('to_close'.tr(), style: TextStyle(color: Colors.white70)),
           ),
         ],
       ),

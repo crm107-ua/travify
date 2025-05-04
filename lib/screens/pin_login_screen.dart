@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:travify/services/settings_service.dart';
 import 'package:video_player/video_player.dart';
@@ -5,7 +6,10 @@ import 'package:another_flushbar/flushbar.dart';
 import 'main_screen.dart';
 
 class PinLoginScreen extends StatefulWidget {
+  const PinLoginScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _PinLoginScreenState createState() => _PinLoginScreenState();
 }
 
@@ -51,7 +55,7 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
             ? Colors.grey[850]!
             : Colors.grey[200]!,
         messageText: Text(
-          "PIN incorrecto",
+          "incorrect_pin".tr(),
           style: TextStyle(
             color: Theme.of(context).brightness == Brightness.dark
                 ? Colors.white
@@ -126,7 +130,7 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            "Introducir PIN",
+                            "input_pin".tr(),
                             style: Theme.of(context)
                                 .textTheme
                                 .headlineMedium
@@ -150,7 +154,7 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
                             onSubmitted: (_) => _handlePinSubmit(),
                             style: TextStyle(color: Colors.white),
                             decoration: InputDecoration(
-                              labelText: "Introduce tu PIN",
+                              labelText: "input_your_pin".tr(),
                               labelStyle: TextStyle(color: Colors.white),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
@@ -178,7 +182,7 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
                                   horizontal: 50, vertical: 15),
                             ),
                             child: Text(
-                              "Acceder",
+                              "go_in".tr(),
                               style:
                                   TextStyle(fontSize: 16, color: Colors.black),
                             ),

@@ -1,9 +1,9 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:intl/intl.dart';
 import 'package:travify/enums/expense_category.dart';
 import 'package:travify/models/change.dart';
 import 'package:travify/models/expense.dart';
@@ -46,12 +46,12 @@ class _DataContentState extends State<DataContent> {
         appBar: AppBar(
           backgroundColor: Colors.black,
           elevation: 0,
-          title: const Padding(
+          title: Padding(
             padding: EdgeInsets.only(top: 20),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                "Estadísticas",
+                "stats".tr(),
                 style: TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -67,7 +67,7 @@ class _DataContentState extends State<DataContent> {
               child: TextField(
                 style: const TextStyle(color: Colors.white),
                 decoration: InputDecoration(
-                  hintText: 'Buscar viaje...',
+                  hintText: 'search_trip'.tr(),
                   hintStyle: const TextStyle(color: Colors.white54),
                   prefixIcon: const Icon(Icons.search, color: Colors.white),
                   filled: true,
@@ -83,8 +83,8 @@ class _DataContentState extends State<DataContent> {
             const SizedBox(height: 8),
             Expanded(
               child: filteredTrips.isEmpty
-                  ? const Center(
-                      child: Text('No hay viajes con datos',
+                  ? Center(
+                      child: Text('not_trips_with_data'.tr(),
                           style: TextStyle(color: Colors.white70)),
                     )
                   : PageView.builder(
@@ -136,6 +136,10 @@ class _TripStatsCardState extends State<_TripStatsCard>
     final trip = widget.trip;
     final expensesByCategory = _generateExpensesByCategory(trip);
     final changesByCurrency = _generateDailyDataGroupedByCurrency(trip);
+    final totalAmount = expensesByCategory.fold<double>(
+      0,
+      (sum, item) => sum + item.amount,
+    );
 
     final legendStyle = const TextStyle(
       color: Colors.white,
@@ -211,10 +215,10 @@ class _TripStatsCardState extends State<_TripStatsCard>
                     indicatorColor: Colors.amber,
                     labelColor: Colors.white,
                     unselectedLabelColor: Colors.white54,
-                    tabs: const [
-                      Tab(text: 'Diario'),
-                      Tab(text: 'Categorías'),
-                      Tab(text: 'Divisas'),
+                    tabs: [
+                      Tab(text: 'diary'.tr()),
+                      Tab(text: 'categories'.tr()),
+                      Tab(text: 'currencies'.tr()),
                     ],
                   ),
                   const SizedBox(height: 12),
@@ -238,7 +242,7 @@ class _TripStatsCardState extends State<_TripStatsCard>
                         ),
                         SfCircularChart(
                           title: ChartTitle(
-                              text: 'Gastos por Categoría',
+                              text: 'expenses_by_category'.tr(),
                               textStyle: legendStyle),
                           legend: Legend(
                             isVisible: true,
@@ -251,8 +255,12 @@ class _TripStatsCardState extends State<_TripStatsCard>
                               dataSource: expensesByCategory,
                               xValueMapper: (data, _) => data.category,
                               yValueMapper: (data, _) => data.amount,
-                              dataLabelMapper: (data, _) =>
-                                  '${data.category}: \${data.amount.toStringAsFixed(2)}',
+                              dataLabelMapper: (data, _) {
+                                final percentage =
+                                    (data.amount / totalAmount * 100)
+                                        .toStringAsFixed(0);
+                                return '${data.category}: $percentage%';
+                              },
                               dataLabelSettings: const DataLabelSettings(
                                 isVisible: true,
                                 labelPosition: ChartDataLabelPosition.outside,
@@ -328,14 +336,14 @@ class _TripStatsCardState extends State<_TripStatsCard>
         ..sort((a, b) => a.date.compareTo(b.date));
       return [
         ColumnSeries<_DailyStat, DateTime>(
-          name: 'Ingresos ($currency)',
+          name: '${'incomes'.tr()} ($currency)',
           dataSource: stats,
           xValueMapper: (d, _) => d.date,
           yValueMapper: (d, _) => d.incomes,
           color: Colors.greenAccent,
         ),
         ColumnSeries<_DailyStat, DateTime>(
-          name: 'Gastos ($currency)',
+          name: '${'expenses'.tr()} ($currency)',
           dataSource: stats,
           xValueMapper: (d, _) => d.date,
           yValueMapper: (d, _) => d.expenses,
@@ -347,11 +355,13 @@ class _TripStatsCardState extends State<_TripStatsCard>
 
   List<_CategoryExpense> _generateExpensesByCategory(Trip trip) {
     final Map<String, double> map = {};
+
     for (var t
         in trip.transactions.where((t) => t.type == TransactionType.expense)) {
-      final cat = (t as Expense).category.label;
+      final cat = (t as Expense).category.key.tr(context: context);
       map[cat] = (map[cat] ?? 0) + t.amount;
     }
+
     return map.entries.map((e) => _CategoryExpense(e.key, e.value)).toList();
   }
 

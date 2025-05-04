@@ -1,7 +1,7 @@
 import 'dart:io';
 
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:travify/constants/images.dart';
 import 'package:travify/models/trip.dart';
@@ -88,9 +88,9 @@ class _HomeContentState extends State<HomeContent>
               ),
               Transform.translate(
                 offset: const Offset(0, -100),
-                child: const Text(
-                  '¡Crea tu primer viaje!',
-                  style: TextStyle(
+                child: Text(
+                  'new_travel'.tr(),
+                  style: const TextStyle(
                     fontSize: 24,
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -135,7 +135,7 @@ class _HomeContentState extends State<HomeContent>
                       titlePadding:
                           EdgeInsets.only(left: 16, bottom: percentage * 50),
                       title: currentTrip == null
-                          ? const Text("Sin viaje actual",
+                          ? Text('no_actual_travel'.tr(),
                               style:
                                   TextStyle(color: Colors.white, fontSize: 20))
                           : GestureDetector(
@@ -176,7 +176,7 @@ class _HomeContentState extends State<HomeContent>
                       child: Container(
                           height: 400,
                           alignment: Alignment.center,
-                          child: const Text('Crea más viajes para verlos aquí',
+                          child: Text('create_more_travel'.tr(),
                               style: TextStyle(fontSize: 20))),
                     )
                   : SliverToBoxAdapter(
@@ -187,7 +187,7 @@ class _HomeContentState extends State<HomeContent>
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Tus Viajes',
+                              'your_travels'.tr(),
                               style: TextStyle(
                                 fontSize: 25,
                                 fontWeight: FontWeight.bold,
@@ -220,8 +220,8 @@ class _HomeContentState extends State<HomeContent>
                                       const SizedBox(width: 9),
                                       Text(
                                         _sortByRecent
-                                            ? 'Más reciente'
-                                            : 'Más lejano',
+                                            ? 'more_recent'.tr()
+                                            : 'less_recent'.tr(),
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
@@ -260,14 +260,14 @@ class _HomeContentState extends State<HomeContent>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         isUpcoming
-            ? const Text(
-                '¡Prepárate para tu próximo viaje!',
+            ? Text(
+                'get_ready'.tr(),
                 style: TextStyle(fontSize: 16, color: Colors.white),
               )
             : Row(
                 children: [
-                  const Text(
-                    'Ahora mismo',
+                  Text(
+                    'now'.tr(),
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.white,

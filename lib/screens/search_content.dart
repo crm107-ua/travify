@@ -1,5 +1,5 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:travify/models/trip.dart';
 import 'package:travify/notifiers/trip_notifier.dart';
@@ -96,7 +96,7 @@ class _SearchContentState extends State<SearchContent>
               Padding(
                 padding: const EdgeInsets.only(top: 76.0, left: 16.0),
                 child: Text(
-                  "Historial",
+                  "history".tr(),
                   style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -111,7 +111,7 @@ class _SearchContentState extends State<SearchContent>
                     TextField(
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
-                        hintText: 'Buscar por título o destino...',
+                        hintText: 'search_by_title_or_destiny'.tr(),
                         hintStyle: const TextStyle(color: Colors.white54),
                         filled: true,
                         fillColor: Colors.grey[850],
@@ -191,7 +191,7 @@ class _SearchContentState extends State<SearchContent>
                             ),
                             child: Text(
                               _startDate == null
-                                  ? 'Fecha desde'
+                                  ? 'date_from'.tr()
                                   : DateFormat('dd/MM/yyyy')
                                       .format(_startDate!),
                               style: const TextStyle(
@@ -217,7 +217,7 @@ class _SearchContentState extends State<SearchContent>
                             ),
                             child: Text(
                               _endDate == null
-                                  ? 'Fecha hasta'
+                                  ? 'date_to'.tr()
                                   : DateFormat('dd/MM/yyyy').format(_endDate!),
                               style: const TextStyle(
                                   fontSize: 14, fontWeight: FontWeight.bold),
@@ -230,7 +230,7 @@ class _SearchContentState extends State<SearchContent>
                             icon: const Icon(Icons.delete_forever,
                                 color: Colors.redAccent),
                             onPressed: _resetDates,
-                            tooltip: 'Borrar fechas',
+                            tooltip: 'delete_dates'.tr(),
                           ),
                         ],
                         const SizedBox(width: 30),
@@ -238,25 +238,25 @@ class _SearchContentState extends State<SearchContent>
                           value: _onlyOpen,
                           dropdownColor: Colors.grey[900],
                           underline: Container(), // Quitamos línea
-                          hint: const Text('Estado',
+                          hint: Text('state'.tr(),
                               style: TextStyle(color: Colors.white)),
                           onChanged: (value) {
                             setState(() => _onlyOpen = value);
                           },
-                          items: const [
+                          items: [
                             DropdownMenuItem(
                               value: null,
-                              child: Text('Todos',
+                              child: Text('everything'.tr(),
                                   style: TextStyle(color: Colors.white)),
                             ),
                             DropdownMenuItem(
                               value: true,
-                              child: Text('Abiertos',
+                              child: Text('opened'.tr(),
                                   style: TextStyle(color: Colors.white)),
                             ),
                             DropdownMenuItem(
                               value: false,
-                              child: Text('Cerrados',
+                              child: Text('closed'.tr(),
                                   style: TextStyle(color: Colors.white)),
                             ),
                           ],
@@ -268,8 +268,8 @@ class _SearchContentState extends State<SearchContent>
               ),
               Expanded(
                 child: _filteredTrips.isEmpty
-                    ? const Center(
-                        child: Text('No hay viajes encontrados',
+                    ? Center(
+                        child: Text('no_trips_found'.tr(),
                             style: TextStyle(color: Colors.white70)),
                       )
                     : ListView.builder(
@@ -303,7 +303,7 @@ class _SearchContentState extends State<SearchContent>
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Destino: ${trip.destination}',
+                                      '${'destiny'.tr()}: ${trip.destination}',
                                       style: const TextStyle(
                                           color: Colors.white70, fontSize: 14),
                                     ),
@@ -334,7 +334,7 @@ class _SearchContentState extends State<SearchContent>
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      'Países: ${trip.countries.map((c) => c.name).join(', ')}',
+                                      '${'countries'.tr()}: ${trip.countries.map((c) => c.name).join(', ')}',
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                       style: const TextStyle(
@@ -345,8 +345,8 @@ class _SearchContentState extends State<SearchContent>
                                     const SizedBox(height: 4),
                                     Text(
                                       trip.open
-                                          ? 'Estado: Abierto'
-                                          : 'Estado: Cerrado',
+                                          ? '${'state'.tr()}: ${'open'.tr()}'
+                                          : '${'state'.tr()}: ${'closed'.tr()}',
                                       style: TextStyle(
                                         fontSize: 13,
                                         color: trip.open

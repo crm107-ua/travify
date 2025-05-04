@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:search_choices/search_choices.dart';
@@ -110,8 +111,8 @@ class _ChangeFormState extends State<ChangeForm> {
       child: Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
-          title: const Text(
-            'Cambio de divisas',
+          title: Text(
+            'currency_change'.tr(),
             style: TextStyle(color: Colors.white, fontSize: 19),
           ),
           backgroundColor: Colors.black,
@@ -130,7 +131,7 @@ class _ChangeFormState extends State<ChangeForm> {
                   onCurrencyChanged: (val) => setState(() {
                     _fromCurrency = val;
                   }),
-                  label: 'Cantidad origen',
+                  label: 'origin_quantity'.tr(),
                 ),
                 const SizedBox(height: 20),
                 // Campo: Cantidad Destino
@@ -179,7 +180,7 @@ class _ChangeFormState extends State<ChangeForm> {
             },
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Ingrese una cantidad';
+                return 'input_quantity'.tr();
               }
               return null;
             },
@@ -196,8 +197,8 @@ class _ChangeFormState extends State<ChangeForm> {
               );
             }).toList(),
             value: currency,
-            hint: 'Selecciona una divisa',
-            searchHint: 'Buscar divisa...',
+            hint: 'currency_select'.tr(),
+            searchHint: 'search_currency'.tr(),
             onChanged: (val) {
               onCurrencyChanged(val);
               // Esto también refresca la vista previa si cambias la divisa
@@ -231,8 +232,8 @@ class _ChangeFormState extends State<ChangeForm> {
               FilteringTextInputFormatter.allow(
                   RegExp(r'^\d{0,2}(\.\d{0,2})?$')),
             ],
-            decoration: const InputDecoration(
-              labelText: 'Comisión',
+            decoration: InputDecoration(
+              labelText: 'comission'.tr(),
               suffixText: '%',
             ),
             // Aquí usas onChanged
@@ -252,8 +253,8 @@ class _ChangeFormState extends State<ChangeForm> {
               );
             }).toList(),
             value: currency,
-            hint: 'Selecciona una divisa',
-            searchHint: 'Buscar divisa...',
+            hint: 'currency_select'.tr(),
+            searchHint: 'search_currency'.tr(),
             onChanged: (val) {
               onCurrencyChanged(val);
               setState(() {});
@@ -287,8 +288,8 @@ class _ChangeFormState extends State<ChangeForm> {
         commissionValue.isNotEmpty;
 
     if (!allFieldsFilled) {
-      return const Text(
-        'Por favor, completa todos los campos para ver la vista previa del cambio.',
+      return Text(
+        'change_complete_inputs'.tr(),
         style: TextStyle(color: Colors.white),
       );
     }
@@ -303,7 +304,7 @@ class _ChangeFormState extends State<ChangeForm> {
       ),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return const Center(
+          return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -311,7 +312,7 @@ class _ChangeFormState extends State<ChangeForm> {
                 CircularProgressIndicator(),
                 SizedBox(height: 20),
                 Text(
-                  'Optimizando cambio de divisa...',
+                  'change_optimization'.tr(),
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ],
@@ -370,25 +371,23 @@ class _ChangeFormState extends State<ChangeForm> {
             : top3[_selectedChipIndex].$1;
 
         final String rutaTexto = _selectedOption == RouteOption.direct
-            ? 'ruta directa'
-            : 'ruta #${_selectedChipIndex + 1}';
+            ? 'direct_path'.tr()
+            : '${'path'.tr()} ${_selectedChipIndex + 1}';
 
-        String comparacion = 'No se puede comparar con ruta directa.';
+        String comparacion = 'not_compare_direct_path'.tr();
         if (montoDirecto != null) {
           final diff = chosenMonto - montoDirecto;
           if (diff > 0) {
             comparacion =
-                'La ruta #${_selectedOption == RouteOption.direct ? 1 : _selectedChipIndex + 1} supera a la directa en ${diff.toStringAsFixed(2)} $destino.';
+                '${'the_path'.tr()} #${_selectedOption == RouteOption.direct ? 1 : _selectedChipIndex + 1} ${'in_best_direct_path'.tr()} ${diff.toStringAsFixed(2)} $destino.';
           } else if (diff < 0) {
             comparacion =
-                'La ruta directa supera a la #${_selectedOption == RouteOption.direct ? 1 : _selectedChipIndex + 1} en ${(-diff).toStringAsFixed(2)} $destino.';
+                '${'in_best_direct_path_to'.tr()} #${_selectedOption == RouteOption.direct ? 1 : _selectedChipIndex + 1} en ${(-diff).toStringAsFixed(2)} $destino.';
           } else {
             if (_selectedChipIndex == 0) {
-              comparacion =
-                  'La ruta directa y la seleccionada dan el mismo resultado.';
+              comparacion = 'same_result_path'.tr();
             } else {
-              comparacion =
-                  'La ruta directa y la mejor ruta dan el mismo resultado.';
+              comparacion = 'same_result_path_selected'.tr();
             }
           }
         }
@@ -460,7 +459,7 @@ class _ChangeFormState extends State<ChangeForm> {
                                     ? Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
-                                        children: const [
+                                        children: [
                                           SizedBox(
                                             width: 20,
                                             height: 20,
@@ -473,7 +472,7 @@ class _ChangeFormState extends State<ChangeForm> {
                                           ),
                                           SizedBox(width: 12),
                                           Text(
-                                            'Confirmando...',
+                                            'confirming'.tr(),
                                             style: TextStyle(
                                                 fontSize: 16,
                                                 color: Colors.black),
@@ -483,12 +482,12 @@ class _ChangeFormState extends State<ChangeForm> {
                                     : Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
-                                        children: const [
+                                        children: [
                                           Icon(Icons.currency_exchange,
                                               color: Colors.black),
                                           SizedBox(width: 12),
                                           Text(
-                                            'Confirmar cambio',
+                                            'confirm_change'.tr(),
                                             style: TextStyle(
                                                 fontSize: 16,
                                                 color: Colors.black),
@@ -527,10 +526,10 @@ class _ChangeFormState extends State<ChangeForm> {
                                 },
                                 children: [
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12),
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 12),
                                     child: Text(
-                                      'Directa',
+                                      'direct'.tr(),
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
@@ -541,7 +540,7 @@ class _ChangeFormState extends State<ChangeForm> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 12, vertical: 15.5),
                                     child: Text(
-                                      'Óptima',
+                                      'optim'.tr(),
                                       style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold,
@@ -561,11 +560,11 @@ class _ChangeFormState extends State<ChangeForm> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: const [
+                    children: [
                       Icon(Icons.info, color: Colors.white),
                       SizedBox(width: 4),
                       Text(
-                        'Información de cambio:',
+                        '${'change_info'.tr()}:',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -585,7 +584,7 @@ class _ChangeFormState extends State<ChangeForm> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          'Has elegido la $rutaTexto: ${displayMonto.toStringAsFixed(2)} $destino.',
+                          '${'you_have_chosen'.tr()} $rutaTexto: ${displayMonto.toStringAsFixed(2)} $destino.',
                           style: const TextStyle(
                               color: Colors.white,
                               fontSize: 14,
@@ -604,13 +603,13 @@ class _ChangeFormState extends State<ChangeForm> {
                   ),
                   child: hasDirectRoute
                       ? Text(
-                          'Ruta directa $origen → $destino: '
+                          '${'direct_path'.tr()} $origen → $destino: '
                           '${montoDirecto!.toStringAsFixed(2)} $destino',
                           style: const TextStyle(
                               color: Colors.white, fontSize: 14),
                         )
-                      : const Text(
-                          'No hay ruta directa disponible.',
+                      : Text(
+                          'not_direct_path_available'.tr(),
                           style: TextStyle(color: Colors.white, fontSize: 14),
                         ),
                 ),
@@ -661,9 +660,9 @@ class _ChangeFormState extends State<ChangeForm> {
                         ),
                         child: Text(
                           comisionPromedia > 0
-                              ? 'Comisión promedio de $origen → $destino: '
+                              ? '${'average_commission'.tr()} $origen → $destino: '
                                   '${comisionPromedia.toStringAsFixed(2)}%'
-                              : 'No se encontró comisión promedio',
+                              : 'not_average_commission_find'.tr(),
                           style: const TextStyle(
                               color: Colors.white, fontSize: 14),
                         ),

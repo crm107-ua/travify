@@ -1,7 +1,9 @@
 import 'package:another_flushbar/flushbar.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:travify/constants/images.dart';
 import 'package:travify/models/currency.dart';
 import 'package:travify/models/trip.dart';
 import 'package:travify/models/budget.dart';
@@ -129,7 +131,7 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
     );
 
     if (tripExistsWithDate) {
-      _showSnackBar("Ya existe un viaje con esa fecha de inicio.");
+      _showSnackBar("travel_exists_to_this_init_date".tr());
       return;
     }
 
@@ -140,7 +142,7 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
         excludeTripId: trip.id != 0 ? trip.id : null,
       );
       if (conflict) {
-        _showSnackBar("Ya existe un viaje en esas fechas.");
+        _showSnackBar("travel_exixts_with_dates".tr());
         return;
       }
     }
@@ -215,7 +217,7 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
         return StatefulBuilder(
           builder: (context, setStateDialog) {
             return AlertDialog(
-              title: Text("Seleccione países",
+              title: Text("select_countries".tr(),
                   style: TextStyle(color: Colors.white)),
               backgroundColor: Colors.black,
               content: SizedBox(
@@ -247,8 +249,8 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child:
-                      Text("Cancelar", style: TextStyle(color: Colors.white)),
+                  child: Text("cancel".tr(),
+                      style: TextStyle(color: Colors.white)),
                 ),
                 TextButton(
                   onPressed: () {
@@ -258,7 +260,8 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
                     });
                     Navigator.pop(context);
                   },
-                  child: Text("Aceptar", style: TextStyle(color: Colors.white)),
+                  child: Text("accept".tr(),
+                      style: TextStyle(color: Colors.white)),
                 ),
               ],
             );
@@ -275,32 +278,31 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
       case 0:
         if (_titleController.text.isEmpty ||
             _destinationController.text.isEmpty) {
-          _showSnackBar(
-              "Por favor, complete todos los campos obligatorios en Información");
+          _showSnackBar("complete_info_fields".tr());
           hasStepError = true;
         }
         break;
 
       case 1:
         if (_selectedCountries.isEmpty) {
-          _showSnackBar("Por favor, seleccione al menos un país");
+          _showSnackBar("select_a_country_at_least".tr());
           hasStepError = true;
         }
         break;
 
       case 2:
         if (_dateStart == null) {
-          _showSnackBar("Por favor, seleccione una fecha de inicio");
+          _showSnackBar("select_init_date".tr());
           hasStepError = true;
         } else if (_dateEnd != null && _dateEnd!.isBefore(_dateStart!)) {
-          _showSnackBar("La fecha de fin no puede ser anterior a la de inicio");
+          _showSnackBar("date_before_not_ok".tr());
           hasStepError = true;
         } else if (DateTime(
                     _dateStart!.year, _dateStart!.month, _dateStart!.day)
                 .isBefore(DateTime(DateTime.now().year, DateTime.now().month,
                     DateTime.now().day)) &&
             widget.trip == null) {
-          _showSnackBar("La fecha de inicio no puede ser anterior a hoy");
+          _showSnackBar("date_before_today".tr());
           hasStepError = true;
         }
         break;
@@ -308,18 +310,16 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
       case 3:
         if (_maxLimitController.text.isEmpty ||
             _desiredLimitController.text.isEmpty) {
-          _showSnackBar("Por favor, complete el presupuesto");
+          _showSnackBar("budget_complete".tr());
           hasStepError = true;
         } else if (!RegExp(r'^\d+(\.\d{1,2})?$')
             .hasMatch(_maxLimitController.text)) {
-          _showSnackBar(
-              "Ingrese un valor numérico válido con hasta 2 decimales");
+          _showSnackBar("valid_number_two_decimal".tr());
           hasStepError = true;
         } else if (_maxLimitController.text.isNotEmpty &&
             double.parse(_maxLimitController.text) <
                 double.parse(_desiredLimitController.text)) {
-          _showSnackBar(
-              "El límite máximo no puede ser menor al límite deseado");
+          _showSnackBar("error_limits".tr());
           hasStepError = true;
         }
         break;
@@ -351,7 +351,7 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
         dateEnd: _dateEnd,
         destination: _destinationController.text,
         image: _pickedImageFile?.path ??
-            "https://www.stokedtotravel.com/wp-content/uploads/2020/12/Railay-Bay.jpg",
+            AppImages.defaultImage, // Cambia a la imagen por defecto
         open: true,
         budget: budget,
         currency: _selectedCurrency!,
@@ -400,7 +400,7 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
         backgroundColor: Colors.black,
         appBar: AppBar(
           title: Text(
-            widget.trip != null ? 'Editar viaje' : 'Crea tu nuevo viaje',
+            widget.trip != null ? 'edit_travel'.tr() : 'create_new_travel'.tr(),
             style: TextStyle(fontSize: 19),
           ),
           backgroundColor: Colors.black,
@@ -421,22 +421,22 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
               onStepCancel: _onStepCancel,
               steps: [
                 Step(
-                    title: Text('Información',
+                    title: Text('information'.tr(),
                         style: TextStyle(color: Colors.white)),
                     isActive: _currentStep >= 0,
                     content: _buildInfoStep()),
                 Step(
-                    title:
-                        Text('Países', style: TextStyle(color: Colors.white)),
+                    title: Text('countries'.tr(),
+                        style: TextStyle(color: Colors.white)),
                     isActive: _currentStep >= 1,
                     content: _buildCountryStep()),
                 Step(
-                    title:
-                        Text('Fechas', style: TextStyle(color: Colors.white)),
+                    title: Text('dates'.tr(),
+                        style: TextStyle(color: Colors.white)),
                     isActive: _currentStep >= 2,
                     content: _buildDateStep()),
                 Step(
-                    title: Text('Presupuesto',
+                    title: Text('budget'.tr(),
                         style: TextStyle(color: Colors.white)),
                     isActive: _currentStep >= 3,
                     content: _buildBudgetStep()),
@@ -451,12 +451,13 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
   Widget _buildInfoStep() => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTextField(_titleController, 'Título', isRequired: true),
-          _buildTextField(_descriptionController, 'Descripción',
+          _buildTextField(_titleController, 'title'.tr(), isRequired: true),
+          _buildTextField(_descriptionController, 'description'.tr(),
               isRequired: true),
-          _buildTextField(_destinationController, 'Destino', isRequired: true),
+          _buildTextField(_destinationController, 'destiny'.tr(),
+              isRequired: true),
           const SizedBox(height: 20),
-          const Text('Foto del viaje', style: TextStyle(color: Colors.white)),
+          Text('trip_photo'.tr(), style: TextStyle(color: Colors.white)),
           const SizedBox(height: 20),
           Center(
             child: GestureDetector(
@@ -484,8 +485,8 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
   Widget _buildCountryStep() => ListTile(
       title: Text(
           _selectedCountries.isEmpty
-              ? 'Seleccione pais(es)'
-              : 'Países: ${_selectedCountries.map((c) => c.name).join(', ')}',
+              ? 'select_countries'.tr()
+              : '${'countries'.tr()}: ${_selectedCountries.map((c) => c.name).join(', ')}',
           style: TextStyle(color: Colors.white)),
       trailing: Icon(Icons.arrow_drop_down, color: Colors.white),
       onTap: _showCountryMultiSelect);
@@ -495,8 +496,8 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
           ListTile(
             title: Text(
               _dateStart == null
-                  ? 'Seleccione fecha de inicio'
-                  : 'Inicio: ${_dateStart!.toLocal().toString().split(' ')[0]}',
+                  ? 'select_start_date'.tr()
+                  : '${'init'.tr()}: ${_dateStart!.toLocal().toString().split(' ')[0]}',
               style: TextStyle(color: Colors.white),
             ),
             trailing: Icon(Icons.calendar_today, color: Colors.white),
@@ -505,8 +506,8 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
           ListTile(
             title: Text(
               _dateEnd == null
-                  ? 'Seleccione fecha de finalización'
-                  : 'Fin: ${_dateEnd!.toLocal().toString().split(' ')[0]}',
+                  ? 'select_end_date'.tr()
+                  : '${'end'.tr()}: ${_dateEnd!.toLocal().toString().split(' ')[0]}',
               style: TextStyle(color: Colors.white),
             ),
             trailing: Icon(Icons.calendar_today, color: Colors.white),
@@ -521,7 +522,7 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
           isExpanded: true,
           dropdownColor: Colors.grey[850],
           decoration: InputDecoration(
-            labelText: "Divisa por defecto",
+            labelText: "default_currency".tr(),
             labelStyle: TextStyle(color: Colors.white),
           ),
           style: TextStyle(color: Colors.white),
@@ -538,28 +539,27 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
           },
           validator: (Currency? value) {
             if (_allCurrencies.isNotEmpty && value == null) {
-              return 'Seleccione una moneda';
+              return 'select_currency'.tr();
             }
             return null; // No valida si aún no existen monedas disponibles
           },
         ),
         SizedBox(height: 5),
         _buildCurrencyTextField(
-            _maxLimitController, 'Límite Máximo', _maxLimitTouched, () {
+            _maxLimitController, 'max_limit'.tr(), _maxLimitTouched, () {
           setState(() {
             _maxLimitTouched = true;
           });
         }),
         _buildCurrencyTextField(
-            _desiredLimitController, 'Límite Deseado', _desiredLimitTouched,
+            _desiredLimitController, 'desired_limit'.tr(), _desiredLimitTouched,
             () {
           setState(() {
             _desiredLimitTouched = true;
           });
         }),
         CheckboxListTile(
-          title:
-              Text('¿Aumentar límite?', style: TextStyle(color: Colors.white)),
+          title: Text('lock_limit'.tr(), style: TextStyle(color: Colors.white)),
           value: _limitIncrease,
           onChanged: (bool? value) {
             setState(() {
@@ -592,10 +592,10 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
       },
       validator: (value) {
         if (touchedFlag && (value == null || value.isEmpty)) {
-          return 'Campo obligatorio';
+          return 'required_field'.tr();
         }
         if (touchedFlag && !RegExp(r'^\d+(\.\d{1,2})?$').hasMatch(value!)) {
-          return 'Ingrese un valor numérico válido con hasta 2 decimales';
+          return 'valid_number_two_decimal'.tr();
         }
         return null;
       },
@@ -613,7 +613,7 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
       ),
       validator: (value) {
         if (isRequired && (value == null || value.isEmpty)) {
-          return 'Campo obligatorio';
+          return 'required_field'.tr();
         }
         return null;
       },

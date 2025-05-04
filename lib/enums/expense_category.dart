@@ -7,18 +7,18 @@ enum ExpenseCategory {
 }
 
 extension ExpenseCategoryExtension on ExpenseCategory {
-  String get label {
+  String get key {
     switch (this) {
       case ExpenseCategory.accommodation:
-        return 'Alojamiento';
+        return 'accommodation';
       case ExpenseCategory.food:
-        return 'Comida';
+        return 'food';
       case ExpenseCategory.transport:
-        return 'Transporte';
+        return 'transport';
       case ExpenseCategory.tourism:
-        return 'Turismo';
+        return 'tourism';
       case ExpenseCategory.others:
-        return 'Otros';
+        return 'others';
     }
   }
 }

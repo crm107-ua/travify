@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import '../services/settings_service.dart';
 import 'package:another_flushbar/flushbar.dart';
@@ -26,7 +27,7 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
         backgroundColor: colorFondo,
         elevation: 0,
         title: Text(
-          "Configurar PIN",
+          "configure_pin".tr(),
           style: Theme.of(context).textTheme.headlineMedium,
         ),
         iconTheme: IconThemeData(
@@ -43,14 +44,14 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
               controller: _pinController,
               obscureText: true,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: "Introduce un PIN"),
+              decoration: InputDecoration(labelText: "input_a_pin".tr()),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _confirmPinController,
               obscureText: true,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: "Confirma el PIN"),
+              decoration: InputDecoration(labelText: "confirm_pin".tr()),
             ),
             const SizedBox(height: 20),
             ElevatedButton(
@@ -70,7 +71,7 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
                             ? Colors.grey[850]!
                             : Colors.grey[200]!,
                     messageText: Text(
-                      "Ambos campos son obligatorios",
+                      "both_fields_are_required".tr(),
                       style: TextStyle(
                         color: Theme.of(context).brightness == Brightness.dark
                             ? Colors.white
@@ -93,7 +94,7 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
                             ? Colors.grey[850]!
                             : Colors.grey[200]!,
                     messageText: Text(
-                      "Los PINs no coinciden",
+                      "pint_not_match".tr(),
                       style: TextStyle(
                         color: Theme.of(context).brightness == Brightness.dark
                             ? Colors.white
@@ -117,7 +118,7 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
                           ? Colors.grey[850]!
                           : Colors.grey[200]!,
                   messageText: Text(
-                    "PIN guardado",
+                    "pin_saved".tr(),
                     style: TextStyle(
                       color: Theme.of(context).brightness == Brightness.dark
                           ? Colors.white
@@ -132,7 +133,7 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
                 backgroundColor: Colors.white,
                 foregroundColor: Colors.black,
               ),
-              child: const Text("Guardar PIN"),
+              child: Text("to_save_pin".tr()),
             ),
           ],
         ),

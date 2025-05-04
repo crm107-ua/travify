@@ -1,6 +1,6 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:travify/enums/recurrent_income_type.dart';
 import 'package:travify/models/income.dart';
 import 'package:travify/models/trip.dart';
@@ -14,7 +14,7 @@ class IncomeForm extends StatefulWidget {
     super.key,
     this.income,
     required this.onSave,
-    required this.trip, // ✅ nuevo parámetro
+    required this.trip,
   });
 
   @override
@@ -105,7 +105,7 @@ class _IncomeFormState extends State<IncomeForm> {
         backgroundColor: Colors.black,
         appBar: AppBar(
           title: Text(
-            widget.income != null ? 'Editar ingreso' : 'Nuevo ingreso',
+            widget.income != null ? 'edit_income'.tr() : 'new_income'.tr(),
             style: TextStyle(fontSize: 19),
           ),
           backgroundColor: Colors.black,
@@ -120,8 +120,8 @@ class _IncomeFormState extends State<IncomeForm> {
                 TextFormField(
                   controller: _descriptionController,
                   style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    labelText: 'Descripción',
+                  decoration: InputDecoration(
+                    labelText: 'description'.tr(),
                     labelStyle: TextStyle(color: Colors.white70),
                   ),
                 ),
@@ -130,7 +130,8 @@ class _IncomeFormState extends State<IncomeForm> {
                   controller: _amountController,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                    labelText: 'Cantidad (${widget.trip.currency.symbol})',
+                    labelText:
+                        '${'quantity'.tr()} (${widget.trip.currency.symbol})',
                     labelStyle: const TextStyle(color: Colors.white70),
                   ),
                   keyboardType:
@@ -141,10 +142,10 @@ class _IncomeFormState extends State<IncomeForm> {
                   ],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Este campo es obligatorio';
+                      return 'required_field'.tr();
                     }
                     if (double.tryParse(value) == null) {
-                      return 'Ingrese un número válido';
+                      return 'invalid_number'.tr();
                     }
                     return null;
                   },
@@ -156,7 +157,7 @@ class _IncomeFormState extends State<IncomeForm> {
                     Expanded(
                       child: ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('¿Ingreso recurrente?',
+                        title: Text('recurrent_iq'.tr(),
                             style: TextStyle(color: Colors.white)),
                       ),
                     ),
@@ -176,8 +177,8 @@ class _IncomeFormState extends State<IncomeForm> {
                 if (_isRecurrent) ...[
                   DropdownButtonFormField<RecurrentIncomeType>(
                     value: _recurrentType,
-                    decoration: const InputDecoration(
-                      labelText: 'Tipo de recurrencia',
+                    decoration: InputDecoration(
+                      labelText: 'recurrency_type'.tr(),
                       labelStyle: TextStyle(color: Colors.white),
                     ),
                     dropdownColor: Colors.grey[900],
@@ -185,7 +186,7 @@ class _IncomeFormState extends State<IncomeForm> {
                     items: RecurrentIncomeType.values.map((type) {
                       return DropdownMenuItem(
                         value: type,
-                        child: Text(type.label),
+                        child: Text(type.key.tr()),
                       );
                     }).toList(),
                     onChanged: (type) => setState(() {
@@ -194,7 +195,7 @@ class _IncomeFormState extends State<IncomeForm> {
                     }),
                     validator: (value) {
                       if (_isRecurrent && value == null) {
-                        return 'Seleccione un tipo';
+                        return 'select_type'.tr();
                       }
                       return null;
                     },
@@ -202,7 +203,7 @@ class _IncomeFormState extends State<IncomeForm> {
                   const SizedBox(height: 10),
                   if (_nextDate != null)
                     Text(
-                      'Próxima fecha: ${DateFormat('dd/MM/yyyy').format(_nextDate!)}',
+                      '${'next_date'.tr()}: ${DateFormat('dd/MM/yyyy').format(_nextDate!)}',
                       style:
                           const TextStyle(color: Colors.white70, fontSize: 14),
                     ),
@@ -213,7 +214,7 @@ class _IncomeFormState extends State<IncomeForm> {
                       Expanded(
                         child: ListTile(
                           contentPadding: EdgeInsets.zero,
-                          title: const Text('¿Activo?',
+                          title: Text('active_iq'.tr(),
                               style: TextStyle(color: Colors.white)),
                         ),
                       ),
@@ -232,8 +233,8 @@ class _IncomeFormState extends State<IncomeForm> {
                       backgroundColor: Colors.white,
                       foregroundColor: Colors.black),
                   child: Text(widget.income != null
-                      ? 'Guardar cambios'
-                      : 'Crear ingreso'),
+                      ? 'save_changes'.tr()
+                      : 'create_income'.tr()),
                 ),
               ],
             ),

@@ -6,16 +6,16 @@ enum RecurrentIncomeType {
 }
 
 extension RecurrentIncomeTypeExtension on RecurrentIncomeType {
-  String get label {
+  String get key {
     switch (this) {
       case RecurrentIncomeType.daily:
-        return 'Diaria';
+        return 'daily';
       case RecurrentIncomeType.weekly:
-        return 'Semanal';
+        return 'weekly';
       case RecurrentIncomeType.monthly:
-        return 'Mensual';
+        return 'monthly';
       case RecurrentIncomeType.yearly:
-        return 'Anual';
+        return 'yearly';
     }
   }
 }

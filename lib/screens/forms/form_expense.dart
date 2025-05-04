@@ -1,9 +1,9 @@
 import 'dart:ui';
 
 import 'package:another_flushbar/flushbar.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:travify/enums/expense_category.dart';
 import 'package:travify/enums/transaction_type.dart';
 import 'package:travify/models/expense.dart';
@@ -179,7 +179,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
         backgroundColor: Colors.black,
         appBar: AppBar(
           title: Text(
-            widget.expense != null ? 'Editar gasto' : 'Nuevo gasto',
+            widget.expense != null ? 'edit_expense'.tr() : 'new_expense'.tr(),
             style: const TextStyle(fontSize: 19),
           ),
           backgroundColor: Colors.black,
@@ -194,8 +194,8 @@ class _ExpenseFormState extends State<ExpenseForm> {
                 TextFormField(
                   controller: _descriptionController,
                   style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    labelText: 'Descripción',
+                  decoration: InputDecoration(
+                    labelText: 'description'.tr(),
                     labelStyle: TextStyle(color: Colors.white70),
                   ),
                 ),
@@ -204,7 +204,8 @@ class _ExpenseFormState extends State<ExpenseForm> {
                   controller: _amountController,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                    labelText: 'Cantidad (${widget.trip.currency.symbol})',
+                    labelText:
+                        '${'quantity'.tr()} (${widget.trip.currency.symbol})',
                     labelStyle: const TextStyle(color: Colors.white70),
                   ),
                   keyboardType:
@@ -216,10 +217,10 @@ class _ExpenseFormState extends State<ExpenseForm> {
                   onChanged: (_) => _calculateDailyAmortization(),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Este campo es obligatorio';
+                      return 'required_field'.tr();
                     }
                     if (double.tryParse(value) == null) {
-                      return 'Ingrese un número válido';
+                      return 'invalid_number'.tr();
                     }
                     return null;
                   },
@@ -227,8 +228,8 @@ class _ExpenseFormState extends State<ExpenseForm> {
                 const SizedBox(height: 10),
                 DropdownButtonFormField<ExpenseCategory>(
                   value: _category,
-                  decoration: const InputDecoration(
-                    labelText: 'Categoría',
+                  decoration: InputDecoration(
+                    labelText: 'category'.tr(),
                     labelStyle: TextStyle(color: Colors.white),
                   ),
                   dropdownColor: Colors.grey[900],
@@ -236,16 +237,16 @@ class _ExpenseFormState extends State<ExpenseForm> {
                   items: ExpenseCategory.values.map((category) {
                     return DropdownMenuItem(
                       value: category,
-                      child: Text(category.label),
+                      child: Text(category.key.tr(context: context)),
                     );
                   }).toList(),
                   onChanged: (cat) => setState(() => _category = cat),
                   validator: (value) =>
-                      value == null ? 'Seleccione una categoría' : null,
+                      value == null ? 'category_select'.tr() : null,
                 ),
                 const SizedBox(height: 15),
                 SwitchListTile(
-                  title: const Text('¿Amortizable?',
+                  title: Text('amortizatoion_iq'.tr(),
                       style: TextStyle(color: Colors.white)),
                   value: _isAmortization,
                   onChanged: (val) => setState(() => _isAmortization = val),
@@ -255,8 +256,8 @@ class _ExpenseFormState extends State<ExpenseForm> {
                   ListTile(
                     title: Text(
                         _startDateAmortization != null
-                            ? 'Inicio: ${DateFormat('dd/MM/yyyy').format(_startDateAmortization!)}'
-                            : 'Fecha de inicio',
+                            ? '${'init'.tr()}: ${DateFormat('dd/MM/yyyy').format(_startDateAmortization!)}'
+                            : 'date_init'.tr(),
                         style: const TextStyle(color: Colors.white)),
                     trailing:
                         const Icon(Icons.calendar_today, color: Colors.white),
@@ -268,8 +269,8 @@ class _ExpenseFormState extends State<ExpenseForm> {
                   ListTile(
                     title: Text(
                         _endDateAmortization != null
-                            ? 'Fin: ${DateFormat('dd/MM/yyyy').format(_endDateAmortization!)}'
-                            : 'Fecha de fin',
+                            ? '${'end'.tr()}: ${DateFormat('dd/MM/yyyy').format(_endDateAmortization!)}'
+                            : 'date_end'.tr(),
                         style: const TextStyle(color: Colors.white)),
                     trailing:
                         const Icon(Icons.calendar_today, color: Colors.white),
@@ -282,7 +283,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                     Padding(
                       padding: const EdgeInsets.only(top: 10),
                       child: Text(
-                          'Amortización diaria: ${_dailyAmortization!.toStringAsFixed(2)} ${widget.trip.currency.symbol}',
+                          '${'daily_amortization'.tr()}: ${_dailyAmortization!.toStringAsFixed(2)} ${widget.trip.currency.symbol}',
                           style: const TextStyle(color: Colors.white70)),
                     ),
                 ],
@@ -341,21 +342,19 @@ class _ExpenseFormState extends State<ExpenseForm> {
                     if (!trip.budget.limitIncrease) {
                       if (totalExpensesWithNew > maxAvailableToSpend) {
                         _showSnackBar(
-                            'Límite de gasto superado: ${trip.budget.maxLimit} ${trip.currency.symbol}');
+                            '${'expense_limit_not_ok'.tr()}: ${trip.budget.maxLimit} ${trip.currency.symbol}');
                         return;
                       }
                     }
                     if (_isAmortization && _endDateAmortization != null) {
                       if (_endDateAmortization!
                           .isBefore(_startDateAmortization!)) {
-                        _showSnackBar(
-                            'La fecha de fin no puede ser anterior a la fecha de inicio');
+                        _showSnackBar('date_before_not_ok'.tr());
                         return;
                       }
                       if (_endDateAmortization!
                           .isAtSameMomentAs(_startDateAmortization!)) {
-                        _showSnackBar(
-                            'La fecha de fin no puede ser igual a la fecha de inicio');
+                        _showSnackBar('date_equal_not_ok'.tr());
                         return;
                       }
                     }
@@ -366,8 +365,8 @@ class _ExpenseFormState extends State<ExpenseForm> {
                       backgroundColor: Colors.white,
                       foregroundColor: Colors.black),
                   child: Text(widget.expense != null
-                      ? 'Guardar cambios'
-                      : 'Crear gasto'),
+                      ? 'save_changes'.tr()
+                      : 'create_expense'.tr()),
                 ),
               ],
             ),
