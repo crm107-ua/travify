@@ -1,53 +1,56 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:another_flushbar/flushbar.dart';
+import 'package:easy_localization/easy_localization.dart';
+import 'package:travify/models/currency.dart';
 import 'package:travify/services/country_service.dart';
+import 'package:travify/services/currency_service.dart';
+import 'package:travify/services/settings_service.dart';
 
-class LanguageSetupScreen extends StatefulWidget {
-  const LanguageSetupScreen({super.key});
+class CurrencySetupScreen extends StatefulWidget {
+  const CurrencySetupScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _LanguageSetupScreenState createState() => _LanguageSetupScreenState();
+  State<CurrencySetupScreen> createState() => _CurrencySetupScreenState();
 }
 
-class _LanguageSetupScreenState extends State<LanguageSetupScreen> {
-  List<Map<String, String>> _languages = [];
-  String? _selectedLanguageCode;
+class _CurrencySetupScreenState extends State<CurrencySetupScreen> {
+  final CurrencyService _currencyService = CurrencyService();
+  List<Currency> _currencies = [];
+  String? _selectedCurrencyCode;
   bool _initialized = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_initialized) {
-      _loadLanguages();
+      _loadCurrencies();
       _initialized = true;
     }
   }
 
-  Future<void> _loadLanguages() async {
-    final langs = CountryService.getLanguages();
-    final savedLang = context.locale.languageCode;
+  Future<void> _loadCurrencies() async {
+    List<Currency> currencies = await _currencyService.getAllCurrencies();
+    final saved = await SettingsService.getDefaultCurrency();
 
     setState(() {
-      _languages = langs;
-      _selectedLanguageCode = savedLang;
+      _currencies = currencies;
+      _selectedCurrencyCode = saved;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final colorFondo = Theme.of(context).brightness == Brightness.dark
+    final background = Theme.of(context).brightness == Brightness.dark
         ? Colors.black
         : Colors.white;
 
     return Scaffold(
-      backgroundColor: colorFondo,
+      backgroundColor: background,
       appBar: AppBar(
-        backgroundColor: colorFondo,
+        backgroundColor: background,
         elevation: 0,
         title: Text(
-          "select_language".tr(),
+          "configure_currency".tr(),
           style: Theme.of(context).textTheme.headlineMedium,
         ),
         iconTheme: IconThemeData(
@@ -56,15 +59,15 @@ class _LanguageSetupScreenState extends State<LanguageSetupScreen> {
               : Colors.black,
         ),
       ),
-      body: _languages.isEmpty
+      body: _currencies.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
                   DropdownButtonFormField<String>(
-                    value: _selectedLanguageCode,
-                    decoration: InputDecoration(labelText: "language".tr()),
+                    value: _selectedCurrencyCode,
+                    decoration: InputDecoration(labelText: "currency".tr()),
                     dropdownColor:
                         Theme.of(context).brightness == Brightness.dark
                             ? Colors.grey[900]
@@ -74,24 +77,22 @@ class _LanguageSetupScreenState extends State<LanguageSetupScreen> {
                           ? Colors.white
                           : Colors.black,
                     ),
-                    items: _languages.map((lang) {
-                      final code = lang['code']!;
-                      final label = lang['label']!;
-                      final flag = lang['flag']!;
+                    items: _currencies.map((currency) {
                       return DropdownMenuItem(
-                        value: code,
-                        child: Text('$flag $label'),
+                        value: currency.code,
+                        child: Text('${currency.symbol} ${currency.name}'),
                       );
                     }).toList(),
-                    onChanged: (langCode) =>
-                        setState(() => _selectedLanguageCode = langCode),
+                    onChanged: (val) =>
+                        setState(() => _selectedCurrencyCode = val),
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
                     onPressed: () async {
-                      if (_selectedLanguageCode == null) return;
+                      if (_selectedCurrencyCode == null) return;
 
-                      await context.setLocale(Locale(_selectedLanguageCode!));
+                      await SettingsService.setDefaultCurrency(
+                          _selectedCurrencyCode!);
 
                       await Flushbar(
                         duration: const Duration(seconds: 1),
@@ -104,7 +105,7 @@ class _LanguageSetupScreenState extends State<LanguageSetupScreen> {
                                 ? Colors.grey[850]!
                                 : Colors.grey[200]!,
                         messageText: Text(
-                          "language_saved".tr(),
+                          "saved_currency".tr(),
                           style: TextStyle(
                             color:
                                 Theme.of(context).brightness == Brightness.dark
@@ -120,7 +121,7 @@ class _LanguageSetupScreenState extends State<LanguageSetupScreen> {
                       backgroundColor: Colors.white,
                       foregroundColor: Colors.black,
                     ),
-                    child: Text("save_language".tr()),
+                    child: Text("currency_save".tr()),
                   ),
                 ],
               ),

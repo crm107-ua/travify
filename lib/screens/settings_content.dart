@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:travify/screens/currency_setup_screen.dart';
 import 'package:travify/screens/language_setup_screen.dart';
 import '../services/settings_service.dart';
 import 'pin_setup_screen.dart';
@@ -166,18 +167,23 @@ class _SettingsContentState extends State<SettingsContent> {
               ),
             ),
             child: ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text(
-                  "configure_currency".tr(),
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                trailing: Padding(
-                  padding: const EdgeInsets.only(right: 10),
-                  child: Icon(Icons.attach_money),
-                ),
-                onTap: () async {
-                  // Configurar Idioma
-                }),
+              contentPadding: EdgeInsets.zero,
+              title: Text(
+                "configure_currency".tr(),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              trailing: Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: Icon(Icons.attach_money),
+              ),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const CurrencySetupScreen()),
+                );
+              },
+            ),
           ),
         ),
         const SizedBox(height: 15),

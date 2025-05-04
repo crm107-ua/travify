@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:travify/database/dao/currency_dao.dart';
 import 'package:travify/database/dao/rate_dao.dart';
 import 'package:travify/database/dao/transaction_dao.dart';
@@ -14,29 +15,6 @@ class ChangeService {
 
   List<Map<String, dynamic>> historicalMap = [];
   Map<String, double> ratesMap = {};
-
-  void testCalculoTasaDerivada(String from, String to, double amount,
-      [double commission = 0.0]) {
-    final rateFrom = ratesMap[from];
-    final rateTo = ratesMap[to];
-
-    if (rateFrom == null || rateTo == null) {
-      print('❌ Faltan tasas oficiales: $from o $to');
-      return;
-    }
-
-    final tasaDerivada = rateTo / rateFrom;
-    final tasaConComision = tasaDerivada * (1 - commission);
-    final resultado = amount * tasaConComision;
-
-    print('🧪 Test cambio de $amount $from a $to:');
-    print('   EUR → $from = ${rateFrom.toStringAsFixed(6)}');
-    print('   EUR → $to   = ${rateTo.toStringAsFixed(6)}');
-    print('   Tasa derivada $from → $to = ${tasaDerivada.toStringAsFixed(6)}');
-    print('   Comisión aplicada: ${commission * 100}%');
-    print('   Tasa neta: ${tasaConComision.toStringAsFixed(6)}');
-    print('   Resultado: ${resultado.toStringAsFixed(2)} $to');
-  }
 
   Future<List<Change>> getAllChanges() async {
     return await transactioDao.getAllChanges();
@@ -371,7 +349,7 @@ class ChangeService {
     );
 
     if (rutas.isEmpty) {
-      return {'error': 'No se encontró ninguna ruta válida.'};
+      return {'error': 'not_valid_path'.tr()};
     }
 
     rutas.sort((a, b) => b.$1.compareTo(a.$1));

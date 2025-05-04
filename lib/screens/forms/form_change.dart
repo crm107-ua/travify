@@ -7,6 +7,7 @@ import 'package:travify/models/currency.dart';
 import 'package:travify/models/trip.dart';
 import 'package:travify/services/change_service.dart';
 import 'package:travify/services/currency_service.dart';
+import 'package:travify/services/settings_service.dart';
 
 enum RouteOption { direct, best }
 
@@ -79,15 +80,22 @@ class _ChangeFormState extends State<ChangeForm> {
 
   void _loadCurrencies() async {
     final loaded = await CurrencyService().getAllCurrencies();
+    final savedCode = await SettingsService.getDefaultCurrency();
+
     setState(() {
       _currencies = loaded;
       _isLoading = false;
 
-      // Si no se han pasado divisas iniciales, tomamos por defecto
-      _fromCurrency ??= _currencies.firstWhere(
-        (c) => c.id == widget.trip.currency.id,
-        orElse: () => _currencies.first,
-      );
+      _fromCurrency ??= savedCode != null
+          ? _currencies.firstWhere(
+              (c) => c.code == savedCode,
+              orElse: () => _currencies.first,
+            )
+          : _currencies.firstWhere(
+              (c) => c.id == widget.trip.currency.id,
+              orElse: () => _currencies.first,
+            );
+
       _toCurrency ??= _currencies.firstWhere(
         (c) => c.id == widget.trip.countries.first.currencies.first.id,
         orElse: () => _currencies.first,
@@ -376,7 +384,8 @@ class _ChangeFormState extends State<ChangeForm> {
 
         String comparacion = 'not_compare_direct_path'.tr();
         if (montoDirecto != null) {
-          final diff = chosenMonto - montoDirecto;
+          final diff =
+              double.parse((chosenMonto - montoDirecto).toStringAsFixed(2));
           if (diff > 0) {
             comparacion =
                 '${'the_path'.tr()} #${_selectedOption == RouteOption.direct ? 1 : _selectedChipIndex + 1} ${'in_best_direct_path'.tr()} ${diff.toStringAsFixed(2)} $destino.';
@@ -385,9 +394,9 @@ class _ChangeFormState extends State<ChangeForm> {
                 '${'in_best_direct_path_to'.tr()} #${_selectedOption == RouteOption.direct ? 1 : _selectedChipIndex + 1} en ${(-diff).toStringAsFixed(2)} $destino.';
           } else {
             if (_selectedChipIndex == 0) {
-              comparacion = 'same_result_path'.tr();
-            } else {
               comparacion = 'same_result_path_selected'.tr();
+            } else {
+              comparacion = 'same_result_path'.tr();
             }
           }
         }

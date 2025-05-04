@@ -169,7 +169,9 @@
       "deleted_pin": "PIN eliminado",
       "configure_language": "Configurar idioma",
       "configure_currency": "Configurar divisa",
-      "configure_theme": "Configurar tema"
-
+      "configure_theme": "Configurar tema",
+      "not_valid_path": "No se encontró ninguna ruta válida.",
+      "currency_save": "Guardar divisa",
+      "saved_currency": "Divisa guardada"
 }
   
