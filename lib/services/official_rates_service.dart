@@ -85,8 +85,6 @@ class OfficialRatesService {
 
           await rateDao.upsertRate(rate);
         }
-
-        print('✅ Tasas oficiales actualizadas (EUR → todas).');
       } else {
         print('❌ Error al obtener tasas desde API: ${response.statusCode}');
       }

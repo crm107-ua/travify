@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:travify/screens/currency_setup_screen.dart';
 import 'package:travify/screens/language_setup_screen.dart';
+import 'package:travify/services/official_rates_service.dart';
 import '../services/settings_service.dart';
 import 'pin_setup_screen.dart';
 import 'package:another_flushbar/flushbar.dart';
@@ -28,6 +29,46 @@ class _SettingsContentState extends State<SettingsContent> {
     setState(() {
       _hasPin = (pin != null && pin.isNotEmpty);
     });
+  }
+
+  void _showSnackBar(String message) {
+    Flushbar(
+      duration: Duration(seconds: 2),
+      borderRadius: BorderRadius.circular(8),
+      margin: EdgeInsets.all(16),
+      flushbarPosition: FlushbarPosition.BOTTOM,
+      dismissDirection: FlushbarDismissDirection.VERTICAL,
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? Colors.grey[850]!
+          : Colors.grey[200]!,
+      messageText: Text(
+        message,
+        style: TextStyle(
+          color: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white
+              : Colors.black,
+        ),
+      ),
+    ).show(context);
+  }
+
+  Future<void> showLoadingDialog(BuildContext context, String message) async {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        backgroundColor: Theme.of(context).brightness == Brightness.dark
+            ? Colors.grey[900]
+            : Colors.white,
+        content: Row(
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(width: 20),
+            Expanded(child: Text(message)),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -220,6 +261,60 @@ class _SettingsContentState extends State<SettingsContent> {
                 onTap: () async {
                   // Configurar Idioma
                 }),
+          ),
+        ),
+        const SizedBox(height: 15),
+        Transform.translate(
+          offset: const Offset(0, 0),
+          child: Container(
+            margin: const EdgeInsets.only(right: 25),
+            padding: const EdgeInsets.only(
+              left: 25,
+              right: 20,
+              top: 5,
+              bottom: 5,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white
+                    : Colors.black,
+                width: 1,
+              ),
+            ),
+            child: ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(
+                "load_rates".tr(),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              trailing: Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: Icon(Icons.monetization_on),
+              ),
+              onTap: () async {
+                final canUpdate = await SettingsService.canUpdateRatesToday();
+                if (!canUpdate) {
+                  _showSnackBar("official_rates_already_updated".tr());
+                  return;
+                }
+
+                // ignore: use_build_context_synchronously
+                showLoadingDialog(context, "loading_official_rates".tr());
+
+                final service = OfficialRatesService();
+                await service.updateOfficialRates();
+                await SettingsService.setLastRatesUpdate(DateTime.now());
+
+                if (context.mounted) Navigator.pop(context);
+
+                if (context.mounted) {
+                  _showSnackBar("official_rates_updated".tr());
+                }
+              },
+            ),
           ),
         ),
       ],

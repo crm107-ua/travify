@@ -172,6 +172,10 @@
       "configure_theme": "Configurar tema",
       "not_valid_path": "No se encontró ninguna ruta válida.",
       "currency_save": "Guardar divisa",
-      "saved_currency": "Divisa guardada"
+      "saved_currency": "Divisa guardada",
+      "load_rates": "Actualizar valores de divisas",
+      "official_rates_updated": "Valores de divisas actualizados",
+      "loading_official_rates": "Cargando tasas oficiales...",
+      "official_rates_already_updated": "Las tasas oficiales ya están actualizadas"
 }
   

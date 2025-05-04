@@ -172,6 +172,7 @@
     "configure_theme": "Configure theme",
     "not_valid_path": "No valid path found.",
     "currency_save": "Save currency",
-    "saved_currency": "Currency saved"
+    "saved_currency": "Currency saved",
+    "load_rates": "Update currency values"
   }
   

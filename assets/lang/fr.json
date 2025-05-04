@@ -172,6 +172,7 @@
     "configure_theme": "Configurer le thème",
     "not_valid_path": "Aucun chemin valide trouvé.",
     "currency_save": "Enregistrer la devise",
-    "saved_currency": "Devise enregistrée"
+    "saved_currency": "Devise enregistrée",
+    "load_rates": "Mettre à jour les valeurs des devises"
   }
   

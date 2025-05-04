@@ -41,6 +41,7 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
 
     if (enteredPin == savedPin) {
       Navigator.pushReplacement(
+        // ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(builder: (_) => MainScreen()),
       );
@@ -62,6 +63,7 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
                 : Colors.black,
           ),
         ),
+        // ignore: use_build_context_synchronously
       ).show(context);
     }
   }
