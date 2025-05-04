@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:travify/screens/currency_setup_screen.dart';
 import 'package:travify/screens/language_setup_screen.dart';
+import 'package:travify/services/country_service.dart';
 import 'package:travify/services/official_rates_service.dart';
 import '../services/settings_service.dart';
 import 'pin_setup_screen.dart';
@@ -173,15 +174,31 @@ class _SettingsContentState extends State<SettingsContent> {
                 "configure_language".tr(),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
-              trailing: const Padding(
-                padding: EdgeInsets.only(right: 10),
-                child: Icon(Icons.translate),
+              trailing: Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: FutureBuilder<String?>(
+                  future: Future.value(context.locale.languageCode),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Icon(Icons.translate);
+                    }
+                    final code = snapshot.data!;
+                    final lang = CountryService.getLanguages()
+                        .firstWhere((l) => l['code'] == code, orElse: () => {});
+                    final flag = lang['flag'] ?? '🌐';
+                    return Text(
+                      flag,
+                      style: const TextStyle(fontSize: 23),
+                    );
+                  },
+                ),
               ),
-              onTap: () {
-                Navigator.push(
+              onTap: () async {
+                await Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => LanguageSetupScreen()),
                 );
+                setState(() {});
               },
             ),
           ),
