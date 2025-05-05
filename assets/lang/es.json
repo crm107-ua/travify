@@ -115,8 +115,8 @@
       "edit_income": "Editar ingreso",
       "select_type": "Selecciona un tipo",
       "next_date": "Próxima fecha",
-      "travel_exists_to_this_init_date": "Ya existe un viaje a partir de esa fecha y sin fecha de fin.",
-      "travel_exixts_with_dates": "Ya existe un viaje con esas fechas.",
+      "travel_exists_to_this_init_date": "Ya existe un viaje a partir de esa fecha y sin fecha de fin",
+      "travel_exixts_with_dates": "Ya existe un viaje con esas fechas",
       "select_countries": "Selecciona países",
       "complete_info_fields": "Por favor, complete todos los campos obligatorios en Información",
       "select_a_country_at_least": "Por favor, seleccione al menos un país",
@@ -170,12 +170,14 @@
       "configure_language": "Configurar idioma",
       "configure_currency": "Configurar divisa",
       "configure_theme": "Configurar tema",
-      "not_valid_path": "No se encontró ninguna ruta válida.",
+      "not_valid_path": "No se encontró ninguna ruta válida",
       "currency_save": "Guardar divisa",
       "saved_currency": "Divisa guardada",
       "load_rates": "Actualizar valores de divisas",
       "official_rates_updated": "Valores de divisas actualizados",
       "loading_official_rates": "Cargando tasas oficiales...",
-      "official_rates_already_updated": "Las tasas oficiales ya están actualizadas"
+      "official_rates_already_updated": "Las tasas oficiales ya están actualizadas",
+      "official_rates_not_updated": "No se ha podido establecer conexión con el servidor",
+      "coming_soon": "Próximamente"
 }
   

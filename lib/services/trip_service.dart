@@ -29,6 +29,13 @@ class TripService {
         excludeTripId: excludeTripId);
   }
 
+  /// Comprobar conflictos con fecha de inicio y fecha de fin, posterior o igual a un viaje sin fecha de fin
+  Future<bool> tripExistsWithDateNotNull(DateTime date,
+      {int? excludeTripId}) async {
+    return await _tripDao.checkTripExistWithDateNotNull(date,
+        excludeTripId: excludeTripId);
+  }
+
   /// Obtiene todos los viajes ordenados por ID descendente.
   Future<List<Trip>> getAllTrips() async {
     return await _tripDao.gettrips();

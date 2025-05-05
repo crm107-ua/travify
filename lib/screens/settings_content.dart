@@ -297,7 +297,7 @@ class _SettingsContentState extends State<SettingsContent> {
                   child: Icon(Icons.brightness_4),
                 ),
                 onTap: () async {
-                  // Configurar Idioma
+                  _showSnackBar("coming_soon".tr());
                 }),
           ),
         ),
@@ -343,13 +343,18 @@ class _SettingsContentState extends State<SettingsContent> {
                 showLoadingDialog(context, "loading_official_rates".tr());
 
                 final service = OfficialRatesService();
-                await service.updateOfficialRates();
-                await SettingsService.setLastRatesUpdate(DateTime.now());
-
-                if (context.mounted) Navigator.pop(context);
-
-                if (context.mounted) {
-                  _showSnackBar("official_rates_updated".tr());
+                final success = await service.updateOfficialRates();
+                if (success) {
+                  await SettingsService.setLastRatesUpdate(DateTime.now());
+                  if (context.mounted) Navigator.pop(context);
+                  if (context.mounted) {
+                    _showSnackBar("official_rates_updated".tr());
+                  }
+                } else {
+                  if (context.mounted) Navigator.pop(context);
+                  if (context.mounted) {
+                    _showSnackBar("official_rates_not_updated".tr());
+                  }
                 }
               },
             ),

@@ -1,18 +1,19 @@
 import 'dart:convert';
 // ignore: depend_on_referenced_packages
 import 'package:http/http.dart' as http;
+import 'package:travify/constants/env.dart';
 import 'package:travify/database/dao/currency_dao.dart';
 import 'package:travify/database/dao/rate_dao.dart';
 import 'package:travify/models/rate.dart';
 
-const String apiKey = '6fb6769c6b0e9cb6931256ee';
+const String apiKey = AppEnv.apiRatesKey;
 const String baseCurrency = 'EUR';
 
 class OfficialRatesService {
   final rateDao = RateDao();
   final Map<List<String>, double> ratesMap = {};
 
-  Future<void> updateOfficialRates() async {
+  Future<bool> updateOfficialRates() async {
     const Map<String, int> currencyIds = {
       "USD": 1,
       "EUR": 2,
@@ -85,11 +86,13 @@ class OfficialRatesService {
 
           await rateDao.upsertRate(rate);
         }
+
+        return true;
       } else {
-        print('❌ Error al obtener tasas desde API: ${response.statusCode}');
+        return false;
       }
     } catch (e) {
-      print('❌ Excepción: $e');
+      return false;
     }
   }
 }

@@ -45,6 +45,12 @@ class TripNotifier extends ChangeNotifier {
         excludeTripId: excludeTripId);
   }
 
+  Future<bool> tripExistsWithDateNotNull(DateTime startDate,
+      {int? excludeTripId}) async {
+    return _tripService.tripExistsWithDateNotNull(startDate,
+        excludeTripId: excludeTripId);
+  }
+
   Future<bool> tripExists(DateTime startDate, DateTime endDate,
       {int? excludeTripId}) async {
     return _tripService.checkTripExists(startDate, endDate,

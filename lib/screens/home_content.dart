@@ -4,10 +4,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:travify/constants/images.dart';
+import 'package:travify/constants/videos.dart';
 import 'package:travify/models/trip.dart';
 import 'package:travify/notifiers/trip_notifier.dart';
 import 'package:travify/screens/trip_screen.dart';
 import 'package:travify/screens/utils/horizontal_grid.dart';
+import 'package:video_player/video_player.dart';
 
 class HomeContent extends StatefulWidget {
   const HomeContent({super.key});
@@ -19,6 +21,7 @@ class HomeContent extends StatefulWidget {
 class _HomeContentState extends State<HomeContent>
     with SingleTickerProviderStateMixin {
   late AnimationController _blinkingController;
+  VideoPlayerController? _videoController;
   bool _sortByRecent = true;
 
   @override
@@ -39,8 +42,26 @@ class _HomeContentState extends State<HomeContent>
     )..repeat(reverse: true);
   }
 
+  Future<void> _initializeVideo() async {
+    if (_videoController != null && _videoController!.value.isInitialized) {
+      return;
+    }
+
+    final controller = VideoPlayerController.asset(AppVideos.homeVideo);
+    await controller.initialize();
+    controller.setLooping(true);
+    controller.setVolume(0);
+    await controller.setPlaybackSpeed(0.3);
+    controller.play();
+
+    setState(() {
+      _videoController = controller;
+    });
+  }
+
   @override
   void dispose() {
+    _videoController?.dispose();
     _blinkingController.dispose();
     super.dispose();
   }
@@ -71,36 +92,78 @@ class _HomeContentState extends State<HomeContent>
   }
 
   Widget _buildEmptyTripsUI() {
-    return SizedBox(
-      width: double.infinity,
-      height: double.infinity,
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: Padding(
-          padding: const EdgeInsets.only(top: 200.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Image.asset(
-                'assets/images/fondo.png',
-                width: MediaQuery.of(context).size.width * 0.8,
-                fit: BoxFit.contain,
-              ),
-              Transform.translate(
-                offset: const Offset(0, -100),
-                child: Text(
-                  'new_travel'.tr(),
-                  style: const TextStyle(
-                    fontSize: 24,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+    return FutureBuilder(
+      future: _initializeVideo(),
+      builder: (context, snapshot) {
+        final bool ready = snapshot.connectionState == ConnectionState.done &&
+            _videoController != null &&
+            _videoController!.value.isInitialized;
+
+        return Stack(
+          children: [
+            // Fondo de video
+            ready
+                ? SizedBox.expand(
+                    child: FittedBox(
+                      fit: BoxFit.cover,
+                      child: SizedBox(
+                        width: _videoController!.value.size.width,
+                        height: _videoController!.value.size.height,
+                        child: VideoPlayer(_videoController!),
+                      ),
+                    ),
+                  )
+                : Container(color: Colors.black),
+            Container(color: Colors.black.withOpacity(0.4)),
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 200,
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Colors.transparent, Colors.black],
                   ),
                 ),
               ),
-            ],
-          ),
-        ),
-      ),
+            ),
+            SizedBox(
+              width: double.infinity,
+              height: double.infinity,
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 200.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset(
+                        'assets/images/fondo.png',
+                        width: MediaQuery.of(context).size.width * 0.8,
+                        fit: BoxFit.contain,
+                      ),
+                      Transform.translate(
+                        offset: const Offset(0, -100),
+                        child: Text(
+                          'new_travel'.tr(),
+                          style: const TextStyle(
+                            fontSize: 24,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 

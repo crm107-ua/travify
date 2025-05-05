@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:travify/constants/videos.dart';
 import 'package:travify/services/settings_service.dart';
 import 'package:video_player/video_player.dart';
 import 'package:another_flushbar/flushbar.dart';
@@ -20,7 +21,7 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
   @override
   void initState() {
     super.initState();
-    _videoController = VideoPlayerController.asset('assets/videos/video.mp4')
+    _videoController = VideoPlayerController.asset(AppVideos.lockVideo)
       ..initialize().then((_) {
         setState(() {});
         _videoController.play();
@@ -73,9 +74,9 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
     final Color colorFondo = Theme.of(context).brightness == Brightness.dark
         ? Colors.black
         : Colors.white;
+
     return GestureDetector(
-      onTap: () =>
-          FocusScope.of(context).unfocus(), // Oculta el teclado al tocar fuera
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         body: Stack(
           children: [
@@ -93,41 +94,40 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
                   )
                 : Container(color: colorFondo),
 
-            // Imagen encima del video
-            Positioned(
-              top: MediaQuery.of(context).size.height * 0.00005,
-              left: 0,
-              right: 0,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Image.asset(
-                  'assets/images/fondo.png',
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  fit: BoxFit.contain,
+            // Capa oscura para oscurecer el fondo
+            Container(
+              color: Colors.black.withOpacity(0.4), // Ajusta opacidad aquí
+            ),
+
+            // Imagen superpuesta centrada
+            Positioned.fill(
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 84),
+                  child: Image.asset(
+                    'assets/images/fondo.png',
+                    width: MediaQuery.of(context).size.width * 0.8,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ),
 
-            // Capa oscura encima del video
-            Container(
-              color: Colors.black.withOpacity(0.3),
-            ),
-
-            // Contenido interactivo
-            SafeArea(
+            // Contenido interactivo centrado
+            Center(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment
-                      .end, // Mantiene el contenido abajo pero flexible
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(height: MediaQuery.of(context).size.height * 0.25),
                     Container(
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.25),
+                        color: Colors.black.withOpacity(0.4),
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      padding: EdgeInsets.all(16),
+                      padding: EdgeInsets.all(24),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -147,7 +147,7 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
                               ],
                             ),
                           ),
-                          SizedBox(height: 40),
+                          SizedBox(height: 30),
                           TextField(
                             controller: _pinController,
                             obscureText: true,
@@ -176,7 +176,7 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
                           ElevatedButton(
                             onPressed: _handlePinSubmit,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white.withOpacity(0.8),
+                              backgroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
@@ -185,8 +185,10 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
                             ),
                             child: Text(
                               "go_in".tr(),
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.black),
+                              style: TextStyle(
+                                  fontSize: 17,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ),
                         ],

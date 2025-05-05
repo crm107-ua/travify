@@ -1,4 +1,3 @@
-import 'package:intl/intl.dart';
 import 'package:travify/enums/recurrent_income_type.dart';
 import 'package:travify/enums/transaction_type.dart';
 import 'package:travify/models/expense.dart';

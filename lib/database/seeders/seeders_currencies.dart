@@ -32,7 +32,7 @@ Future<void> seedDatabaseCurrencies(Database db) async {
           'rounding': value['rounding'],
           'name_plural': value['name_plural'],
         },
-        conflictAlgorithm: ConflictAlgorithm.ignore, // Evita duplicados
+        conflictAlgorithm: ConflictAlgorithm.ignore,
       );
     });
 

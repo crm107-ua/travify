@@ -51,7 +51,5 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-	<key>NSLocalNetworkUsageDescription</key>
-    <string>Necesitamos acceso a la red local para descargar información de valores monetarios actualizados</string>
 </dict>
 </plist>

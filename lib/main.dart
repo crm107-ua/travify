@@ -18,12 +18,19 @@ Future<void> main() async {
   runApp(
     EasyLocalization(
       supportedLocales: const [
-        Locale('en'),
-        Locale('es'),
-        Locale('fr'),
+        Locale('es'), // Español
+        Locale('en'), // English
+        Locale('fr'), // Français
+        Locale('de'), // Deutsch
+        Locale('it'), // Italiano
+        Locale('pt'), // Português
+        Locale('zh'), // 中文
+        Locale('ja'), // 日本語
+        Locale('ru'), // Русский
+        Locale('ar'), // العربية
       ],
       path: 'assets/lang',
-      fallbackLocale: const Locale('es'),
+      fallbackLocale: Locale('es'),
       useOnlyLangCode: true,
       child: const MyApp(),
     ),

@@ -124,8 +124,30 @@ class TripDao {
     return result.isNotEmpty;
   }
 
-// Comprobar conflictos de fechas sin fecha fin, excluyendo opcionalmente un viaje
+  // Comprobar conflictos de fechas sin fecha fin, excluyendo opcionalmente un viaje
   Future<bool> checkTripExistWithDate(DateTime dateStart,
+      {int? excludeTripId}) async {
+    final db = await _databaseHelper.database;
+
+    final query = excludeTripId != null
+        ? 'id != ? AND date_end IS NULL AND open = 1'
+        : 'date_end IS NULL AND open = 1';
+
+    final args = excludeTripId != null
+        ? [excludeTripId, dateStart.millisecondsSinceEpoch]
+        : [dateStart.millisecondsSinceEpoch];
+
+    final result = await db.query(
+      'trips',
+      where: query,
+      whereArgs: args,
+    );
+
+    return result.isNotEmpty;
+  }
+
+  // Comprobar conflictos de fechas con fecha fin
+  Future<bool> checkTripExistWithDateNotNull(DateTime dateStart,
       {int? excludeTripId}) async {
     final db = await _databaseHelper.database;
 

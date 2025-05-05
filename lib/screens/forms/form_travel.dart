@@ -1,4 +1,5 @@
 import 'package:another_flushbar/flushbar.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -117,7 +118,7 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
 
   Future<void> _loadCurrencies(List<int> ids) async {
     List<Currency> currencies =
-        await _currencyService.getCountriesCurrencies(ids);
+        (await _currencyService.getAllCurrencies()).reversed.toList();
     setState(() {
       _allCurrencies = currencies;
       _selectedCurrency = currencies.isNotEmpty ? currencies.first : null;
@@ -125,17 +126,17 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
   }
 
   Future<void> _saveTrip(Trip trip) async {
-    bool tripExistsWithDate = await _tripNotifier.tripExistsWithDate(
-      trip.dateStart,
-      excludeTripId: trip.id != 0 ? trip.id : null,
-    );
-
-    if (tripExistsWithDate) {
-      _showSnackBar("travel_exists_to_this_init_date".tr());
-      return;
-    }
-
     if (trip.dateEnd != null) {
+      bool tripExistsWithDate = await _tripNotifier.tripExistsWithDateNotNull(
+        trip.dateStart,
+        excludeTripId: trip.id != 0 ? trip.id : null,
+      );
+
+      if (tripExistsWithDate) {
+        _showSnackBar("travel_exists_to_this_init_date".tr());
+        return;
+      }
+
       bool conflict = await _tripNotifier.tripExists(
         trip.dateStart,
         trip.dateEnd!,
@@ -143,6 +144,16 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
       );
       if (conflict) {
         _showSnackBar("travel_exixts_with_dates".tr());
+        return;
+      }
+    } else {
+      bool tripExistsWithDate = await _tripNotifier.tripExistsWithDate(
+        trip.dateStart,
+        excludeTripId: trip.id != 0 ? trip.id : null,
+      );
+
+      if (tripExistsWithDate) {
+        _showSnackBar("travel_exists_to_this_init_date".tr());
         return;
       }
     }
@@ -214,36 +225,73 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
     await showDialog(
       context: context,
       builder: (BuildContext context) {
+        String searchQuery = '';
         return StatefulBuilder(
           builder: (context, setStateDialog) {
+            List<Country> filteredCountries = _allCountries
+                .where((country) => country.name
+                    .toLowerCase()
+                    .contains(searchQuery.toLowerCase()))
+                .toList();
+
             return AlertDialog(
-              title: Text("select_countries".tr(),
-                  style: TextStyle(color: Colors.white)),
+              title: Text(
+                "select_countries".tr(),
+                style: TextStyle(color: Colors.white),
+              ),
               backgroundColor: Colors.black,
               content: SizedBox(
                 width: double.maxFinite,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: _allCountries.length,
-                  itemBuilder: (context, index) {
-                    Country country = _allCountries[index];
-                    return CheckboxListTile(
-                      title: Text(country.name,
-                          style: TextStyle(color: Colors.white)),
-                      value: tempSelected.any((c) => c.id == country.id),
-                      activeColor: Colors.white,
-                      checkColor: Colors.black,
-                      onChanged: (bool? selected) {
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      style: TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: "countries".tr(),
+                        hintStyle: TextStyle(color: Colors.white60),
+                        prefixIcon: Icon(Icons.search, color: Colors.white),
+                        enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white)),
+                        focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white)),
+                      ),
+                      onChanged: (value) {
                         setStateDialog(() {
-                          if (selected == true) {
-                            tempSelected.add(country);
-                          } else {
-                            tempSelected.removeWhere((c) => c.id == country.id);
-                          }
+                          searchQuery = value;
                         });
                       },
-                    );
-                  },
+                    ),
+                    const SizedBox(height: 10),
+                    Expanded(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: filteredCountries.length,
+                        itemBuilder: (context, index) {
+                          Country country = filteredCountries[index];
+                          return CheckboxListTile(
+                            title: Text(
+                              country.name,
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            value: tempSelected.any((c) => c.id == country.id),
+                            activeColor: Colors.white,
+                            checkColor: Colors.black,
+                            onChanged: (bool? selected) {
+                              setStateDialog(() {
+                                if (selected == true) {
+                                  tempSelected.add(country);
+                                } else {
+                                  tempSelected
+                                      .removeWhere((c) => c.id == country.id);
+                                }
+                              });
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
               actions: [
@@ -393,8 +441,7 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () =>
-          FocusScope.of(context).unfocus(), // Oculta el teclado al tocar fuera
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
@@ -516,47 +563,68 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
       );
 
   Widget _buildBudgetStep() => Column(children: [
-        DropdownButtonFormField<Currency>(
-          value: _selectedCurrency,
-          isExpanded: true,
-          dropdownColor: Colors.grey[850],
-          decoration: InputDecoration(
-            labelText: "default_currency".tr(),
-            labelStyle: TextStyle(color: Colors.white),
+        DropdownSearch<Currency>(
+          popupProps: PopupProps.dialog(
+            showSearchBox: true,
+            searchFieldProps: TextFieldProps(
+              decoration: InputDecoration(
+                hintText: 'search_currency'.tr(),
+                hintStyle: TextStyle(color: Colors.white60),
+                prefixIcon: Icon(Icons.search, color: Colors.white),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+              ),
+              style: TextStyle(color: Colors.white),
+            ),
+            dialogProps: DialogProps(
+              backgroundColor: Colors.grey[850],
+            ),
+            itemBuilder: (context, currency, isSelected) => ListTile(
+              title: Text('${currency.symbol} - ${currency.name}',
+                  style: TextStyle(color: Colors.white)),
+            ),
           ),
-          style: TextStyle(color: Colors.white),
-          items: _allCurrencies.map((Currency currency) {
-            return DropdownMenuItem<Currency>(
-              value: currency,
-              child: Text('${currency.symbol} - ${currency.name}'),
-            );
-          }).toList(),
-          onChanged: (Currency? newCurrency) {
+          dropdownDecoratorProps: DropDownDecoratorProps(
+            dropdownSearchDecoration: InputDecoration(
+              labelText: "default_currency".tr(),
+              labelStyle: TextStyle(color: Colors.white),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Colors.white),
+              ),
+            ),
+          ),
+          selectedItem: _selectedCurrency,
+          items: _allCurrencies,
+          itemAsString: (Currency c) => '${c.symbol} - ${c.name}',
+          onChanged: (Currency? currency) {
             setState(() {
-              _selectedCurrency = newCurrency;
+              _selectedCurrency = currency;
             });
           },
           validator: (Currency? value) {
             if (_allCurrencies.isNotEmpty && value == null) {
               return 'select_currency'.tr();
             }
-            return null; // No valida si aún no existen monedas disponibles
+            return null;
           },
         ),
-        SizedBox(height: 5),
+        const SizedBox(height: 5),
         _buildCurrencyTextField(
-            _maxLimitController, 'max_limit'.tr(), _maxLimitTouched, () {
-          setState(() {
-            _maxLimitTouched = true;
-          });
-        }),
+          _maxLimitController,
+          'max_limit'.tr(),
+          _maxLimitTouched,
+          () => setState(() => _maxLimitTouched = true),
+        ),
         _buildCurrencyTextField(
-            _desiredLimitController, 'desired_limit'.tr(), _desiredLimitTouched,
-            () {
-          setState(() {
-            _desiredLimitTouched = true;
-          });
-        }),
+          _desiredLimitController,
+          'desired_limit'.tr(),
+          _desiredLimitTouched,
+          () => setState(() => _desiredLimitTouched = true),
+        ),
         CheckboxListTile(
           title: Text('lock_limit'.tr(), style: TextStyle(color: Colors.white)),
           value: _limitIncrease,
