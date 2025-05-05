@@ -4,6 +4,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:travify/constants/images.dart';
 import 'package:travify/enums/expense_category.dart';
 import 'package:travify/models/change.dart';
 import 'package:travify/models/expense.dart';
@@ -154,9 +155,11 @@ class _TripStatsCardState extends State<_TripStatsCard>
           Positioned.fill(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20),
-              child: trip.image?.startsWith('http') == true
-                  ? Image.network(trip.image ?? '', fit: BoxFit.cover)
-                  : Image.file(File(trip.image ?? ''), fit: BoxFit.cover),
+              child: (trip.image != null && trip.image!.isNotEmpty)
+                  ? (trip.image!.startsWith('http')
+                      ? Image.network(trip.image!, fit: BoxFit.cover)
+                      : Image.file(File(trip.image!), fit: BoxFit.cover))
+                  : Image.asset(AppImages.defaultImage, fit: BoxFit.cover),
             ),
           ),
           Positioned.fill(

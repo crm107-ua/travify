@@ -150,11 +150,7 @@ class _HomeContentState extends State<HomeContent>
                               },
                               child: _buildAppBarContent(currentTrip),
                             ),
-                      background: _buildAppBarBackground(
-                        currentTrip?.image ??
-                            AppImages
-                                .defaultImage, // Cambia la imagen por defecto
-                      ),
+                      background: _buildAppBarBackground(currentTrip?.image),
                     );
                   },
                 ),
@@ -333,13 +329,36 @@ class _HomeContentState extends State<HomeContent>
     );
   }
 
-  Widget _buildAppBarBackground(String imagePathOrUrl) {
+  Widget _buildAppBarBackground(String? imagePathOrUrl) {
+    Widget imageWidget;
+
+    if (imagePathOrUrl != null && imagePathOrUrl.isNotEmpty) {
+      if (imagePathOrUrl.startsWith('http')) {
+        imageWidget = Image.network(imagePathOrUrl, fit: BoxFit.cover);
+      } else {
+        imageWidget = Image.file(File(imagePathOrUrl), fit: BoxFit.cover);
+      }
+    } else {
+      imageWidget = Image.asset(AppImages.defaultImage, fit: BoxFit.cover);
+    }
+
     return Stack(
       fit: StackFit.expand,
       children: [
-        imagePathOrUrl.startsWith('http')
-            ? Image.network(imagePathOrUrl, fit: BoxFit.cover)
-            : Image.file(File(imagePathOrUrl), fit: BoxFit.cover),
+        imageWidget,
+        Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.transparent,
+                Colors.black12,
+                Colors.black87,
+              ],
+            ),
+          ),
+        ),
         Container(decoration: const BoxDecoration(color: Colors.black45)),
       ],
     );

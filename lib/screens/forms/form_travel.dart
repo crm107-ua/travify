@@ -350,8 +350,7 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
         dateStart: _dateStart ?? DateTime.now(),
         dateEnd: _dateEnd,
         destination: _destinationController.text,
-        image: _pickedImageFile?.path ??
-            AppImages.defaultImage, // Cambia a la imagen por defecto
+        image: _pickedImageFile?.path,
         open: true,
         budget: budget,
         currency: _selectedCurrency!,

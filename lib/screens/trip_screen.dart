@@ -506,11 +506,15 @@ class _TripDetailPageState extends State<TripDetailPage>
                                 child:
                                     trip.image != null && trip.image!.isNotEmpty
                                         ? (trip.image!.startsWith('http')
-                                            ? Image.network(trip.image!,
-                                                fit: BoxFit.cover)
-                                            : Image.file(File(trip.image!),
-                                                fit: BoxFit.cover))
-                                        : Image.network(
+                                            ? Image.network(
+                                                trip.image!,
+                                                fit: BoxFit.cover,
+                                              )
+                                            : Image.file(
+                                                File(trip.image!),
+                                                fit: BoxFit.cover,
+                                              ))
+                                        : Image.asset(
                                             AppImages.defaultImage,
                                             fit: BoxFit.cover,
                                           ),

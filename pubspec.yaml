@@ -74,10 +74,10 @@ flutter:
   uses-material-design: true
   assets:
     - assets/videos/video.mp4
-    - assets/images/fondo.png
     - assets/data/countries.json
     - assets/data/currencies.json
     - assets/data/official_rates.json
+    - assets/images/
     - assets/lang/
 
   # To add assets to your application, add an assets section, like this:
