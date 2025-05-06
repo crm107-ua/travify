@@ -178,5 +178,8 @@
   "loading_official_rates": "Chargement des taux officiels...",
   "official_rates_already_updated": "Les taux officiels sont déjà à jour",
   "official_rates_not_updated": "Connexion au serveur impossible",
-  "coming_soon": "Bientôt disponible"
+  "coming_soon": "Bientôt disponible",
+  "amortization": "Amortissement",
+  "day": "Jour",
+  "early_amortization": "Amortissement anticipé"
 }

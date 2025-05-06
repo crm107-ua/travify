@@ -178,6 +178,9 @@
     "loading_official_rates": "正在加载官方汇率...",
     "official_rates_already_updated": "汇率已是最新",
     "official_rates_not_updated": "无法连接服务器",
-    "coming_soon": "敬请期待"
+    "coming_soon": "敬请期待",
+    "amortization": "摊销",
+    "day": "天",
+    "early_amortization": "提前摊销"
   }
   

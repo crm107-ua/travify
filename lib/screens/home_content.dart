@@ -47,7 +47,11 @@ class _HomeContentState extends State<HomeContent>
       return;
     }
 
-    final controller = VideoPlayerController.asset(AppVideos.homeVideo);
+    final controller = VideoPlayerController.asset(
+      AppVideos.homeVideo,
+      videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+    );
+
     await controller.initialize();
     controller.setLooping(true);
     controller.setVolume(0);

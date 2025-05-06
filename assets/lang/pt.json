@@ -178,6 +178,9 @@
     "loading_official_rates": "Carregando taxas oficiais...",
     "official_rates_already_updated": "As taxas oficiais já estão atualizadas",
     "official_rates_not_updated": "Não foi possível conectar ao servidor",
-    "coming_soon": "Em breve"
+    "coming_soon": "Em breve",
+    "amortization": "Amortização",
+    "day": "Dia",
+    "early_amortization": "Amortização antecipada"
   }
   

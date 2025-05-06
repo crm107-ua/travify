@@ -767,6 +767,14 @@ class _TripDetailPageState extends State<TripDetailPage>
           }, (active) async {
             income.active = active;
             _transactionService.updateIncomeActive(income);
+            final index =
+                _trip.transactions.indexWhere((t) => t.id == income.id);
+            if (index != -1) {
+              setState(() {
+                _trip.transactions[index] = income;
+                _calcRealBalance();
+              });
+            }
           }), // income o change según el caso
           child: Container(
             margin: const EdgeInsets.only(bottom: 15),

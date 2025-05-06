@@ -57,6 +57,13 @@ class _ExpenseFormState extends State<ExpenseForm> {
     }
   }
 
+  bool isFutureDate(DateTime date) {
+    final today = DateTime.now();
+    final todayDate = DateTime(today.year, today.month, today.day);
+    final inputDate = DateTime(date.year, date.month, date.day);
+    return inputDate.isAfter(todayDate);
+  }
+
   void _showSnackBar(String message) {
     Flushbar(
       duration: Duration(seconds: 2),
@@ -150,9 +157,8 @@ class _ExpenseFormState extends State<ExpenseForm> {
         ? (_startDateAmortization ?? today)
         : (_endDateAmortization ?? today);
 
-    final DateTime firstDate =
-        DateTime(today.year, today.month, today.day); // hoy (sin horas)
-    final DateTime lastDate = DateTime(2100, 12, 31); // tope
+    final DateTime firstDate = DateTime(today.year, today.month, today.day);
+    final DateTime lastDate = DateTime(2100, 12, 31);
 
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -175,8 +181,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () =>
-          FocusScope.of(context).unfocus(), // Oculta el teclado al tocar fuera
+      onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
@@ -348,6 +353,19 @@ class _ExpenseFormState extends State<ExpenseForm> {
                         return;
                       }
                     }
+
+                    if (_startDateAmortization != null &&
+                        _endDateAmortization == null) {
+                      _showSnackBar('select_end_date'.tr());
+                      return;
+                    }
+
+                    if (_startDateAmortization == null &&
+                        _endDateAmortization != null) {
+                      _showSnackBar('select_start_date'.tr());
+                      return;
+                    }
+
                     if (_isAmortization && _endDateAmortization != null) {
                       if (_endDateAmortization!
                           .isBefore(_startDateAmortization!)) {
@@ -370,6 +388,16 @@ class _ExpenseFormState extends State<ExpenseForm> {
                       ? 'save_changes'.tr()
                       : 'create_expense'.tr()),
                 ),
+                if (_isAmortization &&
+                    _startDateAmortization != null &&
+                    isFutureDate(_startDateAmortization!))
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Text(
+                      '⚠️ ${'early_amortization'.tr()}',
+                      style: TextStyle(color: Colors.amberAccent, fontSize: 14),
+                    ),
+                  ),
               ],
             ),
           ),

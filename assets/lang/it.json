@@ -178,6 +178,9 @@
     "loading_official_rates": "Caricamento tassi ufficiali...",
     "official_rates_already_updated": "I tassi ufficiali sono già aggiornati",
     "official_rates_not_updated": "Impossibile connettersi al server",
-    "coming_soon": "Prossimamente"
+    "coming_soon": "Prossimamente",
+    "amortization": "Ammortamento",
+    "day": "Giorno",
+    "early_amortization": "Ammortamento anticipato"
   }
   

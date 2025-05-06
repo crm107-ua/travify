@@ -178,5 +178,8 @@
   "loading_official_rates": "Loading official rates...",
   "official_rates_already_updated": "Official rates are already up to date",
   "official_rates_not_updated": "Could not establish connection with the server",
-  "coming_soon": "Coming soon"
+  "coming_soon": "Coming soon",
+  "amortization": "Amortization",
+  "day": "Day",
+  "early_amortization": "Early amortization"
 }

@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:travify/enums/recurrent_income_type.dart';
 import 'package:travify/enums/transaction_type.dart';
 import 'package:travify/models/expense.dart';
@@ -70,7 +71,7 @@ class TransactionService {
 
       while (!nextDate.isAfter(todayDate)) {
         final description =
-            '${expense.description ?? 'Amortización'} (Día $dayNumber)';
+            '${expense.description ?? 'amorization'.tr()} (${'day'.tr()} $dayNumber)';
 
         final nuevaAmortizacion = Expense(
           id: 0,
@@ -133,7 +134,7 @@ class TransactionService {
           date: nextDate,
           isRecurrent: true,
           recurrentIncomeType: originalIncome.recurrentIncomeType,
-          active: false, // por defecto inactivo
+          active: false,
           nextRecurrentDate: null,
         );
 
@@ -163,12 +164,12 @@ class TransactionService {
       }
 
       // Desactivar el original
-      originalIncome.active = false;
-      originalIncome.nextRecurrentDate = null;
-      await _transactionDao.updateIncomeActive(originalIncome);
-      await _transactionDao.updateIncomeNextRecurrentDate(originalIncome);
-
       if (generated.isNotEmpty) {
+        originalIncome.active = false;
+        originalIncome.nextRecurrentDate = null;
+        await _transactionDao.updateIncomeActive(originalIncome);
+        await _transactionDao.updateIncomeNextRecurrentDate(originalIncome);
+
         for (int i = 0; i < generated.length; i++) {
           final inc = generated[i];
           if (i == generated.length - 1) {

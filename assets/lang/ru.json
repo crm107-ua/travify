@@ -178,6 +178,9 @@
     "loading_official_rates": "Загрузка официальных курсов...",
     "official_rates_already_updated": "Официальные курсы уже обновлены",
     "official_rates_not_updated": "Не удалось подключиться к серверу",
-    "coming_soon": "Скоро будет"
+    "coming_soon": "Скоро будет",
+    "amortization": "Амортизация",
+    "day": "День",
+    "early_amortization": "Досрочная амортизация"
   }
   

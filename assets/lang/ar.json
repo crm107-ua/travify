@@ -178,6 +178,14 @@
     "loading_official_rates": "جارٍ تحميل الأسعار الرسمية...",
     "official_rates_already_updated": "الأسعار الرسمية محدثة بالفعل",
     "official_rates_not_updated": "تعذر الاتصال بالخادم",
-    "coming_soon": "قريبًا"
+    "coming_soon": "قريبًا",
+    "amortization": "الإهلاك",
+    "day": "اليوم",
+    "early_amortization": "الإهلاك المبكر"
+
+
+
+
+
   }
   
