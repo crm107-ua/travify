@@ -31,7 +31,7 @@ class _SingleTripFullScreenState extends State<SingleTripFullScreen> {
   void initState() {
     super.initState();
 
-    if (AppEnv.production) {
+    if (!AppEnv.production) {
       widget.trip.dateStart = DateTime.now().add(const Duration(seconds: 3));
     }
 
