@@ -208,12 +208,17 @@ class TripDao {
   Future<Trip?> getActualTrip() async {
     sdb.Database db = await _databaseHelper.database;
 
-    int currentTime = DateTime.now().millisecondsSinceEpoch;
-
-    List<Map<String, dynamic>> tripMaps = await db.query(
+    final now = DateTime.now();
+    final todayStart =
+        DateTime(now.year, now.month, now.day).millisecondsSinceEpoch;
+    final todayEnd = DateTime(now.year, now.month, now.day, 23, 59, 59, 999)
+        .millisecondsSinceEpoch;
+        
+    final tripMaps = await db.query(
       'trips',
-      where: 'date_start <= ? AND date_end >= ? AND open = ?',
-      whereArgs: [currentTime, currentTime, 1],
+      where:
+          'date_start <= ? AND (date_end IS NULL OR date_end >= ?) AND open = ?',
+      whereArgs: [todayEnd, todayStart, 1],
     );
 
     if (tripMaps.isEmpty) return null;

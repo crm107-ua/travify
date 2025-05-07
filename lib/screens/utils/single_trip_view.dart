@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:travify/constants/env.dart';
 import 'package:travify/constants/images.dart';
 import 'package:travify/models/trip.dart';
@@ -27,56 +26,41 @@ class _SingleTripFullScreenState extends State<SingleTripFullScreen> {
   late Duration _remaining;
   late Timer _timer;
   bool _showConfetti = false;
-  bool _confettiAlreadyShown = false;
 
   @override
   void initState() {
     super.initState();
 
-    if (!AppEnv.production) {
+    if (AppEnv.production) {
       widget.trip.dateStart = DateTime.now().add(const Duration(seconds: 3));
     }
-    _loadConfettiShownFlag();
-    _updateCountdown();
+
+    _remaining = widget.trip.dateStart.difference(DateTime.now());
     _timer =
         Timer.periodic(const Duration(seconds: 1), (_) => _updateCountdown());
   }
 
-  Future<void> _loadConfettiShownFlag() async {
-    final prefs = await SharedPreferences.getInstance();
-    final key = 'confetti_show_${widget.trip.id}';
-    final alreadyShown = prefs.getBool(key) ?? false;
-    setState(() {
-      _confettiAlreadyShown = alreadyShown;
-    });
-  }
-
-  void _updateCountdown() async {
+  void _updateCountdown() {
     final now = DateTime.now();
     final diff = widget.trip.dateStart.difference(now);
 
-    setState(() {
-      _remaining = diff;
-    });
-
-    if (!_confettiAlreadyShown && diff <= Duration.zero && !_showConfetti) {
+    if (!_showConfetti && diff <= Duration.zero && _remaining > Duration.zero) {
       setState(() {
         _showConfetti = true;
       });
 
-      await Future.delayed(const Duration(seconds: 4));
-
-      final prefs = await SharedPreferences.getInstance();
-      final key = 'confetti_show_${widget.trip.id}';
-      await prefs.setBool(key, true);
-
-      if (mounted) {
-        setState(() {
-          _showConfetti = false;
-          _confettiAlreadyShown = true;
-        });
-      }
+      Future.delayed(const Duration(seconds: 4), () {
+        if (mounted) {
+          setState(() {
+            _showConfetti = false;
+          });
+        }
+      });
     }
+
+    setState(() {
+      _remaining = diff;
+    });
   }
 
   @override
@@ -111,6 +95,8 @@ class _SingleTripFullScreenState extends State<SingleTripFullScreen> {
     String subtitle = '';
     if (isUpcoming) {
       subtitle = 'get_ready'.tr();
+    } else {
+      subtitle = 'now'.tr();
     }
 
     return Stack(

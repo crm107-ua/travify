@@ -549,16 +549,32 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
             trailing: Icon(Icons.calendar_today, color: Colors.white),
             onTap: () => _selectDate(context, true),
           ),
-          ListTile(
-            title: Text(
-              _dateEnd == null
-                  ? 'select_end_date'.tr()
-                  : '${'end'.tr()}: ${_dateEnd!.toLocal().toString().split(' ')[0]}',
-              style: TextStyle(color: Colors.white),
-            ),
-            trailing: Icon(Icons.calendar_today, color: Colors.white),
-            onTap: () => _selectDate(context, false),
-          )
+          Row(
+            children: [
+              if (_dateEnd != null)
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _dateEnd = null;
+                    });
+                  },
+                  icon: Icon(Icons.clear, color: Colors.white),
+                  tooltip: 'clear'.tr(),
+                ),
+              Expanded(
+                child: ListTile(
+                  title: Text(
+                    _dateEnd == null
+                        ? 'select_end_date'.tr()
+                        : '${'end'.tr()}: ${_dateEnd!.toLocal().toString().split(' ')[0]}',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  trailing: Icon(Icons.calendar_today, color: Colors.white),
+                  onTap: () => _selectDate(context, false),
+                ),
+              ),
+            ],
+          ),
         ],
       );
 

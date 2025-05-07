@@ -88,7 +88,6 @@ class _HomeContentState extends State<HomeContent>
             .where((t) => t.open)
             .toList();
 
-        // Si solo hay un viaje
         if (filteredTrips.isEmpty && currentTrip != null) {
           return _buildSingleTripFullScreen(context, currentTrip);
         }
