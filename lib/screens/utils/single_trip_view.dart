@@ -33,7 +33,7 @@ class _SingleTripFullScreenState extends State<SingleTripFullScreen> {
   void initState() {
     super.initState();
 
-    if (AppEnv.production) {
+    if (!AppEnv.production) {
       widget.trip.dateStart = DateTime.now().add(const Duration(seconds: 3));
     }
     _loadConfettiShownFlag();
@@ -64,7 +64,6 @@ class _SingleTripFullScreenState extends State<SingleTripFullScreen> {
         _showConfetti = true;
       });
 
-      // Espera mientras se muestra el confeti
       await Future.delayed(const Duration(seconds: 4));
 
       final prefs = await SharedPreferences.getInstance();
