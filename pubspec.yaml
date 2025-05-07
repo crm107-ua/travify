@@ -48,6 +48,7 @@ dependencies:
   provider: ^6.1.5
   easy_localization: ^3.0.1
   dropdown_search: ^5.0.6
+  lottie: ^2.6.0
   flutter_localizations:
     sdk: flutter
 
@@ -78,6 +79,7 @@ flutter:
     - assets/videos/
     - assets/images/
     - assets/lang/
+    - assets/lotties/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

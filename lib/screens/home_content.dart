@@ -10,6 +10,7 @@ import 'package:travify/models/trip.dart';
 import 'package:travify/notifiers/trip_notifier.dart';
 import 'package:travify/screens/trip_screen.dart';
 import 'package:travify/screens/utils/horizontal_grid.dart';
+import 'package:travify/screens/utils/single_trip_view.dart';
 import 'package:video_player/video_player.dart';
 
 class HomeContent extends StatefulWidget {
@@ -99,122 +100,9 @@ class _HomeContentState extends State<HomeContent>
   }
 
   Widget _buildSingleTripFullScreen(BuildContext context, Trip trip) {
-    final now = DateTime.now();
-    final isUpcoming = trip.dateStart.isAfter(now);
-    final locale = context.locale.toString();
-    final dateFormat = DateFormat('dd MMM', locale);
-
-    String subtitle = '';
-    if (isUpcoming) {
-      subtitle = 'get_ready'.tr();
-    }
-
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        _buildAppBarBackground(trip.image),
-        Container(color: Colors.black.withOpacity(0.1)),
-        BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-          child: Container(color: Colors.black.withOpacity(0.1)),
-        ),
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  subtitle,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Hero(
-                  tag: 'trip-title-${trip.id}',
-                  child: Material(
-                    type: MaterialType.transparency,
-                    child: Text(
-                      trip.title,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        shadows: [
-                          Shadow(
-                            blurRadius: 8,
-                            color: Colors.black45,
-                            offset: Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  trip.countries.map((c) => c.name).join(', '),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    color: Colors.white70,
-                  ),
-                ),
-                const SizedBox(height: 15),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.calendar_today,
-                        size: 16, color: Colors.white70),
-                    const SizedBox(width: 6),
-                    Text(
-                      '${dateFormat.format(trip.dateStart)}'
-                      '${trip.dateEnd != null ? ' - ${dateFormat.format(trip.dateEnd!)}' : ''}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.white70,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 30),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => TripDetailPage(trip: trip),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.arrow_forward_ios, size: 18),
-                  label: Text('see'.tr()),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white.withOpacity(0.2),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 32,
-                      vertical: 14,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    elevation: 8,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+    return SingleTripFullScreen(
+      trip: trip,
+      buildAppBarBackground: _buildAppBarBackground,
     );
   }
 

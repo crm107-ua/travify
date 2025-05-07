@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:travify/constants/images.dart';
 import 'package:travify/constants/videos.dart';
 import 'package:travify/services/settings_service.dart';
 import 'package:video_player/video_player.dart';
@@ -107,7 +108,7 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 16.0, vertical: 84),
                   child: Image.asset(
-                    'assets/images/fondo.png',
+                    AppImages.backgroundImage,
                     width: MediaQuery.of(context).size.width * 0.8,
                     fit: BoxFit.contain,
                   ),
