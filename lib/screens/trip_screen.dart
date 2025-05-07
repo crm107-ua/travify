@@ -27,13 +27,29 @@ class _TripDetailPageState extends State<TripDetailPage>
   late Trip _trip;
   final TransactionService _transactionService = TransactionService();
   double _realBalance = 0.0;
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _trip = widget.trip;
-    _calcRealBalance();
+
+    _initTripData();
+  }
+
+  Future<void> _initTripData() async {
+    await _transactionService.generateAmortizations(_trip);
+    await _transactionService.generateRecurrentIncomes(_trip);
+    final updated = await TripService().getTripById(_trip.id);
+
+    if (updated != null) {
+      setState(() {
+        _trip = updated;
+        _calcRealBalance();
+        _loading = false;
+      });
+    }
   }
 
   Future<void> _reloadTrip() async {
@@ -85,8 +101,6 @@ class _TripDetailPageState extends State<TripDetailPage>
 
   Widget _buildAppBarFlexibleContent() {
     final trip = _trip;
-
-    _transactionService.generarAmortizacionesDeHoy(trip);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -202,7 +216,12 @@ class _TripDetailPageState extends State<TripDetailPage>
   @override
   Widget build(BuildContext context) {
     final trip = _trip;
-
+    if (_loading) {
+      return const Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     return DefaultTabController(
       length: 3,
       child: Scaffold(

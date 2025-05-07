@@ -222,4 +222,17 @@ class TransactionDao {
       whereArgs: [expense.id],
     );
   }
+
+  Future<void> updateIncomeNextRecurrentDate(Income income) async {
+    final db = await TransactionDao()._databaseHelper.database;
+
+    await db.update(
+      'incomes',
+      {
+        'next_recurrent_date': income.nextRecurrentDate?.millisecondsSinceEpoch,
+      },
+      where: 'transaction_id = ?',
+      whereArgs: [income.id],
+    );
+  }
 }
