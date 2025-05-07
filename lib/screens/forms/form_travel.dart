@@ -694,7 +694,7 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
         labelStyle: TextStyle(color: Colors.white),
       ),
       inputFormatters: [
-        LengthLimitingTextInputFormatter(40),
+        LengthLimitingTextInputFormatter(100),
       ],
       validator: (value) {
         if (isRequired && (value == null || value.isEmpty)) {
