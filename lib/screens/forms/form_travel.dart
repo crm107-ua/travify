@@ -665,8 +665,7 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
       ),
       keyboardType: TextInputType.numberWithOptions(decimal: true),
       inputFormatters: [
-        FilteringTextInputFormatter.allow(
-            RegExp(r'^\d*\.?\d{0,2}$')), // Solo permite hasta 2 decimales
+        FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}$')),
       ],
       onChanged: (value) {
         if (!touchedFlag) {
@@ -694,6 +693,9 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
         labelText: label,
         labelStyle: TextStyle(color: Colors.white),
       ),
+      inputFormatters: [
+        LengthLimitingTextInputFormatter(40),
+      ],
       validator: (value) {
         if (isRequired && (value == null || value.isEmpty)) {
           return 'required_field'.tr();

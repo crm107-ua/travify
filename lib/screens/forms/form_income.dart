@@ -120,6 +120,9 @@ class _IncomeFormState extends State<IncomeForm> {
                 TextFormField(
                   controller: _descriptionController,
                   style: const TextStyle(color: Colors.white),
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(50),
+                  ],
                   decoration: InputDecoration(
                     labelText: 'description'.tr(),
                     labelStyle: TextStyle(color: Colors.white70),
@@ -137,6 +140,7 @@ class _IncomeFormState extends State<IncomeForm> {
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
                   inputFormatters: [
+                    LengthLimitingTextInputFormatter(20),
                     FilteringTextInputFormatter.allow(
                         RegExp(r'^\d*\.?\d{0,2}')),
                   ],

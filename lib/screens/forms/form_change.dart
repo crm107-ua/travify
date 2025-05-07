@@ -176,6 +176,7 @@ class _ChangeFormState extends State<ChangeForm> {
             style: const TextStyle(color: Colors.white),
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             inputFormatters: [
+              LengthLimitingTextInputFormatter(5),
               FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
             ],
             decoration: InputDecoration(
