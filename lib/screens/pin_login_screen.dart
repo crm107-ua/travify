@@ -1,9 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:travify/constants/images.dart';
-import 'package:travify/constants/videos.dart';
 import 'package:travify/services/settings_service.dart';
-import 'package:video_player/video_player.dart';
 import 'package:another_flushbar/flushbar.dart';
 import 'main_screen.dart';
 
@@ -17,23 +15,14 @@ class PinLoginScreen extends StatefulWidget {
 
 class _PinLoginScreenState extends State<PinLoginScreen> {
   final TextEditingController _pinController = TextEditingController();
-  late VideoPlayerController _videoController;
 
   @override
   void initState() {
     super.initState();
-    _videoController = VideoPlayerController.asset(AppVideos.lockVideo)
-      ..initialize().then((_) {
-        setState(() {});
-        _videoController.play();
-        _videoController.setLooping(true);
-        _videoController.setVolume(0);
-      });
   }
 
   @override
   void dispose() {
-    _videoController.dispose();
     super.dispose();
   }
 
@@ -81,26 +70,15 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
       child: Scaffold(
         body: Stack(
           children: [
-            // Fondo de video
-            _videoController.value.isInitialized
-                ? SizedBox.expand(
-                    child: FittedBox(
-                      fit: BoxFit.cover,
-                      child: SizedBox(
-                        width: _videoController.value.size.width,
-                        height: _videoController.value.size.height,
-                        child: VideoPlayer(_videoController),
-                      ),
-                    ),
-                  )
-                : Container(color: colorFondo),
-
-            // Capa oscura para oscurecer el fondo
-            Container(
-              color: Colors.black.withOpacity(0.4), // Ajusta opacidad aquí
+            SizedBox.expand(
+              child: Image.asset(
+                AppImages.homeImage,
+                fit: BoxFit.cover,
+              ),
             ),
-
-            // Imagen superpuesta centrada
+            Container(
+              color: Colors.black.withOpacity(0.4),
+            ),
             Positioned.fill(
               child: Align(
                 alignment: Alignment.topCenter,
@@ -115,8 +93,6 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
                 ),
               ),
             ),
-
-            // Contenido interactivo centrado
             Center(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16),
