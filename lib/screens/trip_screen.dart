@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -58,11 +57,20 @@ class _TripDetailPageState extends State<TripDetailPage>
   }
 
   void _calcRealBalance() {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
     final totalExpenses = _trip.transactions
         .where((transaction) => transaction.type == TransactionType.expense)
         .whereType<Expense>()
         .fold(0.0, (sum, expense) {
       if (expense.isAmortization == true) {
+        final start = expense.startDateAmortization ?? _trip.dateStart;
+        final startDate = DateTime(start.year, start.month, start.day);
+
+        if (startDate.isAfter(today)) {
+          return sum;
+        }
         return sum + expense.amortization!;
       } else {
         return sum + expense.amount;
