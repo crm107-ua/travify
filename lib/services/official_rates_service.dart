@@ -55,6 +55,7 @@ class OfficialRatesService {
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
+        print(response.body);
         final data = json.decode(response.body);
         final Map<String, dynamic> allRates = data['conversion_rates'];
 

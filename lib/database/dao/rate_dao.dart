@@ -3,7 +3,6 @@ import 'package:sqflite/sqflite.dart' as sdb;
 import 'package:travify/database/dao/currency_dao.dart';
 import 'package:travify/database/helpers/database_helper.dart';
 import 'package:travify/models/currency.dart';
-import 'package:travify/models/income.dart';
 import 'package:travify/models/rate.dart';
 
 class RateDao {
