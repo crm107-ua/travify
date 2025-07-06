@@ -465,6 +465,11 @@ class _CreateOrEditTravelWizardState extends State<CreateOrEditTravelWizard> {
               currentStep: _currentStep,
               onStepContinue: _onStepContinue,
               onStepCancel: _onStepCancel,
+              onStepTapped: (int step) {
+                setState(() {
+                  _currentStep = step;
+                });
+              },
               steps: [
                 Step(
                     title: Text('information'.tr(),

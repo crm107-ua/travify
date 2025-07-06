@@ -386,7 +386,7 @@ class _HomeContentState extends State<HomeContent>
               end: Alignment.bottomCenter,
               colors: [
                 Colors.transparent,
-                Colors.black12,
+                Colors.transparent,
                 Colors.black87,
               ],
             ),

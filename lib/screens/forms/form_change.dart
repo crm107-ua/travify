@@ -294,7 +294,9 @@ class _ChangeFormState extends State<ChangeForm> {
     final bool allFieldsFilled = fromValue.isNotEmpty &&
         fromCode.isNotEmpty &&
         toCode.isNotEmpty &&
-        commissionValue.isNotEmpty;
+        commissionValue.isNotEmpty &&
+        fromValue != '0' &&
+        fromValue != '1';
 
     if (!allFieldsFilled) {
       return Text(

@@ -352,15 +352,26 @@ class ChangeService {
       return {'error': 'not_valid_path'.tr()};
     }
 
-    rutas.sort((a, b) => b.$1.compareTo(a.$1));
-    final top3 = rutas.take(3).toList();
+    final Set<String> montosVistos = {};
+    final List<(double, List<String>)> rutasUnicas = [];
+
+    for (final ruta in rutas) {
+      final montoKey = ruta.$1.toStringAsFixed(2);
+      if (!montosVistos.contains(montoKey)) {
+        montosVistos.add(montoKey);
+        rutasUnicas.add(ruta);
+      }
+    }
+
+    rutasUnicas.sort((a, b) => b.$1.compareTo(a.$1));
+    final top3 = rutasUnicas.take(3).toList();
 
     double? montoDirecto;
     if (grafo[origenUsuario]?.containsKey(destinoUsuario) ?? false) {
       montoDirecto = amount * grafo[origenUsuario]![destinoUsuario]!;
     }
 
-    final mejorRuta = rutas.first;
+    final mejorRuta = rutasUnicas.first;
 
     return {
       'montoInicial': amount,
