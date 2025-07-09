@@ -38,41 +38,41 @@ del estado financiero de cada viaje.
 
 ## Instalación y ejecución
 
-Sigue los pasos a continuación para instalar y ejecutar Travify en un entorno local:
+Se deben seguir los pasos a continuación para instalar y ejecutar Travify en un entorno local:
 
-### 1. Clona el repositorio
+### 1. Clonar el repositorio
 
 ```bash
 git clone https://github.com/crm107-ua/travify.git
 ```
 
-### 2. Accede al directorio del proyecto
+### 2. Acceder al directorio del proyecto
 
 ```bash
 cd travify
 ```
 
-### 3. Asegúrate de tener Flutter instalado
+### 3. Tener Flutter instalado
 
-Si no tienes Flutter instalado, puedes seguir la [guía oficial de instalación](https://docs.flutter.dev/get-started/install).
+En el caso de no tener Flutter instalado, se puede seguir la [guía oficial de instalación](https://docs.flutter.dev/get-started/install).
 
-### 4. Verifica tu entorno de Flutter
+### 4. Verificación del entorno de Flutter
 
 ```bash
 flutter doctor
 ```
 
-Asegúrate de que no haya errores críticos antes de continuar.
+Comprobar la existencia de errores críticos antes de continuar.
 
-### 5. Instala las dependencias
+### 5. Instalación de dependencias
 
 ```bash
 flutter pub get
 ```
 
-### 6. Ejecuta la aplicación
+### 6. Ejecución de la aplicación
 
-Puedes ejecutar Travify en un emulador o dispositivo físico:
+Ejecutar Travify en un emulador o dispositivo físico:
 
 ```bash
 flutter run
