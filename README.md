@@ -14,9 +14,9 @@ del estado financiero de cada viaje.
 ## Funcionalidades principales
 
 - Registro y gestión de gastos en diferentes divisas.
-- Conversión automática entre monedas.
-- Visualización de estadísticas y gráficas de gasto.
-- Soporte multilingüe con traducciones fácilmente ampliables.
+- Conversión automática y optimizada de monedas.
+- Visualización de datos financieros mediante estadísticas y gráficas.
+- Soporte multilingüe en 10 idiomas.
 - Funcionamiento offline con almacenamiento local.
 
 ---
