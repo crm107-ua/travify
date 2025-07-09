@@ -21,7 +21,7 @@ del estado financiero de cada viaje.
 
 ---
 
-## 📱 Capturas de pantalla
+## Capturas de pantalla
 
 <p float="left">
   <img src="https://is1-ssl.mzstatic.com/image/thumb/PurpleSource221/v4/7c/ad/52/7cad52af-7d2f-5e97-4092-3544494a34f0/1_ger_ready.png/400x800bb.png" width="200" />
@@ -36,7 +36,7 @@ del estado financiero de cada viaje.
 
 ---
 
-## 🚀 Instalación y ejecución
+## Instalación y ejecución
 
 Sigue los pasos a continuación para instalar y ejecutar Travify en un entorno local:
 
@@ -80,24 +80,14 @@ flutter run
 
 ---
 
-## 🌐 Traducciones
+## Traducciones
 
-La aplicación cuenta con soporte para múltiples idiomas. Las traducciones existentes se encuentran en la carpeta `assets/translations/`. Se pueden añadir nuevos idiomas fácilmente siguiendo el formato proporcionado.
+La aplicación cuenta con soporte para múltiples idiomas. 
 
----
-
-## 🧩 Dependencias principales
-
-- `flutter_bloc`: Gestión de estados reactiva.
-- `sqflite`: Base de datos local SQLite.
-- `easy_localization`: Internacionalización y traducción.
-- `fl_chart`: Gráficas y estadísticas.
-- `path_provider`: Acceso a rutas de almacenamiento.
-
-Para ver todas las dependencias, revisa el archivo [`pubspec.yaml`](pubspec.yaml).
+Las traducciones existentes se encuentran en la carpeta `assets/translations/`. Se pueden añadir nuevos idiomas fácilmente siguiendo el formato proporcionado.
 
 ---
 
-## 👨‍🎓 Autor
+## Autor
 
 Este proyecto ha sido desarrollado por **Carlos Robles** como parte del Trabajo de Fin de Grado del Grado en Ingeniería Informática en la Universidad de Alicante.
